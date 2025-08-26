@@ -131,15 +131,15 @@ All colors MUST be HSL.
   }
   
   .category-card {
-    @apply bg-card border border-border rounded-xl p-6 text-center card-hover cursor-pointer group;
+    @apply bg-card border border-border rounded-xl p-6 text-center card-hover cursor-pointer;
   }
   
   .category-icon {
-    @apply w-16 h-16 mx-auto mb-4 transition-colors duration-300 group-hover:text-accent;
+    @apply w-16 h-16 mx-auto mb-4 transition-colors duration-300;
   }
   
   .category-title {
-    @apply text-lg font-semibold text-foreground transition-colors duration-300 group-hover:text-accent;
+    @apply text-lg font-semibold text-foreground transition-colors duration-300;
   }
   
   .search-bar {

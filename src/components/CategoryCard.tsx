@@ -11,14 +11,14 @@ interface CategoryCardProps {
 const CategoryCard = ({ title, description, icon: Icon, onClick, articleCount }: CategoryCardProps) => {
   return (
     <div 
-      className="category-card"
+      className="category-card group"
       onClick={onClick}
     >
-      <div className="category-icon">
+      <div className="category-icon group-hover:text-accent">
         <Icon className="w-full h-full" />
       </div>
       
-      <h3 className="category-title mb-2">
+      <h3 className="category-title group-hover:text-accent mb-2">
         {title}
       </h3>
       
