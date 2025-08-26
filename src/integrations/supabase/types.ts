@@ -14,7 +14,369 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      analytics_events: {
+        Row: {
+          data: Json
+          event_type: string
+          id: string
+          timestamp: string
+        }
+        Insert: {
+          data?: Json
+          event_type: string
+          id?: string
+          timestamp?: string
+        }
+        Update: {
+          data?: Json
+          event_type?: string
+          id?: string
+          timestamp?: string
+        }
+        Relationships: []
+      }
+      article_tags: {
+        Row: {
+          article_id: string
+          tag_id: string
+        }
+        Insert: {
+          article_id: string
+          tag_id: string
+        }
+        Update: {
+          article_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_tags_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "article_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      articles: {
+        Row: {
+          author: string
+          canonical_url: string | null
+          category_id: string
+          content: string
+          first_paragraph: string | null
+          id: string
+          meta_description: string | null
+          meta_title: string | null
+          noindex: boolean
+          og_description: string | null
+          og_image: string | null
+          og_title: string | null
+          published_at: string | null
+          reading_time_minutes: number
+          slug: string
+          status: string
+          title: string
+          type: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          author: string
+          canonical_url?: string | null
+          category_id: string
+          content: string
+          first_paragraph?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          noindex?: boolean
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          published_at?: string | null
+          reading_time_minutes?: number
+          slug: string
+          status?: string
+          title: string
+          type?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          author?: string
+          canonical_url?: string | null
+          category_id?: string
+          content?: string
+          first_paragraph?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          noindex?: boolean
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          published_at?: string | null
+          reading_time_minutes?: number
+          slug?: string
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "articles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      categories: {
+        Row: {
+          created_at: string
+          description: string
+          icon_url: string | null
+          id: string
+          is_active: boolean
+          name: string
+          position: number
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          icon_url?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          position?: number
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          icon_url?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          position?: number
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      feedback: {
+        Row: {
+          article_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          is_helpful: boolean
+          user_ip: string | null
+        }
+        Insert: {
+          article_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          is_helpful: boolean
+          user_ip?: string | null
+        }
+        Update: {
+          article_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          is_helpful?: boolean
+          user_ip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media: {
+        Row: {
+          alt_text: string
+          created_at: string
+          file_size: number
+          file_url: string
+          height: number
+          id: string
+          mime_type: string
+          width: number
+        }
+        Insert: {
+          alt_text: string
+          created_at?: string
+          file_size: number
+          file_url: string
+          height: number
+          id?: string
+          mime_type: string
+          width: number
+        }
+        Update: {
+          alt_text?: string
+          created_at?: string
+          file_size?: number
+          file_url?: string
+          height?: number
+          id?: string
+          mime_type?: string
+          width?: number
+        }
+        Relationships: []
+      }
+      redirects: {
+        Row: {
+          created_at: string
+          from_path: string
+          id: string
+          is_active: boolean
+          to_path: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          from_path: string
+          id?: string
+          is_active?: boolean
+          to_path: string
+          type?: string
+        }
+        Update: {
+          created_at?: string
+          from_path?: string
+          id?: string
+          is_active?: boolean
+          to_path?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          key: string
+          type: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          key: string
+          type?: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          key?: string
+          type?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
+      slug_history: {
+        Row: {
+          article_id: string
+          changed_at: string
+          id: string
+          new_slug: string
+          old_slug: string
+          redirect_created: boolean
+        }
+        Insert: {
+          article_id: string
+          changed_at?: string
+          id?: string
+          new_slug: string
+          old_slug: string
+          redirect_created?: boolean
+        }
+        Update: {
+          article_id?: string
+          changed_at?: string
+          id?: string
+          new_slug?: string
+          old_slug?: string
+          redirect_created?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "slug_history_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tags: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          last_login: string | null
+          name: string
+          role: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          last_login?: string | null
+          name: string
+          role?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          last_login?: string | null
+          name?: string
+          role?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
