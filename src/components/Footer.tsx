@@ -14,9 +14,10 @@ const Footer = () => {
               aria-label="modoPAG - Central de Ajuda"
             >
               <img 
-                src="/modopag-logo-yellow.webp"
+                src="/lovable-uploads/47a12c64-faaa-4bba-95d6-25d38d68ad02.png"
                 alt="modoPAG - Central de Ajuda"
-                title="Ir para a página inicial"
+                title="modoPAG - Central de Ajuda"
+                aria-label="modoPAG - Central de Ajuda"
                 className="h-8 w-auto"
                 width="280"
                 height="60"
