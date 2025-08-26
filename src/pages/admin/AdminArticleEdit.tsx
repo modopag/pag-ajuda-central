@@ -92,13 +92,19 @@ export default function AdminArticleEdit() {
           adapter.getTags()
         ]);
         
+        console.log('AdminArticleEdit - loaded initial data:', { categoriesData, tagsData });
+        
         setCategories(categoriesData);
         setTags(tagsData);
 
         // Se estiver editando, carregar o artigo
         if (isEditing) {
+          console.log('AdminArticleEdit - loading article for editing:', id);
           const articleData = await adapter.getArticleById(id!);
+          
           if (articleData) {
+            console.log('AdminArticleEdit - loaded article data:', articleData);
+            
             // Garantir que o conteúdo nunca seja undefined
             const safeArticleData = {
               ...articleData,
@@ -110,21 +116,27 @@ export default function AdminArticleEdit() {
               og_description: articleData.og_description || '',
               og_image: articleData.og_image || ''
             };
+            
+            console.log('AdminArticleEdit - setting safe article data:', safeArticleData);
             setArticle(safeArticleData);
             
             // Carregar tags do artigo
             const articleTags = await adapter.getArticleTags(id!);
+            console.log('AdminArticleEdit - loaded article tags:', articleTags);
             setSelectedTags(articleTags.map(tag => tag.id));
           } else {
+            console.error('AdminArticleEdit - article not found:', id);
             toast({
               title: "Artigo não encontrado",
               variant: "destructive"
             });
             navigate('/admin/articles');
           }
+        } else {
+          console.log('AdminArticleEdit - creating new article, using default state');
         }
       } catch (error) {
-        console.error('Erro ao carregar dados:', error);
+        console.error('AdminArticleEdit - error loading data:', error);
         toast({
           title: "Erro ao carregar dados",
           variant: "destructive"
@@ -151,7 +163,12 @@ export default function AdminArticleEdit() {
   }, [readingTime]);
 
   const handleInputChange = (field: keyof Article, value: any) => {
-    setArticle(prev => ({ ...prev, [field]: value }));
+    console.log('AdminArticleEdit - handleInputChange:', { field, value, type: typeof value });
+    setArticle(prev => {
+      const newState = { ...prev, [field]: value };
+      console.log('AdminArticleEdit - new article state:', newState);
+      return newState;
+    });
   };
 
   const handleImageUpload = async (file: File, altText: string): Promise<string> => {

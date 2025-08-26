@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useEffect } from 'react';
+import { useCallback, useMemo, useRef, useEffect, useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { cn } from '@/lib/utils';
@@ -19,24 +19,52 @@ export const RichTextEditor = ({
   onImageUpload
 }: RichTextEditorProps) => {
   const quillRef = useRef<ReactQuill>(null);
+  const [isReady, setIsReady] = useState(false);
   
-  // Garante que o valor nunca seja undefined
+  // Garante que o valor nunca seja undefined e seja uma string válida
   const safeValue = useMemo(() => {
+    console.log('RichTextEditor - processing value:', { value, type: typeof value });
+    
     if (value === undefined || value === null) {
+      console.log('RichTextEditor - value is null/undefined, using empty string');
       return '';
     }
+    
+    if (typeof value !== 'string') {
+      console.log('RichTextEditor - value is not string, converting:', value);
+      return String(value);
+    }
+    
     return value;
   }, [value]);
 
+  // Log quando o componente monta
+  useEffect(() => {
+    console.log('RichTextEditor - component mounted with value:', safeValue);
+    
+    // Pequeno delay para garantir que o DOM está pronto
+    const timer = setTimeout(() => {
+      setIsReady(true);
+      console.log('RichTextEditor - marked as ready');
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   // Handler para mudanças com verificação de segurança
   const handleChange = useCallback((content: string) => {
-    // Só chama onChange se o conteúdo realmente mudou
+    console.log('RichTextEditor - handleChange called:', { content, safeValue });
+    
+    // Verificar se o conteúdo realmente mudou
     if (content !== safeValue) {
-      onChange(content);
+      console.log('RichTextEditor - content changed, calling onChange');
+      onChange(content || '');
     }
   }, [onChange, safeValue]);
   
   const imageHandler = useCallback(() => {
+    console.log('RichTextEditor - imageHandler called');
+    
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
     input.setAttribute('accept', 'image/*');
@@ -46,14 +74,19 @@ export const RichTextEditor = ({
       const file = input.files?.[0];
       if (file && onImageUpload) {
         try {
+          console.log('RichTextEditor - uploading image:', file.name);
           const imageUrl = await onImageUpload(file, `Imagem inserida em ${new Date().toLocaleString()}`);
           const quill = quillRef.current?.getEditor();
+          
           if (quill) {
+            console.log('RichTextEditor - inserting image into editor');
             const range = quill.getSelection();
             quill.insertEmbed(range?.index || 0, 'image', imageUrl);
+          } else {
+            console.error('RichTextEditor - quill editor not available');
           }
         } catch (error) {
-          console.error('Erro ao fazer upload da imagem:', error);
+          console.error('RichTextEditor - error uploading image:', error);
         }
       }
     };
@@ -85,6 +118,18 @@ export const RichTextEditor = ({
     'list', 'bullet', 'indent',
     'link', 'image', 'blockquote', 'code-block', 'align'
   ];
+
+  // Não renderizar até estar pronto
+  if (!isReady) {
+    console.log('RichTextEditor - not ready, showing loading');
+    return (
+      <div className={cn("prose-editor flex items-center justify-center h-96 border rounded-md", className)}>
+        <div className="text-muted-foreground">Carregando editor...</div>
+      </div>
+    );
+  }
+
+  console.log('RichTextEditor - rendering ReactQuill with:', { safeValue, isReady });
 
   return (
     <>
@@ -122,6 +167,8 @@ export const RichTextEditor = ({
           formats={formats}
           className="h-96"
           bounds=".prose-editor"
+          onFocus={() => console.log('RichTextEditor - focused')}
+          onBlur={() => console.log('RichTextEditor - blurred')}
         />
       </div>
     </>
