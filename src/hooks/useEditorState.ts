@@ -16,6 +16,30 @@ interface UseEditorStateReturn {
 }
 
 /**
+ * Cria hash UTF-8 seguro para comparação de conteúdo
+ */
+const createContentHash = (content: string): string => {
+  try {
+    // Normalizar espaços em branco e criar hash simples
+    const normalized = content.replace(/\s+/g, ' ').trim();
+    
+    // Usar hash simples baseado em código de caractere
+    let hash = 0;
+    for (let i = 0; i < normalized.length; i++) {
+      const char = normalized.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Converter para 32bit integer
+    }
+    
+    return hash.toString(36);
+  } catch (error) {
+    console.warn('Erro ao criar hash de conteúdo:', error);
+    // Fallback para timestamp + comprimento
+    return `${Date.now()}_${content.length}`;
+  }
+};
+
+/**
  * FASE 2: Hook estável com hash-based dirty detection
  * FASE 4: Anti-reset com contentRef único e lock de escrita
  */
@@ -30,7 +54,7 @@ export const useEditorState = ({
   
   // Hash do conteúdo inicial para detecção mais precisa
   const initialHashRef = useRef<string>(
-    initialContent ? btoa(initialContent.replace(/\s+/g, ' ').trim()) : ''
+    createContentHash(initialContent || '')
   );
 
   const setContent = useCallback((content: string) => {
@@ -61,7 +85,7 @@ export const useEditorState = ({
       contentRef.current = content;
       
       // Verificar se mudou em relação ao conteúdo inicial usando hash
-      const currentHash = content ? btoa(content.replace(/\s+/g, ' ').trim()) : '';
+      const currentHash = createContentHash(content || '');
       const reallyChanged = currentHash !== initialHashRef.current;
       
       if (reallyChanged && !dirtyRef.current) {
@@ -83,7 +107,7 @@ export const useEditorState = ({
     
     // Atualizar hash inicial para o conteúdo atual
     const currentContent = contentRef.current || '';
-    initialHashRef.current = currentContent ? btoa(currentContent.replace(/\s+/g, ' ').trim()) : '';
+    initialHashRef.current = createContentHash(currentContent);
     
     dirtyRef.current = false;
     setIsDirty(false);
@@ -96,7 +120,7 @@ export const useEditorState = ({
     writeLockRef.current = true;
     
     contentRef.current = initialContent || '';
-    initialHashRef.current = initialContent ? btoa(initialContent.replace(/\s+/g, ' ').trim()) : '';
+    initialHashRef.current = createContentHash(initialContent || '');
     dirtyRef.current = false;
     setIsDirty(false);
     onContentChange(initialContent || '');
