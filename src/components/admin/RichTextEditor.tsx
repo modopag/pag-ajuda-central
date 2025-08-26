@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef, useEffect } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { cn } from '@/lib/utils';
@@ -18,6 +18,23 @@ export const RichTextEditor = ({
   className,
   onImageUpload
 }: RichTextEditorProps) => {
+  const quillRef = useRef<ReactQuill>(null);
+  
+  // Garante que o valor nunca seja undefined
+  const safeValue = useMemo(() => {
+    if (value === undefined || value === null) {
+      return '';
+    }
+    return value;
+  }, [value]);
+
+  // Handler para mudanças com verificação de segurança
+  const handleChange = useCallback((content: string) => {
+    // Só chama onChange se o conteúdo realmente mudou
+    if (content !== safeValue) {
+      onChange(content);
+    }
+  }, [onChange, safeValue]);
   
   const imageHandler = useCallback(() => {
     const input = document.createElement('input');
@@ -30,7 +47,7 @@ export const RichTextEditor = ({
       if (file && onImageUpload) {
         try {
           const imageUrl = await onImageUpload(file, `Imagem inserida em ${new Date().toLocaleString()}`);
-          const quill = (window as any).quillInstance;
+          const quill = quillRef.current?.getEditor();
           if (quill) {
             const range = quill.getSelection();
             quill.insertEmbed(range?.index || 0, 'image', imageUrl);
@@ -96,13 +113,15 @@ export const RichTextEditor = ({
       }} />
       <div className={cn("prose-editor", className)}>
         <ReactQuill
+          ref={quillRef}
           theme="snow"
-          value={value}
-          onChange={onChange}
+          value={safeValue}
+          onChange={handleChange}
           placeholder={placeholder}
           modules={modules}
           formats={formats}
           className="h-96"
+          bounds=".prose-editor"
         />
       </div>
     </>

@@ -29,7 +29,7 @@ export default function AdminArticleEdit() {
   const [article, setArticle] = useState<Partial<Article>>({
     title: '',
     slug: '',
-    content: '',
+    content: '', // Sempre inicializar como string vazia
     status: 'draft',
     category_id: '',
     author: 'Admin',
@@ -99,7 +99,18 @@ export default function AdminArticleEdit() {
         if (isEditing) {
           const articleData = await adapter.getArticleById(id!);
           if (articleData) {
-            setArticle(articleData);
+            // Garantir que o conteúdo nunca seja undefined
+            const safeArticleData = {
+              ...articleData,
+              content: articleData.content || '',
+              meta_title: articleData.meta_title || '',
+              meta_description: articleData.meta_description || '',
+              canonical_url: articleData.canonical_url || '',
+              og_title: articleData.og_title || '',
+              og_description: articleData.og_description || '',
+              og_image: articleData.og_image || ''
+            };
+            setArticle(safeArticleData);
             
             // Carregar tags do artigo
             const articleTags = await adapter.getArticleTags(id!);
@@ -449,14 +460,14 @@ export default function AdminArticleEdit() {
             </CardContent>
           </Card>
 
-          <Card>
+            <Card>
             <CardHeader>
               <CardTitle>Conteúdo do Artigo</CardTitle>
             </CardHeader>
             <CardContent>
               <RichTextEditor
                 value={article.content || ''}
-                onChange={(value) => handleInputChange('content', value)}
+                onChange={(value) => handleInputChange('content', value || '')}
                 onImageUpload={handleImageUpload}
               />
             </CardContent>
