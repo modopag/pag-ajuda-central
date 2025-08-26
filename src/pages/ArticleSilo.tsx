@@ -6,7 +6,8 @@ import Footer from '@/components/Footer';
 import { SkipLink } from '@/components/SkipLink';
 import { SEOHelmet } from '@/components/SEO/SEOHelmet';
 import ArticleFeedback from '@/components/ArticleFeedback';
-import RelatedArticles from '@/components/RelatedArticles';
+import { SmartRelatedArticles } from '@/components/SmartRelatedArticles';
+import { TableOfContents } from '@/components/TableOfContents';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -248,139 +249,170 @@ export default function ArticleSilo() {
       <Header />
       <SkipLink />
 
-      <main id="main-content" className="relative z-10 container mx-auto px-4 py-8 max-w-4xl">
-        {/* Breadcrumbs */}
-        <nav aria-label="Breadcrumb" className="mb-8">
-          <ol className="flex items-center space-x-1 md:space-x-2 text-sm text-muted-foreground flex-wrap">
-            <li>
-              <Link to="/" className="hover:text-primary transition-colors flex items-center gap-1">
-                <ChevronRight className="w-3 h-3 rotate-180" />
-                <span className="hidden sm:inline">Central de Ajuda</span>
-                <span className="sm:hidden">Início</span>
-              </Link>
-            </li>
-            <ChevronRight className="w-3 h-3 md:w-4 md:h-4" />
-            <li>
-              <Link 
-                to={generateCategoryUrl(categorySlug)} 
-                className="hover:text-primary transition-colors truncate max-w-[150px] sm:max-w-none"
-                title={category.name}
-              >
-                {category.name}
-              </Link>
-            </li>
-            <ChevronRight className="w-3 h-3 md:w-4 md:h-4" />
-            <li className="text-foreground font-medium truncate max-w-[200px] sm:max-w-none" aria-current="page" title={article.title}>
-              {article.title}
-            </li>
-          </ol>
-        </nav>
+      <main id="main-content" className="relative z-10 container mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="lg:grid lg:grid-cols-12 lg:gap-8">
+            {/* Main Content */}
+            <div className="lg:col-span-8 xl:col-span-7">
+              {/* Breadcrumbs */}
+              <nav aria-label="Breadcrumb" className="mb-8">
+                <ol className="flex items-center space-x-1 md:space-x-2 text-sm text-muted-foreground flex-wrap">
+                  <li>
+                    <Link to="/" className="hover:text-primary transition-colors flex items-center gap-1">
+                      <ChevronRight className="w-3 h-3 rotate-180" />
+                      <span className="hidden sm:inline">Central de Ajuda</span>
+                      <span className="sm:hidden">Início</span>
+                    </Link>
+                  </li>
+                  <ChevronRight className="w-3 h-3 md:w-4 md:h-4" />
+                  <li>
+                    <Link 
+                      to={generateCategoryUrl(categorySlug)} 
+                      className="hover:text-primary transition-colors truncate max-w-[150px] sm:max-w-none"
+                      title={category.name}
+                    >
+                      {category.name}
+                    </Link>
+                  </li>
+                  <ChevronRight className="w-3 h-3 md:w-4 md:h-4" />
+                  <li className="text-foreground font-medium truncate max-w-[200px] sm:max-w-none" aria-current="page" title={article.title}>
+                    {article.title}
+                  </li>
+                </ol>
+              </nav>
 
-        {/* Article Header */}
-        <header className="mb-8">
-          {tags.length > 0 && (
-            <div className="flex flex-wrap items-center gap-2 mb-4">
-              {tags.map((tag) => (
-                <Badge key={tag.id} variant="outline" className="text-xs hover:bg-primary/5 transition-colors">
-                  <TagIcon className="w-3 h-3 mr-1" />
-                  {tag.name}
-                </Badge>
-              ))}
-            </div>
-          )}
+              {/* Table of Contents - Mobile */}
+              <TableOfContents mobileCollapsible={true} />
 
-          <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            {article.title}
-          </h1>
+              {/* Article Header */}
+              <header className="mb-8">
+                {tags.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-2 mb-4">
+                    {tags.map((tag) => (
+                      <Badge key={tag.id} variant="outline" className="text-xs hover:bg-primary/5 transition-colors">
+                        <TagIcon className="w-3 h-3 mr-1" />
+                        {tag.name}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
 
-          {article.meta_description && (
-            <p className="text-xl text-muted-foreground mb-8 max-w-3xl leading-relaxed">
-              {article.meta_description}
-            </p>
-          )}
+                <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  {article.title}
+                </h1>
 
-          <div className="flex flex-wrap items-center gap-4 md:gap-6 text-sm text-muted-foreground mb-6">
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-primary" />
-              <span>Atualizado em {new Date(article.updated_at).toLocaleDateString('pt-BR')}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Eye className="w-4 h-4 text-accent" />
-              <span>{(article.view_count || 0).toLocaleString()} visualizações</span>
-            </div>
-            {(article.reading_time_minutes || 5) > 0 && (
-              <div className="flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-primary" />
-                <span>{article.reading_time_minutes || 5} min de leitura</span>
+                {article.meta_description && (
+                  <p className="text-xl text-muted-foreground mb-8 max-w-3xl leading-relaxed">
+                    {article.meta_description}
+                  </p>
+                )}
+
+                <div className="flex flex-wrap items-center gap-4 md:gap-6 text-sm text-muted-foreground mb-6">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-primary" />
+                    <span>Atualizado em {new Date(article.updated_at).toLocaleDateString('pt-BR')}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Eye className="w-4 h-4 text-accent" />
+                    <span>{(article.view_count || 0).toLocaleString()} visualizações</span>
+                  </div>
+                  {(article.reading_time_minutes || 5) > 0 && (
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="w-4 h-4 text-primary" />
+                      <span>{article.reading_time_minutes || 5} min de leitura</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4 text-primary" />
+                    <span>Equipe modoPAG</span>
+                  </div>
+                </div>
+
+                {/* Article Actions */}
+                <div className="flex flex-wrap items-center gap-3 mb-8">
+                  <Button 
+                    size="sm" 
+                    variant={liked ? "default" : "outline"} 
+                    className={liked ? "bg-primary text-primary-foreground" : "hover:bg-primary/5 hover:border-primary/20"}
+                    onClick={handleLike}
+                    disabled={liked}
+                  >
+                    <Heart className={`w-4 h-4 mr-2 ${liked ? "fill-current" : ""}`} />
+                    {liked ? "Curtido" : "Curtir"}
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="hover:bg-accent/5 hover:border-accent/20"
+                    onClick={handleShare}
+                  >
+                    <Share2 className="w-4 h-4 mr-2" />
+                    Compartilhar
+                  </Button>
+                </div>
+              </header>
+
+              {/* Article Content */}
+              <Card className="mb-8 border-0 shadow-xl bg-gradient-to-br from-card via-card to-card/80">
+                <CardContent className="p-8 md:p-12">
+                  <div 
+                    className="prose prose-lg max-w-none article-content lazy-images"
+                    dangerouslySetInnerHTML={{ __html: article.content }}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Article Footer */}
+              <div className="space-y-12">
+                {/* Tags */}
+                {tags.length > 0 && (
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-medium text-muted-foreground">Tags:</span>
+                    {tags.map((tag) => (
+                      <Badge key={tag.id} variant="outline" className="hover:bg-primary/10 transition-colors">
+                        {tag.name}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+
+                {/* Feedback */}
+                <ArticleFeedback articleId={article.id.toString()} />
+
+                {/* Admin Comments - Only visible to authenticated admins */}
+                {AuthService.isAuthenticated() && AuthService.getCurrentUser()?.role === 'admin' && (
+                  <AdminComments articleId={article.id.toString()} />
+                )}
               </div>
-            )}
-            <div className="flex items-center gap-2">
-              <User className="w-4 h-4 text-primary" />
-              <span>Equipe modoPAG</span>
+            </div>
+
+            {/* Sidebar - Desktop Only */}
+            <div className="hidden lg:block lg:col-span-4 xl:col-span-5">
+              <div className="space-y-6">
+                {/* Table of Contents */}
+                <TableOfContents className="xl:pr-8" />
+                
+                {/* Smart Related Articles */}
+                <SmartRelatedArticles 
+                  currentArticleId={article.id.toString()}
+                  categoryId={category.id.toString()}
+                  tags={tags}
+                  sidebarMode={true}
+                  className="xl:pr-8"
+                />
+              </div>
             </div>
           </div>
 
-          {/* Article Actions */}
-          <div className="flex flex-wrap items-center gap-3 mb-8">
-            <Button 
-              size="sm" 
-              variant={liked ? "default" : "outline"} 
-              className={liked ? "bg-primary text-primary-foreground" : "hover:bg-primary/5 hover:border-primary/20"}
-              onClick={handleLike}
-              disabled={liked}
-            >
-              <Heart className={`w-4 h-4 mr-2 ${liked ? "fill-current" : ""}`} />
-              {liked ? "Curtido" : "Curtir"}
-            </Button>
-            <Button 
-              size="sm" 
-              variant="outline" 
-              className="hover:bg-accent/5 hover:border-accent/20"
-              onClick={handleShare}
-            >
-              <Share2 className="w-4 h-4 mr-2" />
-              Compartilhar
-            </Button>
-          </div>
-        </header>
-
-        {/* Article Content */}
-        <Card className="mb-8 border-0 shadow-xl bg-gradient-to-br from-card via-card to-card/80">
-          <CardContent className="p-8 md:p-12">
-            <div 
-              className="prose prose-lg max-w-none article-content lazy-images"
-              dangerouslySetInnerHTML={{ __html: article.content }}
+          {/* Smart Related Articles - Mobile/Tablet */}
+          <div className="lg:hidden mt-12">
+            <SmartRelatedArticles 
+              currentArticleId={article.id.toString()}
+              categoryId={category.id.toString()}
+              tags={tags}
+              maxArticles={6}
             />
-          </CardContent>
-        </Card>
-
-        {/* Article Footer */}
-        <div className="space-y-12">
-          {/* Tags */}
-          {tags.length > 0 && (
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm font-medium text-muted-foreground">Tags:</span>
-              {tags.map((tag) => (
-                <Badge key={tag.id} variant="outline" className="hover:bg-primary/10 transition-colors">
-                  {tag.name}
-                </Badge>
-              ))}
-            </div>
-          )}
-
-          {/* Feedback */}
-          <ArticleFeedback articleId={article.id.toString()} />
-
-          {/* Admin Comments - Only visible to authenticated admins */}
-          {AuthService.isAuthenticated() && AuthService.getCurrentUser()?.role === 'admin' && (
-            <AdminComments articleId={article.id.toString()} />
-          )}
-
-          {/* Related Articles */}
-          <RelatedArticles 
-            currentArticleId={article.id.toString()}
-            categoryId={category.id.toString()}
-          />
+          </div>
         </div>
       </main>
 
