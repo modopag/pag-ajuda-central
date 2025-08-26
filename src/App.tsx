@@ -10,6 +10,8 @@ import { CookiePreferencesModal } from '@/components/CookiePreferencesModal';
 import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 import { GA4Debug } from '@/components/GA4Debug';
 import { PerformanceMonitor } from '@/components/performance/PerformanceMonitor';
+import { QAChecklist } from '@/components/qa/QAChecklist';
+import { QASummary } from '@/components/qa/QASummary';
 import { RedirectHandler } from '@/components/RedirectHandler';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useSettings } from '@/hooks/useSettings';
@@ -52,7 +54,12 @@ const AppContent = () => {
   const { seo } = useSettings();
   
   return (
-    <BrowserRouter>
+    <BrowserRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true
+      }}
+    >
       <RedirectHandler />
       <GoogleAnalytics measurementId={seo.google_analytics_id} />
       
@@ -108,6 +115,8 @@ const App = () => (
           <CookiePreferencesModal />
           <GA4Debug />
           <PerformanceMonitor />
+          <QAChecklist />
+          <QASummary />
         </ErrorBoundary>
       </TooltipProvider>
     </HelmetProvider>
