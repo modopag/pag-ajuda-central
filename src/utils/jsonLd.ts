@@ -72,6 +72,28 @@ export const generateFAQJsonLd = (faqs: Array<{ question: string; answer: string
   };
 };
 
+export const generateWebsiteJsonLd = () => {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Central de Ajuda modoPAG",
+    "url": "https://ajuda.modopag.com.br",
+    "description": "Central de Ajuda modoPAG - Encontre respostas para suas dúvidas sobre pagamentos digitais, cartões e soluções financeiras.",
+    "inLanguage": "pt-BR",
+    "publisher": {
+      "@type": "Organization",
+      "name": "modoPAG",
+      "url": "https://modopag.com.br",
+      "logo": "https://ajuda.modopag.com.br/modopag-logo-yellow.webp"
+    },
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://ajuda.modopag.com.br/search?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  };
+};
+
 export const generateCategoryJsonLd = (category: Category, articles: Article[]) => {
   return {
     "@context": "https://schema.org",

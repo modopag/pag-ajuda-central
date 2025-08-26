@@ -7,7 +7,8 @@ import CategoryGrid from "@/components/CategoryGrid";
 import ReclameAquiSection from "@/components/ReclameAquiSection";
 import FAQSection from "@/components/FAQSection";
 import { SEOHelmet } from "@/components/SEO/SEOHelmet";
-import { toast } from "@/hooks/use-toast";
+// Also update the website JSON-LD on homepage
+import { generateWebsiteJsonLd } from '@/utils/jsonLd';
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Mail } from "lucide-react";
 
@@ -25,14 +26,15 @@ const Index = () => {
     navigate(`/category/${categoryId}`);
   };
 
+  const websiteJsonLd = generateWebsiteJsonLd();
+
   return (
     <>
       <SEOHelmet
-        title="modoPAG - Central de Ajuda"
-        description="Central de Ajuda modoPAG - Encontre respostas para suas dúvidas sobre pagamentos digitais, cartões e soluções financeiras."
-        ogTitle="Central de Ajuda modoPAG"
-        ogDescription="Encontre respostas para suas dúvidas sobre pagamentos digitais, cartões e soluções financeiras."
+        title="Central de Ajuda da modoPAG | Suporte e FAQ"
+        description="Encontre respostas rápidas sobre maquininhas, taxas, pagamentos e mais na Central de Ajuda da modoPAG. Suporte completo para sua empresa."
         canonicalUrl="https://ajuda.modopag.com.br"
+        jsonLd={websiteJsonLd}
       />
       
       <div className="min-h-screen bg-background">

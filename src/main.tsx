@@ -5,14 +5,25 @@ import './index.css'
 
 // Import performance monitoring and bundle analyzer
 import { initializePerformanceMonitoring } from './utils/performance';
+import { initEnhancedTracking } from './utils/ga4Events';
+import './utils/qaRunner'; // Auto-runs QA tests in development
 
 // Import bundle analyzer for development performance monitoring
 if (import.meta.env.DEV) {
   import('./utils/bundleAnalyzer');
+  // Also import lighthouse utilities in development
+  import('./utils/lighthouse');
 }
 
 // Initialize performance monitoring
 initializePerformanceMonitoring();
+
+// Initialize enhanced GA4 tracking
+if (typeof window !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    initEnhancedTracking();
+  });
+}
 
 // Register service worker for caching and offline support
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
