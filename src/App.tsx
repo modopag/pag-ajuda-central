@@ -9,6 +9,7 @@ import { CookieBanner } from '@/components/CookieBanner';
 import { CookiePreferencesModal } from '@/components/CookiePreferencesModal';
 import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 import { RedirectHandler } from '@/components/RedirectHandler';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useSettings } from '@/hooks/useSettings';
 import Gone from "@/pages/Gone";
 
@@ -95,13 +96,15 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <HelmetProvider>
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
+        <ErrorBoundary>
+          <Toaster />
+          <Sonner />
 
-        <AppContent />
+          <AppContent />
 
-        <CookieBanner />
-        <CookiePreferencesModal />
+          <CookieBanner />
+          <CookiePreferencesModal />
+        </ErrorBoundary>
       </TooltipProvider>
     </HelmetProvider>
   </QueryClientProvider>

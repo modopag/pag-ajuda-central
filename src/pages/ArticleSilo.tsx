@@ -113,14 +113,16 @@ export default function ArticleSilo() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="space-y-6">
-          <Skeleton className="h-4 w-96" />
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-4 w-64" />
-          <Skeleton className="h-96 w-full" />
-        </div>
-      </div>
+      <>
+        <main id="main-content" className="container mx-auto px-4 py-8 max-w-4xl">
+          <div className="space-y-6">
+            <Skeleton className="h-4 w-96" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-4 w-64" />
+            <Skeleton className="h-96 w-full" />
+          </div>
+        </main>
+      </>
     );
   }
 

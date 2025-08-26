@@ -6,24 +6,25 @@ import SearchBar from "@/components/SearchBar";
 import CategoryGrid from "@/components/CategoryGrid";
 import ReclameAquiSection from "@/components/ReclameAquiSection";
 import FAQSection from "@/components/FAQSection";
+import { SkipLink } from "@/components/SkipLink";
 import { SEOHelmet } from "@/components/SEO/SEOHelmet";
-// Also update the website JSON-LD on homepage
 import { generateWebsiteJsonLd } from '@/utils/jsonLd';
+import { useSettings } from '@/hooks/useSettings';
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Mail } from "lucide-react";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const { seo } = useSettings();
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    // Navigate to search page with query
     navigate(`/buscar?q=${encodeURIComponent(query)}`);
   };
 
-  const handleCategoryClick = (categoryId: string) => {
-    navigate(`/category/${categoryId}`);
+  const handleCategoryClick = (categorySlug: string) => {
+    navigate(`/${categorySlug}/`);
   };
 
   const websiteJsonLd = generateWebsiteJsonLd();
@@ -31,91 +32,107 @@ const Index = () => {
   return (
     <>
       <SEOHelmet
-        title="Central de Ajuda da modoPAG | Suporte e FAQ"
-        description="Encontre respostas rápidas sobre maquininhas, taxas, pagamentos e mais na Central de Ajuda da modoPAG. Suporte completo para sua empresa."
-        canonicalUrl="https://ajuda.modopag.com.br"
+        title="Central de Ajuda modoPAG - Soluções de Pagamento"
+        description="Encontre respostas rápidas sobre maquininhas, conta digital, pagamentos e muito mais na Central de Ajuda da modoPAG. Tire suas dúvidas aqui!"
+        canonicalUrl={seo.site_url}
         jsonLd={websiteJsonLd}
+        ogTitle="Central de Ajuda modoPAG - Tire suas dúvidas sobre pagamentos"
+        ogDescription="Central de suporte completa da modoPAG. Artigos, tutoriais e guias sobre maquininhas, conta digital e soluções de pagamento."
       />
-      
-      <div className="min-h-screen bg-background">
-        <Header />
-        
+      <Header />
+      <SkipLink />
+      <main id="main-content" className="min-h-screen">
         {/* Hero Section */}
-        <section className="py-16 px-4">
-          <div className="container mx-auto text-center">
+        <section className="bg-gradient-to-br from-primary/5 via-primary/3 to-background py-16 px-4">
+          <div className="container mx-auto text-center max-w-4xl">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-              Central de Ajuda da <span className="text-accent">modoPAG</span>
+              Central de Ajuda modoPAG
             </h1>
-            <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">
-              Encontre respostas rápidas para suas dúvidas sobre maquininhas, pagamentos e muito mais.
+            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Encontre respostas rápidas para suas dúvidas sobre maquininhas, conta digital, pagamentos e muito mais.
             </p>
             
-            {/* Search Bar */}
             <SearchBar 
               onSearch={handleSearch}
-              placeholder="Como podemos ajudar você hoje?"
+              placeholder="O que você está procurando?"
             />
           </div>
         </section>
-        
+
         {/* Categories Section */}
         <section className="py-16 px-4">
-          <div className="container mx-auto">
-            <h2 className="text-3xl font-bold text-center text-foreground mb-12">
-              Categorias de Ajuda
-            </h2>
+          <div className="container mx-auto max-w-6xl">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-foreground mb-4">
+                Busque por categoria
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Navegue pelas nossas categorias organizadas para encontrar exatamente o que precisa.
+              </p>
+            </div>
             
             <CategoryGrid onCategoryClick={handleCategoryClick} />
           </div>
         </section>
-        
+
         {/* Quick Help Section */}
-        <section className="py-16 px-4 bg-secondary">
-          <div className="container mx-auto text-center">
-            <h2 className="text-3xl font-bold text-foreground mb-6">
-              Precisa de ajuda rápida?
-            </h2>
-            <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Nossa equipe de suporte está disponível de segunda a sexta-feira, em horário comercial. Atendemos por WhatsApp e e-mail.
-            </p>
+        <section className="py-16 px-4 bg-muted/30">
+          <div className="container mx-auto max-w-4xl">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-foreground mb-4">
+                Precisa de ajuda rápida?
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                Entre em contato conosco pelos canais oficiais
+              </p>
+            </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-              <div className="bg-card p-6 rounded-xl border border-border">
-                <h3 className="font-semibold text-foreground mb-2">WhatsApp</h3>
-                <p className="text-muted-foreground text-sm mb-4">Seg-Sex, 8h às 18h</p>
-                <Button 
-                  className="w-full bg-accent text-accent-foreground hover:bg-accent/90"
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="text-center p-8 bg-background rounded-lg shadow-sm">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <MessageSquare className="w-8 h-8 text-green-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">WhatsApp</h3>
+                <p className="text-muted-foreground mb-4">
+                  Fale conosco pelo WhatsApp para atendimento rápido e personalizado
+                </p>
+                <Button
                   onClick={() => window.open('https://wa.me/5571981470573?text=Venho%20do%20site%20e%20quero%20mais%20informa%C3%A7%C3%B5es%20sobre%20a%20modoPAG.%20%5Bbotao%5D', '_blank')}
+                  className="bg-green-600 hover:bg-green-700 text-white"
                 >
                   <MessageSquare className="w-4 h-4 mr-2" />
-                  Falar no WhatsApp
+                  Conversar no WhatsApp
                 </Button>
               </div>
               
-              <div className="bg-card p-6 rounded-xl border border-border">
-                <h3 className="font-semibold text-foreground mb-2">E-mail</h3>
-                <p className="text-muted-foreground text-sm mb-4">Resposta em até 24h</p>
-                <Button 
+              <div className="text-center p-8 bg-background rounded-lg shadow-sm">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Mail className="w-8 h-8 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">E-mail</h3>
+                <p className="text-muted-foreground mb-4">
+                  Envie sua dúvida por e-mail e receba uma resposta detalhada
+                </p>
+                <Button
                   variant="outline"
-                  className="w-full"
-                  onClick={() => window.location.href = 'mailto:contato@modopag.com.br'}
+                  onClick={() => window.location.href = 'mailto:suporte@modopag.com.br'}
+                  className="border-blue-600 text-blue-600 hover:bg-blue-50"
                 >
                   <Mail className="w-4 h-4 mr-2" />
-                  Enviar e-mail
+                  Enviar E-mail
                 </Button>
               </div>
             </div>
           </div>
         </section>
-        
+
         {/* FAQ Section */}
         <FAQSection />
-        
-        {/* Reclame AQUI Section */}
+
+        {/* Reclame Aqui Section */}
         <ReclameAquiSection />
-        
-        <Footer />
-      </div>
+      </main>
+      <Footer />
     </>
   );
 };
