@@ -17,7 +17,15 @@ import { generateArticleUrl, generateCategoryUrl, generateCanonicalUrl, generate
 import { initializeLazyImages } from '@/utils/lazyImages';
 import { useSettings } from '@/hooks/useSettings';
 import type { Article, Category, Tag } from '@/types/admin';
-import { Clock, Eye, Tag as TagIcon, ChevronRight, User, Heart, Share2, BookOpen } from 'lucide-react';
+import { Clock, Eye, Tag as TagIcon, ChevronRight, User, Heart, Share2, BookOpen, Home } from 'lucide-react';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
 import { handleArticleLike, handleArticleShare, isArticleLiked } from '@/utils/articleActions';
 import AdminComments from '@/components/AdminComments';
 import { AuthService } from '@/lib/auth';
@@ -251,6 +259,34 @@ export default function ArticleSilo() {
 
       <main id="main-content" className="relative z-10 container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
+          {/* SEO Breadcrumb */}
+          <nav aria-label="Breadcrumb" className="mb-6">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link to="/" className="flex items-center gap-1.5">
+                      <Home className="h-3.5 w-3.5" />
+                      <span>Central de Ajuda</span>
+                    </Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link to={generateCategoryUrl(category.slug)}>
+                      {category.name}
+                    </Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{article.title}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </nav>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2">
@@ -351,7 +387,8 @@ export default function ArticleSilo() {
 
             {/* Sidebar - Desktop only */}
             <div className="hidden lg:block lg:col-span-1">
-              <div className="sticky top-20 z-20 space-y-6 max-h-[calc(100vh-6rem)] overflow-hidden">
+              <div className="sticky top-20 z-20 space-y-6 max-h-[calc(100vh-5rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent"
+                   style={{ scrollbarWidth: 'thin' }}>
                 {/* Table of Contents */}
                 <TableOfContents />
                 
