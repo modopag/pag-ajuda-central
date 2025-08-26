@@ -309,6 +309,52 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Performance Monitoring Section */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Performance & Acessibilidade</CardTitle>
+              <CardDescription>
+                Monitoramento de Core Web Vitals e otimizações
+              </CardDescription>
+            </div>
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/admin/monitoring">Ver Detalhes</Link>
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <h4 className="font-medium text-green-600">✅ Implementações</h4>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                <li>• Service Worker ativo</li>
+                <li>• Lazy loading de imagens</li>
+                <li>• Otimização de bundles</li>
+                <li>• Skip links para acessibilidade</li>
+                <li>• Suporte a alto contraste</li>
+              </ul>
+            </div>
+            <div className="space-y-2">
+              <h4 className="font-medium text-blue-600">📊 Core Web Vitals</h4>
+              <p className="text-sm text-muted-foreground">
+                Monitoramento automático de LCP, FID, CLS e outras métricas de performance em tempo real.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <h4 className="font-medium text-purple-600">♿ Acessibilidade</h4>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                <li>• Navegação por teclado</li>
+                <li>• Screen reader support</li>
+                <li>• Contraste aprimorado</li>
+                <li>• Focus management</li>
+              </ul>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

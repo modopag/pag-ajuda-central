@@ -10,28 +10,31 @@ import {
 } from "@/components/ui/dropdown-navigation";
 import { Link } from "react-router-dom";
 import { SearchAutocomplete } from '@/components/SearchAutocomplete';
+import { SkipLink } from '@/components/SkipLink';
 import logoBlack from "@/assets/modopag-logo-black.png";
 
 const Header = () => {
   return (
-    <header className="bg-background border-b border-border sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between gap-4">
-          {/* Logo */}
-          <Link 
-            to="/" 
-            className="flex items-center flex-shrink-0"
-            aria-label="modoPAG - Central de Ajuda"
-          >
-            <img 
-              src="/favicon.png"
-              alt="modoPAG - Central de Ajuda"
-              title="Ir para a página inicial"
-              className="h-8 md:h-10 w-auto"
-              width="40"
-              height="40"
-            />
-          </Link>
+    <>
+      <SkipLink />
+      <header className="bg-background border-b border-border sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between gap-4">
+            {/* Logo */}
+            <Link 
+              to="/" 
+              className="flex items-center flex-shrink-0"
+              aria-label="modoPAG - Central de Ajuda"
+            >
+              <img 
+                src="/favicon.png"
+                alt="modoPAG - Central de Ajuda"
+                title="Ir para a página inicial"
+                className="h-8 md:h-10 w-auto"
+                width="40"
+                height="40"
+              />
+            </Link>
           
           {/* Search Bar - Visible on medium screens and up */}
           <div className="hidden md:flex flex-1 max-w-md mx-4">
@@ -128,6 +131,7 @@ const Header = () => {
         </div>
       </div>
     </header>
+    </>
   );
 };
 
