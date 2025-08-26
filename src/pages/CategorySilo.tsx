@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import NotFound from './NotFound';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import { SkipLink } from '@/components/SkipLink';
 import { SEOHelmet } from '@/components/SEO/SEOHelmet';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +14,7 @@ import { generateArticleUrl, generateCategoryUrl, generateCanonicalUrl, generate
 import { useSimpleSearch } from '@/hooks/useSimpleSearch';
 import { useSettings } from '@/hooks/useSettings';
 import type { Category, Article } from '@/types/admin';
-import { Clock, FileText, ChevronRight, Search } from 'lucide-react';
+import { Clock, FileText, ChevronRight, Search, MessageCircle, Mail, ExternalLink, TrendingUp, Users, Calendar } from 'lucide-react';
 
 export default function CategorySilo() {
   const { categorySlug } = useParams<{ categorySlug: string }>();
@@ -85,8 +88,11 @@ export default function CategorySilo() {
 
   if (loading) {
     return (
-      <>
-        <main id="main-content" className="container mx-auto px-4 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-background/80 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+        <Header />
+        <SkipLink />
+        <main id="main-content" className="relative z-10 container mx-auto px-4 py-8">
           <div className="space-y-6">
             <Skeleton className="h-8 w-64" />
             <Skeleton className="h-4 w-96" />
@@ -97,7 +103,8 @@ export default function CategorySilo() {
             </div>
           </div>
         </main>
-      </>
+        <Footer />
+      </div>
     );
   }
 
@@ -144,7 +151,9 @@ export default function CategorySilo() {
   const seoDescription = category.description || `Encontre artigos sobre ${category.name} na Central de Ajuda da modoPAG. Tire suas dúvidas sobre pagamentos e soluções financeiras.`;
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-background/80 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+      
       <SEOHelmet
         title={seoTitle}
         description={seoDescription}
@@ -154,33 +163,59 @@ export default function CategorySilo() {
         ogDescription={seoDescription}
       />
 
-      <main id="main-content" className="container mx-auto px-4 py-8">
-        {/* Breadcrumbs */}
-        <nav aria-label="Breadcrumb" className="mb-6">
-          <ol className="flex items-center space-x-2 text-sm text-muted-foreground">
-            <li>
-              <Link to="/" className="hover:text-primary transition-colors">
-                Central de Ajuda
-              </Link>
-            </li>
-            <ChevronRight className="w-4 h-4" />
-            <li className="text-foreground font-medium" aria-current="page">
-              {category.name}
-            </li>
-          </ol>
-        </nav>
+      <Header />
+      <SkipLink />
 
-        {/* Category Header */}
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-4">
-            {category.name}
-          </h1>
-          {category.description && (
-            <p className="text-lg text-muted-foreground max-w-3xl">
-              {category.description}
-            </p>
-          )}
-        </header>
+      {/* Hero Section */}
+      <section className="relative z-10 bg-gradient-to-r from-primary/10 via-primary/5 to-accent/10 py-16">
+        <div className="container mx-auto px-4">
+          {/* Breadcrumbs */}
+          <nav aria-label="Breadcrumb" className="mb-6">
+            <ol className="flex items-center space-x-2 text-sm text-muted-foreground">
+              <li>
+                <Link to="/" className="hover:text-primary transition-colors flex items-center gap-1">
+                  <ChevronRight className="w-3 h-3 rotate-180" />
+                  Central de Ajuda
+                </Link>
+              </li>
+              <ChevronRight className="w-4 h-4" />
+              <li className="text-foreground font-medium" aria-current="page">
+                {category.name}
+              </li>
+            </ol>
+          </nav>
+
+          {/* Category Header */}
+          <header className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              {category.name}
+            </h1>
+            {category.description && (
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                {category.description}
+              </p>
+            )}
+            
+            {/* Quick Stats */}
+            <div className="flex flex-wrap justify-center gap-6 mt-6">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <FileText className="w-4 h-4 text-primary" />
+                <span>{articles.length} artigo{articles.length !== 1 ? 's' : ''}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Users className="w-4 h-4 text-accent" />
+                <span>{articles.reduce((sum, article) => sum + article.view_count, 0).toLocaleString()} visualizações</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Calendar className="w-4 h-4 text-primary" />
+                <span>Atualizado {new Date(Math.max(...articles.map(a => new Date(a.updated_at).getTime()))).toLocaleDateString('pt-BR')}</span>
+              </div>
+            </div>
+          </header>
+        </div>
+      </section>
+
+      <main id="main-content" className="relative z-10 container mx-auto px-4 py-8">
 
         {/* Search and Filter */}
         {articles.length > 0 && (
@@ -231,10 +266,10 @@ export default function CategorySilo() {
         {filteredArticles.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredArticles.map((article) => (
-              <Card key={article.id} className="transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
+              <Card key={article.id} className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border-0 bg-gradient-to-br from-card via-card to-card/80 hover:from-primary/5 hover:to-accent/5">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-lg leading-tight line-clamp-2">
+                    <CardTitle className="text-lg leading-tight line-clamp-2 group-hover:text-primary transition-colors">
                       <Link
                         to={generateArticleUrl(categorySlug, article.slug)}
                         className="hover:text-primary transition-colors"
@@ -242,29 +277,31 @@ export default function CategorySilo() {
                         {article.title}
                       </Link>
                     </CardTitle>
-                    {article.view_count > 0 && (
-                      <Badge variant="secondary" className="shrink-0">
-                        {article.view_count} views
-                      </Badge>
-                    )}
+                    <div className="flex flex-col gap-1">
+                      {article.view_count > 0 && (
+                        <Badge variant="secondary" className="shrink-0 bg-primary/10 text-primary border-primary/20">
+                          <TrendingUp className="w-3 h-3 mr-1" />
+                          {article.view_count}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                   
                   {article.meta_description && (
-                    <CardDescription className="line-clamp-3">
+                    <CardDescription className="line-clamp-3 text-muted-foreground group-hover:text-foreground/80 transition-colors">
                       {article.meta_description}
                     </CardDescription>
                   )}
                 </CardHeader>
                 
                 <CardContent className="pt-0">
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  <div className="flex items-center justify-between text-sm text-muted-foreground group-hover:text-foreground/70 transition-colors">
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
                       <span>{new Date(article.updated_at).toLocaleDateString('pt-BR')}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <FileText className="w-4 h-4" />
-                      <span>Artigo</span>
+                    <div className="flex items-center gap-1 text-primary">
+                      <span className="group-hover:translate-x-1 transition-transform">→</span>
                     </div>
                   </div>
                 </CardContent>
@@ -295,32 +332,49 @@ export default function CategorySilo() {
           </div>
         )}
 
-        {/* Category Stats */}
-        {articles.length > 0 && (
-          <div className="mt-12 bg-muted/50 rounded-lg p-6">
-            <div className="grid gap-4 md:grid-cols-3 text-center">
-              <div>
-                <div className="text-2xl font-bold text-foreground">{articles.length}</div>
-                <div className="text-sm text-muted-foreground">
-                  Artigo{articles.length !== 1 ? 's' : ''} disponíve{articles.length !== 1 ? 'is' : 'l'}
-                </div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-foreground">
-                  {articles.reduce((sum, article) => sum + article.view_count, 0).toLocaleString()}
-                </div>
-                <div className="text-sm text-muted-foreground">Visualizações totais</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-foreground">
-                  {new Date(Math.max(...articles.map(a => new Date(a.updated_at).getTime()))).toLocaleDateString('pt-BR')}
-                </div>
-                <div className="text-sm text-muted-foreground">Última atualização</div>
-              </div>
-            </div>
+        {/* Quick Contact Section */}
+        <section className="mt-16 bg-gradient-to-r from-primary/5 via-background to-accent/5 rounded-xl p-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-foreground mb-4">
+              Precisa de ajuda rápida?
+            </h2>
+            <p className="text-muted-foreground">
+              Nossa equipe está pronta para te ajudar com qualquer dúvida sobre {category.name}
+            </p>
           </div>
-        )}
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+            <Button 
+              size="lg" 
+              className="bg-[#25D366] hover:bg-[#25D366]/90 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300"
+              onClick={() => window.open('https://wa.me/5511999999999?text=Olá, preciso de ajuda com ' + encodeURIComponent(category.name), '_blank')}
+            >
+              <MessageCircle className="w-5 h-5 mr-2" />
+              WhatsApp
+            </Button>
+            
+            <Button 
+              size="lg" 
+              variant="secondary"
+              className="shadow-lg hover:shadow-xl transition-all duration-300"
+              onClick={() => window.location.href = `mailto:ajuda@modopag.com.br?subject=Dúvida sobre ${category.name}`}
+            >
+              <Mail className="w-5 h-5 mr-2" />
+              E-mail
+            </Button>
+          </div>
+        </section>
+
+        {/* Trust Section */}
+        <div className="mt-12 text-center">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 to-accent/10 px-4 py-2 rounded-full">
+            <ExternalLink className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium">Avaliado com 4.5/5 estrelas no ReclameAqui</span>
+          </div>
+        </div>
       </main>
-    </>
+
+      <Footer />
+    </div>
   );
 }

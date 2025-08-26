@@ -117,27 +117,27 @@ export default function RelatedArticles({
   }
 
   return (
-    <section className="mt-12 pt-8 border-t">
-      <h2 className="text-2xl font-bold text-foreground mb-6">
+    <section className="mt-12 pt-8 border-t border-border/50">
+      <h2 className="text-2xl font-bold text-foreground mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
         Artigos relacionados
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {relatedArticles.map((article) => (
-          <Card key={article.id} className="hover:shadow-lg transition-all duration-300 group">
+          <Card key={article.id} className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border-0 bg-gradient-to-br from-card via-card to-card/80 hover:from-primary/5 hover:to-accent/5">
             <CardHeader>
               <div className="flex items-center justify-between mb-2">
                 <Badge 
                   variant="outline" 
-                  className="text-xs group-hover:border-primary transition-colors"
+                  className="text-xs group-hover:border-primary transition-colors bg-primary/10 text-primary border-primary/20"
                 >
                   {article.type}
                 </Badge>
                 <div className="flex items-center text-xs text-muted-foreground">
-                  <Clock className="w-3 h-3 mr-1" />
+                  <Clock className="w-3 h-3 mr-1 text-accent" />
                   {article.reading_time_minutes} min
                 </div>
               </div>
-              <CardTitle className="line-clamp-2 leading-tight">
+              <CardTitle className="line-clamp-2 leading-tight group-hover:text-primary transition-colors">
                 <Link 
                   to={generateArticleUrl(categories.find(c => c.id === article.category_id)?.slug || '', article.slug)}
                   className="hover:text-primary transition-colors"
@@ -147,12 +147,14 @@ export default function RelatedArticles({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground line-clamp-3 mb-3">
+              <p className="text-sm text-muted-foreground line-clamp-3 mb-3 group-hover:text-foreground/80 transition-colors">
                 {getContentPreview(article.meta_description || article.content)}
               </p>
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <div className="flex items-center justify-between text-xs text-muted-foreground group-hover:text-foreground/70 transition-colors">
                 <span>Atualizado {formatDate(article.updated_at)}</span>
-                <ArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="flex items-center text-primary">
+                  <span className="group-hover:translate-x-1 transition-transform">→</span>
+                </div>
               </div>
             </CardContent>
           </Card>
