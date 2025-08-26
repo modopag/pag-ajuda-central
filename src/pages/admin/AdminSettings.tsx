@@ -7,9 +7,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Save, Settings, Globe, Phone, MessageSquare } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Save, Settings, Globe, Phone, MessageSquare, Database, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getDataAdapter } from "@/lib/data-adapter";
+import { AssetUploader } from "@/components/admin/AssetUploader";
+import { DataManager } from "@/components/admin/DataManager";
 import type { Setting, GlobalSEOSettings, HelpQuickSettings, ReclameAquiSettings, BrandSettings } from "@/types/admin";
 
 export default function AdminSettings() {
@@ -118,6 +121,46 @@ export default function AdminSettings() {
     });
   };
 
+  // Update favicon in index.html
+  const updateFavicon = async (faviconUrl: string) => {
+    if (!faviconUrl) return;
+    
+    try {
+      // In a real implementation, this would update the actual index.html file
+      // For demo purposes, we'll just update the current page's favicon
+      const existingLink = document.querySelector('link[rel="icon"]') as HTMLLinkElement;
+      if (existingLink) {
+        existingLink.href = faviconUrl;
+      }
+      
+      // Also update apple-touch-icon
+      const appleLink = document.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement;
+      if (appleLink) {
+        appleLink.href = faviconUrl;
+      }
+      
+      toast({
+        title: 'Favicon atualizado',
+        description: 'O favicon foi atualizado com sucesso!'
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro no favicon',
+        description: 'Não foi possível atualizar o favicon.',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const validateSiteUrl = (url: string): boolean => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -137,7 +180,7 @@ export default function AdminSettings() {
       </div>
 
       <Tabs defaultValue="seo" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="seo" className="flex items-center gap-2">
             <Globe className="w-4 h-4" />
             SEO
@@ -154,6 +197,10 @@ export default function AdminSettings() {
             <Settings className="w-4 h-4" />
             Marca
           </TabsTrigger>
+          <TabsTrigger value="data" className="flex items-center gap-2">
+            <Database className="w-4 h-4" />
+            Dados
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="seo" className="space-y-4">
@@ -165,6 +212,25 @@ export default function AdminSettings() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="site_url">URL do Site *</Label>
+                <Input
+                  id="site_url"
+                  value={seoSettings.site_url}
+                  onChange={(e) => setSeoSettings({...seoSettings, site_url: e.target.value})}
+                  placeholder="https://ajuda.modopag.com.br/"
+                  className={!validateSiteUrl(seoSettings.site_url) ? 'border-red-500' : ''}
+                />
+                {!validateSiteUrl(seoSettings.site_url) && (
+                  <p className="text-xs text-red-600 mt-1">URL inválida. Use formato: https://exemplo.com/</p>
+                )}
+                <p className="text-xs text-muted-foreground mt-1">
+                  Usado para URLs canônicas, sitemap e Open Graph
+                </p>
+              </div>
+              
+              <Separator />
+              
               <div>
                 <Label htmlFor="default_title">Título Padrão</Label>
                 <Input
@@ -182,16 +248,25 @@ export default function AdminSettings() {
                   onChange={(e) => setSeoSettings({...seoSettings, default_meta_description: e.target.value})}
                   placeholder="Encontre respostas rápidas para suas dúvidas sobre o ModoPag"
                 />
+                <p className="text-xs text-muted-foreground">
+                  {seoSettings.default_meta_description.length}/160 caracteres
+                </p>
               </div>
+              
               <div>
-                <Label htmlFor="default_og_image">Imagem OG Padrão (URL)</Label>
-                <Input
-                  id="default_og_image"
-                  value={seoSettings.default_og_image}
-                  onChange={(e) => setSeoSettings({...seoSettings, default_og_image: e.target.value})}
-                  placeholder="https://exemplo.com/og-image.jpg"
+                <Label>Imagem OG Padrão</Label>
+                <AssetUploader
+                  label="Upload de OG Image"
+                  accept="image/*"
+                  maxSize={2}
+                  currentAsset={seoSettings.default_og_image}
+                  onUpload={(url) => setSeoSettings({...seoSettings, default_og_image: url})}
+                  onRemove={() => setSeoSettings({...seoSettings, default_og_image: ''})}
+                  description="Imagem usada nas redes sociais (recomendado: 1200x630px)"
+                  compress={true}
                 />
               </div>
+              
               <div>
                 <Label htmlFor="robots_txt">Robots.txt</Label>
                 <Textarea
@@ -202,7 +277,11 @@ export default function AdminSettings() {
                   rows={6}
                 />
               </div>
-              <Button onClick={() => saveSetting('global_seo', seoSettings)} disabled={saving}>
+              
+              <Button 
+                onClick={() => saveSetting('global_seo', seoSettings)} 
+                disabled={saving || !validateSiteUrl(seoSettings.site_url)}
+              >
                 <Save className="w-4 h-4 mr-2" />
                 {saving ? "Salvando..." : "Salvar SEO"}
               </Button>
@@ -332,56 +411,89 @@ export default function AdminSettings() {
         </TabsContent>
 
         <TabsContent value="brand" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Logo Uploads */}
+            <div className="space-y-4">
+              <AssetUploader
+                label="Logo Preta"
+                accept="image/*"
+                maxSize={2}
+                currentAsset={brandSettings.logo_black_url}
+                onUpload={(url) => setBrandSettings({...brandSettings, logo_black_url: url})}
+                onRemove={() => setBrandSettings({...brandSettings, logo_black_url: ''})}
+                description="Logo para fundos claros (SVG ou PNG recomendado)"
+                compress={false}
+              />
+
+              <AssetUploader
+                label="Logo Amarela"
+                accept="image/*"
+                maxSize={2}
+                currentAsset={brandSettings.logo_yellow_url}
+                onUpload={(url) => setBrandSettings({...brandSettings, logo_yellow_url: url})}
+                onRemove={() => setBrandSettings({...brandSettings, logo_yellow_url: ''})}
+                description="Logo para fundos escuros (SVG ou PNG recomendado)"
+                compress={false}
+              />
+            </div>
+
+            {/* Icon and Favicon */}
+            <div className="space-y-4">
+              <AssetUploader
+                label="Ícone da Logo"
+                accept="image/*"
+                maxSize={1}
+                currentAsset={brandSettings.logo_icon_url}
+                onUpload={(url) => setBrandSettings({...brandSettings, logo_icon_url: url})}
+                onRemove={() => setBrandSettings({...brandSettings, logo_icon_url: ''})}
+                description="Versão em ícone da logo (quadrada, 256x256px recomendado)"
+                compress={true}
+              />
+
+              <AssetUploader
+                label="Favicon"
+                accept="image/png,image/jpg,image/jpeg"
+                maxSize={1}
+                currentAsset={brandSettings.favicon_url}
+                onUpload={(url) => {
+                  setBrandSettings({...brandSettings, favicon_url: url});
+                  updateFavicon(url);
+                }}
+                onRemove={() => setBrandSettings({...brandSettings, favicon_url: ''})}
+                description="Ícone do site (PNG/JPG, 32x32px ou 16x16px)"
+                compress={true}
+              />
+
+              {brandSettings.favicon_url && (
+                <Alert>
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>
+                    <strong>Importante:</strong> Lovable não suporta favicons .ico. Use PNG/JPG.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
+          </div>
+
           <Card>
-            <CardHeader>
-              <CardTitle>Configurações da Marca</CardTitle>
-              <CardDescription>
-                Configure logos e elementos visuais da marca
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="logo_black_url">Logo Preta (URL)</Label>
-                <Input
-                  id="logo_black_url"
-                  value={brandSettings.logo_black_url || ""}
-                  onChange={(e) => setBrandSettings({...brandSettings, logo_black_url: e.target.value})}
-                  placeholder="https://exemplo.com/logo-black.svg"
-                />
-              </div>
-              <div>
-                <Label htmlFor="logo_yellow_url">Logo Amarela (URL)</Label>
-                <Input
-                  id="logo_yellow_url"
-                  value={brandSettings.logo_yellow_url || ""}
-                  onChange={(e) => setBrandSettings({...brandSettings, logo_yellow_url: e.target.value})}
-                  placeholder="https://exemplo.com/logo-yellow.svg"
-                />
-              </div>
-              <div>
-                <Label htmlFor="logo_icon_url">Ícone da Logo (URL)</Label>
-                <Input
-                  id="logo_icon_url"
-                  value={brandSettings.logo_icon_url || ""}
-                  onChange={(e) => setBrandSettings({...brandSettings, logo_icon_url: e.target.value})}
-                  placeholder="https://exemplo.com/icon.svg"
-                />
-              </div>
-              <div>
-                <Label htmlFor="favicon_url">Favicon (URL)</Label>
-                <Input
-                  id="favicon_url"
-                  value={brandSettings.favicon_url || ""}
-                  onChange={(e) => setBrandSettings({...brandSettings, favicon_url: e.target.value})}
-                  placeholder="https://exemplo.com/favicon.ico"
-                />
-              </div>
+            <CardContent className="pt-6">
               <Button onClick={() => saveSetting('brand', brandSettings)} disabled={saving}>
                 <Save className="w-4 h-4 mr-2" />
-                {saving ? "Salvando..." : "Salvar Marca"}
+                {saving ? "Salvando..." : "Salvar Configurações da Marca"}
               </Button>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="data" className="space-y-4">
+          <DataManager 
+            onSitemapUpdate={() => {
+              toast({
+                title: 'Sitemap atualizado',
+                description: 'O sitemap foi reconstruído com sucesso!'
+              });
+            }}
+          />
         </TabsContent>
       </Tabs>
     </div>

@@ -892,6 +892,7 @@ export class MockAdapter implements DataAdapter {
       feedback: await this.getFeedback(),
       settings: await this.getAllSettings(),
       events: await this.getEvents(),
+      slugHistory: this.getStorageData<SlugHistoryEntry>('slug_history'),
       exportedAt: new Date().toISOString(),
     };
     
