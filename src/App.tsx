@@ -7,6 +7,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import Index from "./pages/Index";
 import Category from "./pages/Category";
 import Article from "./pages/Article";
+import Search from "./pages/Search";
 import Sitemap from "./pages/Sitemap";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/category/:categoryId" element={<Category />} />
             <Route path="/article/:articleId" element={<Article />} />
+            <Route path="/buscar" element={<Search />} />
             <Route path="/sitemap.xml" element={<Sitemap />} />
             
             {/* Admin Routes */}
@@ -46,7 +48,7 @@ const App = () => (
               <Route path="categories" element={<AdminCategories />} />
               <Route path="tags" element={<AdminTags />} />
               <Route path="media" element={<AdminMedia />} />
-              <Route path="redirects" element={<AdminRedirects />} />
+              <Route path="redirects" element={<AdminRedirects />} />  
               <Route path="settings" element={<AdminSettings />} />
               <Route path="feedback" element={<AdminFeedback />} />
             </Route>
