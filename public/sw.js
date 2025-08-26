@@ -29,6 +29,34 @@ const CACHE_STRATEGIES = {
   html: /\.html$|\/$/
 };
 
+// Helper function to check if response should be cached
+function shouldCacheResponse(response) {
+  return response && 
+         response.status === 200 && 
+         response.type === 'basic' &&
+         !response.headers.get('cache-control')?.includes('no-store');
+}
+
+// Safe clone function that only clones once
+function safeClone(response, description = '') {
+  try {
+    if (!response || !response.ok) {
+      return null;
+    }
+    
+    // Check if response body is already used
+    if (response.bodyUsed) {
+      console.warn(`[SW] Cannot clone response ${description}: body already used`);
+      return null;
+    }
+    
+    return response.clone();
+  } catch (error) {
+    console.error(`[SW] Failed to clone response ${description}:`, error);
+    return null;
+  }
+}
+
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
   console.log('[SW] Installing...');
@@ -104,39 +132,75 @@ self.addEventListener('fetch', (event) => {
 // Cache First Strategy (for static assets)
 async function cacheFirst(request) {
   try {
+    // Try cache first
     const cachedResponse = await caches.match(request);
     if (cachedResponse) {
       return cachedResponse;
     }
 
+    // If not in cache, fetch from network
     const networkResponse = await fetch(request);
-    if (networkResponse.ok) {
-      const cache = await caches.open(STATIC_CACHE);
-      cache.put(request, networkResponse.clone());
+    
+    // Only cache successful responses
+    if (shouldCacheResponse(networkResponse)) {
+      // Clone BEFORE using the response
+      const responseClone = safeClone(networkResponse, 'cacheFirst');
+      
+      if (responseClone) {
+        try {
+          const cache = await caches.open(STATIC_CACHE);
+          // Use clone for caching, return original
+          await cache.put(request, responseClone);
+        } catch (cacheError) {
+          console.warn('[SW] Failed to cache response:', cacheError);
+        }
+      }
     }
     
     return networkResponse;
   } catch (error) {
     console.error('[SW] Cache first failed:', error);
-    return new Response('Offline', { status: 503 });
+    
+    // Try to find any cached version as fallback
+    const fallbackResponse = await caches.match(request);
+    if (fallbackResponse) {
+      return fallbackResponse;
+    }
+    
+    return new Response('Offline', { 
+      status: 503,
+      headers: { 'Content-Type': 'text/plain' }
+    });
   }
 }
 
 // Network First Strategy (for API calls and HTML)
 async function networkFirst(request) {
   try {
+    // Try network first
     const networkResponse = await fetch(request);
     
-    if (networkResponse.ok) {
-      const cache = await caches.open(DYNAMIC_CACHE);
-      cache.put(request, networkResponse.clone());
-      return networkResponse;
+    // Only cache successful responses
+    if (shouldCacheResponse(networkResponse)) {
+      // Clone BEFORE using the response
+      const responseClone = safeClone(networkResponse, 'networkFirst');
+      
+      if (responseClone) {
+        try {
+          const cache = await caches.open(DYNAMIC_CACHE);
+          // Use clone for caching, return original
+          await cache.put(request, responseClone);
+        } catch (cacheError) {
+          console.warn('[SW] Failed to cache response:', cacheError);
+        }
+      }
     }
     
-    throw new Error('Network response not ok');
+    return networkResponse;
   } catch (error) {
     console.log('[SW] Network failed, trying cache:', error.message);
     
+    // Fallback to cache
     const cachedResponse = await caches.match(request);
     if (cachedResponse) {
       return cachedResponse;
@@ -157,23 +221,52 @@ async function networkFirst(request) {
   }
 }
 
-// Stale While Revalidate Strategy
+// Stale While Revalidate Strategy (FIXED - no more double clone)
 async function staleWhileRevalidate(request) {
+  // Get cached response immediately if available
   const cachedResponse = await caches.match(request);
   
-  const networkResponsePromise = fetch(request).then((networkResponse) => {
-    if (networkResponse.ok) {
-      const cache = caches.open(DYNAMIC_CACHE);
-      cache.then(c => c.put(request, networkResponse.clone()));
-    }
-    return networkResponse;
-  }).catch(() => {
-    // Network failed, return cached version if available
-    return cachedResponse;
-  });
+  // Start network request in background
+  const networkResponsePromise = fetch(request)
+    .then(async (networkResponse) => {
+      // Only cache successful responses
+      if (shouldCacheResponse(networkResponse)) {
+        // Clone BEFORE using the response
+        const responseClone = safeClone(networkResponse, 'staleWhileRevalidate');
+        
+        if (responseClone) {
+          try {
+            const cache = await caches.open(DYNAMIC_CACHE);
+            // Use clone for caching, return original
+            await cache.put(request, responseClone);
+          } catch (cacheError) {
+            console.warn('[SW] Failed to cache response:', cacheError);
+          }
+        }
+      }
+      
+      return networkResponse;
+    })
+    .catch((error) => {
+      console.warn('[SW] Network request failed in staleWhileRevalidate:', error);
+      return null;
+    });
 
   // Return cached version immediately if available, otherwise wait for network
-  return cachedResponse || networkResponsePromise;
+  if (cachedResponse) {
+    // Update cache in background
+    networkResponsePromise.catch(() => {
+      // Ignore network errors when we have cached version
+    });
+    return cachedResponse;
+  } else {
+    // No cached version, wait for network
+    const networkResponse = await networkResponsePromise;
+    return networkResponse || new Response('Offline', { 
+      status: 503,
+      headers: { 'Content-Type': 'text/plain' }
+    });
+  }
 }
 
 // Background sync for failed requests (if needed in the future)
