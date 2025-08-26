@@ -17,7 +17,10 @@ const Header = () => {
           {/* Logo */}
           <div className="flex items-center space-x-2">
             <div className="flex items-center space-x-1">
-              <Square className="w-6 h-6 text-foreground fill-current" />
+              <Square 
+                className="w-6 h-6 text-foreground fill-current" 
+                aria-hidden="true"
+              />
               <span className="text-xl font-bold text-foreground">
                 modo<span className="text-accent">PAG</span>
               </span>

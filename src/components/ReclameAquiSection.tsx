@@ -15,7 +15,7 @@ const ReclameAquiSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
           <div className="bg-card p-6 rounded-xl border border-border hover:shadow-lg transition-all duration-300">
             <div className="w-16 h-16 mx-auto mb-4 bg-accent/10 rounded-full flex items-center justify-center">
-              <Award className="w-8 h-8 text-accent" />
+              <Award className="w-8 h-8 text-accent" aria-hidden="true" />
             </div>
             <h3 className="font-bold text-foreground mb-2">Top 100 Brasil</h3>
             <p className="text-sm text-muted-foreground">
@@ -25,7 +25,7 @@ const ReclameAquiSection = () => {
           
           <div className="bg-card p-6 rounded-xl border border-border hover:shadow-lg transition-all duration-300">
             <div className="w-16 h-16 mx-auto mb-4 bg-accent/10 rounded-full flex items-center justify-center">
-              <Shield className="w-8 h-8 text-accent" />
+              <Shield className="w-8 h-8 text-accent" aria-hidden="true" />
             </div>
             <h3 className="font-bold text-foreground mb-2">Selo RA1000</h3>
             <p className="text-sm text-muted-foreground">
@@ -35,7 +35,7 @@ const ReclameAquiSection = () => {
           
           <div className="bg-card p-6 rounded-xl border border-border hover:shadow-lg transition-all duration-300">
             <div className="w-16 h-16 mx-auto mb-4 bg-accent/10 rounded-full flex items-center justify-center">
-              <Users className="w-8 h-8 text-accent" />
+              <Users className="w-8 h-8 text-accent" aria-hidden="true" />
             </div>
             <h3 className="font-bold text-foreground mb-2">+ de 30 milhões</h3>
             <p className="text-sm text-muted-foreground">
@@ -45,7 +45,7 @@ const ReclameAquiSection = () => {
           
           <div className="bg-card p-6 rounded-xl border border-border hover:shadow-lg transition-all duration-300">
             <div className="w-16 h-16 mx-auto mb-4 bg-accent/10 rounded-full flex items-center justify-center">
-              <Star className="w-8 h-8 text-accent" />
+              <Star className="w-8 h-8 text-accent" aria-hidden="true" />
             </div>
             <h3 className="font-bold text-foreground mb-2">Nota 8.1 / 10</h3>
             <p className="text-sm text-muted-foreground">

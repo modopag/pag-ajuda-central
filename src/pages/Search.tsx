@@ -80,10 +80,9 @@ export default function Search() {
         article.meta_description?.toLowerCase().includes(searchTerm)
       );
       
-      // Simular tracking de evento faq_search
-      console.log('faq_search', { 
-        q: debouncedQuery, 
-        results_count: filtered.length 
+      // Track FAQ search event
+      import('@/utils/analytics').then(({ trackFAQSearch }) => {
+        trackFAQSearch(debouncedQuery, filtered.length);
       });
     }
 
@@ -188,13 +187,13 @@ export default function Search() {
         {/* Breadcrumbs */}
         <div className="py-4 px-4 border-b border-border">
           <div className="container mx-auto">
-            <nav className="flex items-center space-x-2 text-sm">
-              <Home className="w-4 h-4" />
+            <nav className="flex items-center space-x-2 text-sm" aria-label="Breadcrumb">
+              <Home className="w-4 h-4" aria-hidden="true" />
               <Link to="/" className="text-muted-foreground hover:text-accent transition-colors">
                 Central de Ajuda
               </Link>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              <span className="text-foreground font-medium">
+              <ChevronRight className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
+              <span className="text-foreground font-medium" aria-current="page">
                 {query ? `Resultados para "${query}"` : 'Buscar'}
               </span>
             </nav>
@@ -242,13 +241,15 @@ export default function Search() {
                   
                   {/* Sugestões de Autocomplete */}
                   {showSuggestions && suggestions.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 bg-background border border-border rounded-md shadow-lg z-50 mt-1">
+                    <div className="absolute top-full left-0 right-0 bg-background border border-border rounded-md shadow-lg z-50 mt-1" role="listbox">
                       {suggestions.map((article) => (
-                        <button
-                          key={article.id}
-                          onClick={() => handleSuggestionClick(article)}
-                          className="w-full px-4 py-3 text-left hover:bg-muted transition-colors border-b border-border last:border-b-0"
-                        >
+            <button
+              key={article.id}
+              onClick={() => handleSuggestionClick(article)}
+              className="w-full px-4 py-3 text-left hover:bg-muted transition-colors border-b border-border last:border-b-0"
+              role="option"
+              aria-label={`Ir para artigo: ${article.title}`}
+            >
                           <div className="font-medium text-sm line-clamp-1">
                             {article.title}
                           </div>
@@ -357,7 +358,7 @@ export default function Search() {
                         <div className="flex items-center justify-between mb-2">
                           <Badge variant="outline">{article.type}</Badge>
                           <div className="flex items-center text-xs text-muted-foreground">
-                            <Clock className="w-3 h-3 mr-1" />
+                            <Clock className="w-3 h-3 mr-1" aria-hidden="true" />
                             {article.reading_time_minutes} min
                           </div>
                         </div>
@@ -388,7 +389,7 @@ export default function Search() {
                         
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <div className="flex items-center">
-                            <User className="w-3 h-3 mr-1" />
+                            <User className="w-3 h-3 mr-1" aria-hidden="true" />
                             {article.author}
                           </div>
                           {article.published_at && (
@@ -452,10 +453,16 @@ export default function Search() {
                 <div className="space-y-4">
                   <p className="text-sm text-muted-foreground">Precisa de ajuda?</p>
                   <Button 
-                    onClick={() => window.open('https://wa.me/5571981470573?text=Vim%20da%20Central%20de%20Ajuda%20e%20preciso%20de%20suporte%20com%20busca', '_blank')}
+                    onClick={() => {
+                      import('@/utils/analytics').then(({ trackWhatsAppCTA }) => {
+                        trackWhatsAppCTA('search_empty', query || 'no_query');
+                      });
+                      window.open('https://wa.me/5571981470573?text=Vim%20da%20Central%20de%20Ajuda%20e%20preciso%20de%20suporte%20com%20busca', '_blank');
+                    }}
                     className="bg-green-600 hover:bg-green-700"
+                    aria-label="Abrir WhatsApp para suporte"
                   >
-                    <MessageSquare className="w-4 h-4 mr-2" />
+                    <MessageSquare className="w-4 h-4 mr-2" aria-hidden="true" />
                     Falar no WhatsApp
                   </Button>
                 </div>

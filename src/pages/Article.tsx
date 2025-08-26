@@ -30,6 +30,11 @@ const Article = () => {
         if (articleData) {
           setArticle(articleData);
           
+          // Track article view
+          import('@/utils/analytics').then(({ trackFAQViewArticle }) => {
+            trackFAQViewArticle(articleData.id, articleData.category_id, articleData.title);
+          });
+          
           // Carregar categoria
           const categoryData = await adapter.getCategoryById(articleData.category_id);
           setCategory(categoryData);
@@ -43,6 +48,20 @@ const Article = () => {
 
     loadArticle();
   }, [articleId]);
+
+  // Initialize lazy loading for images after article loads
+  useEffect(() => {
+    if (article && !isLoading) {
+      // Delay slightly to ensure DOM is updated
+      const timer = setTimeout(() => {
+        import('@/utils/lazyImages').then(({ initializeLazyImages }) => {
+          initializeLazyImages();
+        });
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [article, isLoading]);
 
   if (isLoading) {
     return (
@@ -124,12 +143,12 @@ const Article = () => {
         {/* Breadcrumbs */}
         <div className="py-4 px-4 border-b border-border">
           <div className="container mx-auto">
-            <nav className="flex items-center space-x-2 text-sm">
-              <Home className="w-4 h-4" />
+            <nav className="flex items-center space-x-2 text-sm" aria-label="Breadcrumb">
+              <Home className="w-4 h-4" aria-hidden="true" />
               <a href="/" className="text-muted-foreground hover:text-accent transition-colors">
                 Central de Ajuda
               </a>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
               {category && (
                 <>
                   <a 
@@ -138,10 +157,10 @@ const Article = () => {
                   >
                     {category.name}
                   </a>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
                 </>
               )}
-              <span className="text-foreground font-medium">{article.title}</span>
+              <span className="text-foreground font-medium" aria-current="page">{article.title}</span>
             </nav>
           </div>
         </div>
@@ -155,8 +174,9 @@ const Article = () => {
                 variant="ghost" 
                 onClick={() => window.history.back()}
                 className="mb-6 p-0 h-auto font-normal text-muted-foreground hover:text-accent"
+                aria-label={`Voltar para ${category.name}`}
               >
-                <ArrowLeft className="w-4 h-4 mr-2" />
+                <ArrowLeft className="w-4 h-4 mr-2" aria-hidden="true" />
                 Voltar para {category.name}
               </Button>
             )}
@@ -175,31 +195,31 @@ const Article = () => {
               
               <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
-                  <User size={16} />
+                  <User size={16} aria-hidden="true" />
                   <span>{article.author}</span>
                 </div>
                 
                 {article.published_at && (
                   <div className="flex items-center gap-1">
-                    <Calendar size={16} />
-                    <span>
+                    <Calendar size={16} aria-hidden="true" />
+                    <time dateTime={article.published_at}>
                       {new Date(article.published_at).toLocaleDateString('pt-BR')}
-                    </span>
+                    </time>
                   </div>
                 )}
                 
                 <div className="flex items-center gap-1">
-                  <Clock size={16} />
+                  <Clock size={16} aria-hidden="true" />
                   <span>{article.reading_time_minutes} min de leitura</span>
                 </div>
               </div>
             </header>
 
-            {/* Article Content */}
+            {/* Article Content with Lazy Loading */}
             <article className="prose prose-lg max-w-none mb-12">
               <div 
                 dangerouslySetInnerHTML={{ __html: article.content }}
-                className="article-content"
+                className="article-content lazy-images"
               />
             </article>
 

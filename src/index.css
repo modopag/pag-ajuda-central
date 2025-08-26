@@ -195,3 +195,28 @@ All colors MUST be HSL.
     @apply border-l-4 border-accent pl-4 italic text-muted-foreground mb-4;
   }
 }
+
+/* Article content styles with lazy loading */
+.article-content.lazy-images img {
+  loading: lazy;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.article-content.lazy-images img[loading="lazy"] {
+  opacity: 0;
+}
+
+.article-content.lazy-images img[loading="lazy"].loaded {
+  opacity: 1;
+}
+
+/* Ensure proper alt text styling */
+.article-content img:not([alt]) {
+  border: 2px solid hsl(var(--destructive));
+  opacity: 0.7;
+}
+
+.article-content img[alt=""] {
+  border: 2px solid hsl(var(--destructive));
+  opacity: 0.7;
+}
