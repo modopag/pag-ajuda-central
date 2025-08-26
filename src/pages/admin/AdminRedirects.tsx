@@ -11,6 +11,8 @@ import { Switch } from "@/components/ui/switch";
 import { Plus, Pencil, Trash2, Search, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getDataAdapter } from "@/lib/data-adapter";
+import { CSVImporter } from "@/components/admin/CSVImporter";
+import { RedirectStats } from "@/components/admin/RedirectStats";
 import type { Redirect, RedirectType } from "@/types/admin";
 
 export default function AdminRedirects() {
@@ -19,6 +21,7 @@ export default function AdminRedirects() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingRedirect, setEditingRedirect] = useState<Redirect | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [formData, setFormData] = useState({
     from_path: "",
     to_path: "",
@@ -36,6 +39,7 @@ export default function AdminRedirects() {
       const adapter = await getDataAdapter();
       const data = await adapter.getRedirects();
       setRedirects(data);
+      setRefreshTrigger(prev => prev + 1);
     } catch (error) {
       toast({
         title: "Erro",
@@ -152,84 +156,91 @@ export default function AdminRedirects() {
           <p className="text-muted-foreground">Gerencie redirecionamentos 301 e 302</p>
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => {
-              setEditingRedirect(null);
-              setFormData({ from_path: "", to_path: "", type: 301, is_active: true });
-            }}>
-              <Plus className="w-4 h-4 mr-2" />
-              Novo Redirecionamento
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                {editingRedirect ? "Editar Redirecionamento" : "Novo Redirecionamento"}
-              </DialogTitle>
-              <DialogDescription>
-                {editingRedirect ? "Edite o redirecionamento" : "Crie um novo redirecionamento"}
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="from_path">Caminho de Origem</Label>
-                <Input
-                  id="from_path"
-                  value={formData.from_path}
-                  onChange={(e) => setFormData({ ...formData, from_path: e.target.value })}
-                  placeholder="/pagina-antiga ou https://exemplo.com/pagina"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="to_path">Caminho de Destino</Label>
-                <Input
-                  id="to_path"
-                  value={formData.to_path}
-                  onChange={(e) => setFormData({ ...formData, to_path: e.target.value })}
-                  placeholder="/nova-pagina ou https://exemplo.com/nova-pagina"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="type">Tipo de Redirecionamento</Label>
-                <Select
-                  value={formData.type.toString()}
-                  onValueChange={(value) => setFormData({ ...formData, type: parseInt(value) as RedirectType })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="301">301 - Permanente</SelectItem>
-                    <SelectItem value="302">302 - Temporário</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  checked={formData.is_active}
-                  onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
-                />
-                <Label>Ativo</Label>
-              </div>
-              <div className="flex justify-end space-x-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsDialogOpen(false)}
-                >
-                  Cancelar
-                </Button>
-                <Button type="submit">
-                  {editingRedirect ? "Salvar" : "Criar"}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <div className="flex gap-2">
+          <CSVImporter onImportComplete={loadRedirects} />
+          
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => {
+                setEditingRedirect(null);
+                setFormData({ from_path: "", to_path: "", type: 301, is_active: true });
+              }}>
+                <Plus className="w-4 h-4 mr-2" />
+                Novo Redirecionamento
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>
+                  {editingRedirect ? "Editar Redirecionamento" : "Novo Redirecionamento"}
+                </DialogTitle>
+                <DialogDescription>
+                  {editingRedirect ? "Edite o redirecionamento" : "Crie um novo redirecionamento"}
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="from_path">Caminho de Origem</Label>
+                  <Input
+                    id="from_path"
+                    value={formData.from_path}
+                    onChange={(e) => setFormData({ ...formData, from_path: e.target.value })}
+                    placeholder="/pagina-antiga ou https://exemplo.com/pagina"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="to_path">Caminho de Destino</Label>
+                  <Input
+                    id="to_path"
+                    value={formData.to_path}
+                    onChange={(e) => setFormData({ ...formData, to_path: e.target.value })}
+                    placeholder="/nova-pagina ou https://exemplo.com/nova-pagina"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="type">Tipo de Redirecionamento</Label>
+                  <Select
+                    value={formData.type.toString()}
+                    onValueChange={(value) => setFormData({ ...formData, type: parseInt(value) as RedirectType })}
+                  >
+                    <SelectTrigger className="bg-background">
+                      <SelectValue placeholder="Selecione o tipo" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border z-50">
+                      <SelectItem value="301">301 - Permanente</SelectItem>
+                      <SelectItem value="302">302 - Temporário</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={formData.is_active}
+                    onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                  />
+                  <Label>Ativo</Label>
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsDialogOpen(false)}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button type="submit">
+                    {editingRedirect ? "Salvar" : "Criar"}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
+
+      {/* Stats Section */}
+      <RedirectStats refreshTrigger={refreshTrigger} />
 
       <Card>
         <CardHeader>

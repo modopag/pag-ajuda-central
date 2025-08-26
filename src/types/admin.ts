@@ -149,6 +149,16 @@ export interface SEOValidationResult {
   warnings: string[];
 }
 
+// Slug history tracking
+export interface SlugHistoryEntry {
+  id: string;
+  article_id: string;
+  old_slug: string;
+  new_slug: string;
+  changed_at: string;
+  redirect_created: boolean;
+}
+
 // Data adapter interface (for future Supabase migration)
 export interface DataAdapter {
   // Categories
@@ -189,6 +199,10 @@ export interface DataAdapter {
   createRedirect(redirect: Omit<Redirect, 'id' | 'created_at'>): Promise<Redirect>;
   updateRedirect(id: string, updates: Partial<Redirect>): Promise<Redirect>;
   deleteRedirect(id: string): Promise<void>;
+
+  // Slug History
+  getSlugHistory(articleId: string): Promise<SlugHistoryEntry[]>;
+  recordSlugChange(entry: Omit<SlugHistoryEntry, 'id'>): Promise<SlugHistoryEntry>;
 
   // Feedback
   getFeedback(articleId?: string): Promise<Feedback[]>;

@@ -1,6 +1,6 @@
 // Supabase adapter - future implementation placeholder
 
-import type { DataAdapter, Category, Article, Tag, ArticleTag, Media, Redirect, Feedback, User, Setting, AnalyticsEvent, ArticleStatus } from '@/types/admin';
+import type { DataAdapter, Category, Article, Tag, ArticleTag, Media, Redirect, Feedback, User, Setting, AnalyticsEvent, SlugHistoryEntry, ArticleStatus } from '@/types/admin';
 
 export class SupabaseAdapter implements DataAdapter {
   constructor() {
@@ -150,6 +150,15 @@ export class SupabaseAdapter implements DataAdapter {
 
   async getEvents(filters?: { event_type?: string; limit?: number }): Promise<AnalyticsEvent[]> {
     throw new Error('SupabaseAdapter: getEvents not implemented yet');
+  }
+
+  // Slug History
+  async getSlugHistory(articleId: string): Promise<SlugHistoryEntry[]> {
+    throw new Error('SupabaseAdapter: getSlugHistory not implemented yet');
+  }
+
+  async recordSlugChange(entry: Omit<SlugHistoryEntry, 'id'>): Promise<SlugHistoryEntry> {
+    throw new Error('SupabaseAdapter: recordSlugChange not implemented yet');
   }
 
   // Data management

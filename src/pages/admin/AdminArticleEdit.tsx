@@ -464,13 +464,13 @@ export default function AdminArticleEdit() {
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione uma categoria" />
                     </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          {category.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
+            <SelectContent className="bg-background border z-50">
+              {categories.map((category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  {category.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
                   </Select>
                 </div>
               </div>
@@ -506,7 +506,7 @@ export default function AdminArticleEdit() {
                   <SelectTrigger className="w-full md:w-48">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-background border z-50">
                     <SelectItem value="artigo">Artigo</SelectItem>
                     <SelectItem value="tutorial">Tutorial</SelectItem>
                     <SelectItem value="aviso">Aviso</SelectItem>

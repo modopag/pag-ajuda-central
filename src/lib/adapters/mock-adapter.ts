@@ -1,6 +1,6 @@
 // Mock adapter for local data persistence using localStorage
 
-import type { DataAdapter, Category, Article, Tag, ArticleTag, Media, Redirect, Feedback, User, Setting, AnalyticsEvent } from '@/types/admin';
+import type { DataAdapter, Category, Article, Tag, ArticleTag, Media, Redirect, Feedback, User, Setting, AnalyticsEvent, SlugHistoryEntry } from '@/types/admin';
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -898,6 +898,24 @@ export class MockAdapter implements DataAdapter {
     return JSON.stringify(data, null, 2);
   }
 
+  async getSlugHistory(articleId: string): Promise<SlugHistoryEntry[]> {
+    const slugHistory = this.getStorageData<SlugHistoryEntry>('slug_history');
+    return slugHistory.filter(entry => entry.article_id === articleId);
+  }
+
+  async recordSlugChange(entry: Omit<SlugHistoryEntry, 'id'>): Promise<SlugHistoryEntry> {
+    const slugHistory = this.getStorageData<SlugHistoryEntry>('slug_history');
+    const newEntry: SlugHistoryEntry = {
+      ...entry,
+      id: this.generateId()
+    };
+    
+    slugHistory.push(newEntry);
+    this.setStorageData('slug_history', slugHistory);
+    
+    return newEntry;
+  }
+
   async importData(jsonData: string): Promise<void> {
     try {
       const data = JSON.parse(jsonData);
@@ -911,6 +929,7 @@ export class MockAdapter implements DataAdapter {
       if (data.feedback) this.setStorageData(STORAGE_KEYS.feedback, data.feedback);
       if (data.settings) this.setStorageData(STORAGE_KEYS.settings, data.settings);
       if (data.events) this.setStorageData(STORAGE_KEYS.events, data.events);
+      if (data.slugHistory) this.setStorageData('slug_history', data.slugHistory);
       
     } catch (error) {
       throw new Error('Invalid JSON data format');
