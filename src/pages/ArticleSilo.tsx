@@ -16,7 +16,9 @@ import { generateArticleUrl, generateCategoryUrl, generateCanonicalUrl, generate
 import { initializeLazyImages } from '@/utils/lazyImages';
 import { useSettings } from '@/hooks/useSettings';
 import type { Article, Category, Tag } from '@/types/admin';
-import { Clock, Eye, Tag as TagIcon, ChevronRight, User, ArrowLeft, MessageCircle, Mail, Heart, Share2, BookOpen } from 'lucide-react';
+import { Clock, Eye, Tag as TagIcon, ChevronRight, User, Heart, Share2, BookOpen } from 'lucide-react';
+import { handleArticleLike, handleArticleShare, isArticleLiked } from '@/utils/articleActions';
+import AdminComments from '@/components/AdminComments';
 
 export default function ArticleSilo() {
   const { categorySlug, articleSlug } = useParams<{ categorySlug: string; articleSlug: string }>();
@@ -26,6 +28,7 @@ export default function ArticleSilo() {
   const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [liked, setLiked] = useState(false);
   const { seo } = useSettings();
 
   useEffect(() => {
@@ -51,6 +54,9 @@ export default function ArticleSilo() {
       
       // Increment view count
       incrementViewCount();
+
+      // Check if article is already liked
+      setLiked(isArticleLiked(article.id.toString()));
 
       return cleanup;
     }
@@ -109,10 +115,26 @@ export default function ArticleSilo() {
     try {
       const adapter = await getDataAdapter();
       // Mock increment for now - in real implementation this would update the database
-      setArticle(prev => prev ? { ...prev, view_count: prev.view_count + 1 } : null);
+      setArticle(prev => prev ? { 
+        ...prev, 
+        view_count: (prev.view_count || 0) + 1 
+      } : null);
     } catch (error) {
       console.error('Error incrementing view count:', error);
     }
+  };
+
+  const handleLike = async () => {
+    if (!article) return;
+    const success = await handleArticleLike(article.id.toString());
+    if (success) {
+      setLiked(true);
+    }
+  };
+
+  const handleShare = async () => {
+    if (!article) return;
+    await handleArticleShare(article.title);
   };
 
   if (loading) {
@@ -204,54 +226,44 @@ export default function ArticleSilo() {
 
       <main id="main-content" className="relative z-10 container mx-auto px-4 py-8 max-w-4xl">
         {/* Breadcrumbs */}
-        <nav aria-label="Breadcrumb" className="mb-6">
-          <ol className="flex items-center space-x-2 text-sm text-muted-foreground">
+        <nav aria-label="Breadcrumb" className="mb-8">
+          <ol className="flex items-center space-x-1 md:space-x-2 text-sm text-muted-foreground flex-wrap">
             <li>
               <Link to="/" className="hover:text-primary transition-colors flex items-center gap-1">
                 <ChevronRight className="w-3 h-3 rotate-180" />
-                Central de Ajuda
+                <span className="hidden sm:inline">Central de Ajuda</span>
+                <span className="sm:hidden">Início</span>
               </Link>
             </li>
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-3 h-3 md:w-4 md:h-4" />
             <li>
               <Link 
                 to={generateCategoryUrl(categorySlug)} 
-                className="hover:text-primary transition-colors"
+                className="hover:text-primary transition-colors truncate max-w-[150px] sm:max-w-none"
+                title={category.name}
               >
                 {category.name}
               </Link>
             </li>
-            <ChevronRight className="w-4 h-4" />
-            <li className="text-foreground font-medium line-clamp-1" aria-current="page">
+            <ChevronRight className="w-3 h-3 md:w-4 md:h-4" />
+            <li className="text-foreground font-medium truncate max-w-[200px] sm:max-w-none" aria-current="page" title={article.title}>
               {article.title}
             </li>
           </ol>
         </nav>
 
-        {/* Back Button */}
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate(generateCategoryUrl(categorySlug))}
-          className="mb-6 p-0 h-auto font-normal text-muted-foreground hover:text-primary group"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-          Voltar para {category.name}
-        </Button>
-
         {/* Article Header */}
         <header className="mb-8">
-          <div className="flex flex-wrap items-center gap-2 mb-4">
-            <Badge variant="secondary" className="bg-gradient-to-r from-primary/10 to-accent/10 text-primary border-primary/20">
-              <BookOpen className="w-3 h-3 mr-1" />
-              {category.name}
-            </Badge>
-            {tags.map((tag) => (
-              <Badge key={tag.id} variant="outline" className="text-xs hover:bg-primary/5 transition-colors">
-                <TagIcon className="w-3 h-3 mr-1" />
-                {tag.name}
-              </Badge>
-            ))}
-          </div>
+          {tags.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              {tags.map((tag) => (
+                <Badge key={tag.id} variant="outline" className="text-xs hover:bg-primary/5 transition-colors">
+                  <TagIcon className="w-3 h-3 mr-1" />
+                  {tag.name}
+                </Badge>
+              ))}
+            </div>
+          )}
 
           <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             {article.title}
@@ -263,15 +275,21 @@ export default function ArticleSilo() {
             </p>
           )}
 
-          <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground mb-6">
+          <div className="flex flex-wrap items-center gap-4 md:gap-6 text-sm text-muted-foreground mb-6">
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-primary" />
               <span>Atualizado em {new Date(article.updated_at).toLocaleDateString('pt-BR')}</span>
             </div>
             <div className="flex items-center gap-2">
               <Eye className="w-4 h-4 text-accent" />
-              <span>{article.view_count} visualizações</span>
+              <span>{(article.view_count || 0).toLocaleString()} visualizações</span>
             </div>
+            {(article.reading_time_minutes || 5) > 0 && (
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-primary" />
+                <span>{article.reading_time_minutes || 5} min de leitura</span>
+              </div>
+            )}
             <div className="flex items-center gap-2">
               <User className="w-4 h-4 text-primary" />
               <span>Equipe modoPAG</span>
@@ -280,18 +298,21 @@ export default function ArticleSilo() {
 
           {/* Article Actions */}
           <div className="flex flex-wrap items-center gap-3 mb-8">
-            <Button size="sm" variant="outline" className="hover:bg-primary/5 hover:border-primary/20">
-              <Heart className="w-4 h-4 mr-2" />
-              Curtir
+            <Button 
+              size="sm" 
+              variant={liked ? "default" : "outline"} 
+              className={liked ? "bg-primary text-primary-foreground" : "hover:bg-primary/5 hover:border-primary/20"}
+              onClick={handleLike}
+              disabled={liked}
+            >
+              <Heart className={`w-4 h-4 mr-2 ${liked ? "fill-current" : ""}`} />
+              {liked ? "Curtido" : "Curtir"}
             </Button>
             <Button 
               size="sm" 
               variant="outline" 
               className="hover:bg-accent/5 hover:border-accent/20"
-              onClick={() => navigator.share && navigator.share({
-                title: article.title,
-                url: window.location.href
-              })}
+              onClick={handleShare}
             >
               <Share2 className="w-4 h-4 mr-2" />
               Compartilhar
@@ -323,41 +344,11 @@ export default function ArticleSilo() {
             </div>
           )}
 
-          {/* Quick Help Section */}
-          <section className="bg-gradient-to-r from-primary/5 via-background to-accent/5 rounded-xl p-8">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-foreground mb-4">
-                Este artigo foi útil?
-              </h2>
-              <p className="text-muted-foreground">
-                Se você ainda tem dúvidas, nossa equipe está pronta para ajudar!
-              </p>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-              <Button 
-                size="lg" 
-                className="bg-[#25D366] hover:bg-[#25D366]/90 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300"
-                onClick={() => window.open('https://wa.me/5511999999999?text=Olá, li o artigo "' + encodeURIComponent(article.title) + '" mas ainda tenho dúvidas', '_blank')}
-              >
-                <MessageCircle className="w-5 h-5 mr-2" />
-                WhatsApp
-              </Button>
-              
-              <Button 
-                size="lg" 
-                variant="secondary"
-                className="shadow-lg hover:shadow-xl transition-all duration-300"
-                onClick={() => window.location.href = `mailto:ajuda@modopag.com.br?subject=Dúvida sobre: ${article.title}`}
-              >
-                <Mail className="w-5 h-5 mr-2" />
-                E-mail
-              </Button>
-            </div>
-          </section>
-
           {/* Feedback */}
           <ArticleFeedback articleId={article.id.toString()} />
+
+          {/* Admin Comments */}
+          <AdminComments articleId={article.id.toString()} />
 
           {/* Related Articles */}
           <RelatedArticles 

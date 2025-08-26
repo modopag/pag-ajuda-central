@@ -15,7 +15,20 @@ import logoBlack from "@/assets/modopag-logo-black.png";
 
 const Header = () => {
   const location = useLocation();
-  const isHomePage = location.pathname === '/';
+  
+  // Pages that have their own search functionality - hide header search
+  const pagesWithSearch = [
+    '/', // Homepage
+    '/buscar', // Search page
+    '/404', // 404 page
+    '/410', // Gone page
+  ];
+  
+  // Check if current page is a category page (has its own search)
+  const isCategoryPage = /^\/[^\/]+\/$/.test(location.pathname);
+  
+  // Hide search if on pages with their own search or category pages
+  const shouldHideSearch = pagesWithSearch.includes(location.pathname) || isCategoryPage;
 
   return (
     <>
@@ -39,8 +52,8 @@ const Header = () => {
               />
             </Link>
             
-            {/* Search Bar - Hidden on home page to avoid duplication */}
-            {!isHomePage && (
+            {/* Search Bar - Hidden on pages with their own search */}
+            {!shouldHideSearch && (
               <div className="hidden md:flex flex-1 max-w-md mx-4">
                 <SearchAutocomplete 
                   placeholder="Pesquisar na central de ajuda..."
@@ -115,8 +128,8 @@ const Header = () => {
             </NavigationMenuList>
           </NavigationMenu>
           
-            {/* Mobile Search Button - Hidden on home page */}
-            {!isHomePage && (
+            {/* Mobile Search Button - Hidden on pages with search */}
+            {!shouldHideSearch && (
               <Link 
                 to="/buscar" 
                 className="md:hidden p-2 hover:bg-accent/10 rounded-md transition-colors"

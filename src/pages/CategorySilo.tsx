@@ -296,11 +296,8 @@ export default function CategorySilo() {
                 
                 <CardContent className="pt-0">
                   <div className="flex items-center justify-between text-sm text-muted-foreground group-hover:text-foreground/70 transition-colors">
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      <span>{new Date(article.updated_at).toLocaleDateString('pt-BR')}</span>
-                    </div>
                     <div className="flex items-center gap-1 text-primary">
+                      <span>Ler artigo</span>
                       <span className="group-hover:translate-x-1 transition-transform">→</span>
                     </div>
                   </div>
@@ -367,10 +364,15 @@ export default function CategorySilo() {
 
         {/* Trust Section */}
         <div className="mt-12 text-center">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 to-accent/10 px-4 py-2 rounded-full">
+          <Link
+            to="https://www.reclameaqui.com.br/empresa/modopag/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 to-accent/10 px-4 py-2 rounded-full hover:from-primary/20 hover:to-accent/20 transition-colors"
+          >
             <ExternalLink className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium">Avaliado com 4.5/5 estrelas no ReclameAqui</span>
-          </div>
+            <span className="text-sm font-medium">Nota 8.1/10 no ReclameAqui modoPAG</span>
+          </Link>
         </div>
       </main>
 
