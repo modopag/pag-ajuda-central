@@ -30,21 +30,24 @@ export const generateSitemap = async (siteUrl: string): Promise<string> => {
         priority: '1.0'
       },
       
-      // Categories
+      // Categories  
       ...activeCategories.map(category => ({
-        loc: `${siteUrl}/categoria/${category.slug}`,
+        loc: `${siteUrl}${category.slug}/`,
         lastmod: category.updated_at.split('T')[0],
         changefreq: 'weekly' as const,
         priority: '0.8'
       })),
       
-      // Articles
-      ...articles.map(article => ({
-        loc: `${siteUrl}/artigo/${article.slug}`,
-        lastmod: article.updated_at.split('T')[0],
-        changefreq: 'monthly' as const,
-        priority: '0.7'
-      })),
+      // Articles (SILO structure)
+      ...articles.map(article => {
+        const category = activeCategories.find(cat => cat.id === article.category_id);
+        return {
+          loc: `${siteUrl}${category?.slug}/${article.slug}`,
+          lastmod: article.updated_at.split('T')[0],
+          changefreq: 'monthly' as const,
+          priority: '0.7'
+        };
+      }),
       
       // Search page
       {

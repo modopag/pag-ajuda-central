@@ -498,9 +498,42 @@ export default function AdminArticleEdit() {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="meta_description">Meta Description *</Label>
+                <div className="relative">
+                  <Textarea
+                    id="meta_description"
+                    value={article.meta_description || ''}
+                    onChange={(e) => handleInputChange('meta_description', e.target.value)}
+                    placeholder="Breve descrição do artigo (120-160 caracteres)"
+                    rows={3}
+                    maxLength={160}
+                    className={
+                      article.meta_description && article.meta_description.length > 160 
+                        ? 'border-red-500' 
+                        : article.meta_description && article.meta_description.length < 120
+                        ? 'border-yellow-500'
+                        : ''
+                    }
+                  />
+                  <div className="absolute bottom-2 right-3 text-xs text-muted-foreground">
+                    <span className={
+                      (article.meta_description?.length || 0) > 160 ? 'text-red-500' :
+                      (article.meta_description?.length || 0) < 120 ? 'text-yellow-500' :
+                      'text-green-600'
+                    }>
+                      {article.meta_description?.length || 0}/160
+                    </span>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Esta descrição aparecerá nos resultados de busca. Inclua palavras-chave relevantes.
+                </p>
+              </div>
+
+              <div className="space-y-2">
                 <Label>Tipo de Artigo</Label>
                 <Select 
-                  value={article.type || 'guide'} 
+                  value={article.type || 'artigo'} 
                   onValueChange={(value) => handleInputChange('type', value)}
                 >
                   <SelectTrigger className="w-full md:w-48">
@@ -517,7 +550,7 @@ export default function AdminArticleEdit() {
             </CardContent>
           </Card>
 
-            <Card>
+          <Card>
             <CardHeader>
               <CardTitle>Conteúdo do Artigo</CardTitle>
             </CardHeader>

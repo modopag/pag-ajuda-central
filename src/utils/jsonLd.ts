@@ -22,8 +22,8 @@ export const generateArticleJsonLd = (article: Article, category: Category) => {
     "datePublished": article.published_at,
     "dateModified": article.updated_at,
     "mainEntityOfPage": {
-      "@type": "WebPage",
-      "@id": `https://ajuda.modopag.com.br/article/${article.slug}`
+      "@type": "WebPage", 
+      "@id": `https://ajuda.modopag.com.br/${category.slug}/${article.slug}`
     },
     "articleSection": category.name,
     "image": article.og_image || "https://modopag.com.br/images/og-default.png"
@@ -45,13 +45,13 @@ export const generateBreadcrumbJsonLd = (article: Article, category: Category) =
         "@type": "ListItem",
         "position": 2,
         "name": category.name,
-        "item": `https://ajuda.modopag.com.br/category/${category.slug}`
+        "item": `https://ajuda.modopag.com.br/${category.slug}/`
       },
       {
         "@type": "ListItem",
         "position": 3,
         "name": article.title,
-        "item": `https://ajuda.modopag.com.br/article/${article.slug}`
+        "item": `https://ajuda.modopag.com.br/${category.slug}/${article.slug}`
       }
     ]
   };
@@ -78,14 +78,14 @@ export const generateCategoryJsonLd = (category: Category, articles: Article[]) 
     "@type": "CollectionPage",
     "name": `${category.name} - Central de Ajuda modoPAG`,
     "description": category.description,
-    "url": `https://ajuda.modopag.com.br/category/${category.slug}`,
+    "url": `https://ajuda.modopag.com.br/${category.slug}/`,
     "mainEntity": {
-      "@type": "ItemList",
+      "@type": "ItemList", 
       "numberOfItems": articles.length,
       "itemListElement": articles.map((article, index) => ({
         "@type": "ListItem",
         "position": index + 1,
-        "url": `https://ajuda.modopag.com.br/article/${article.slug}`,
+        "url": `https://ajuda.modopag.com.br/${category.slug}/${article.slug}`,
         "name": article.title
       }))
     }

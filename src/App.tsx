@@ -18,6 +18,7 @@ const CategorySilo = lazy(() => import("./pages/CategorySilo"));
 const ArticleSilo = lazy(() => import("./pages/ArticleSilo"));
 const Search = lazy(() => import("./pages/Search"));
 const Sitemap = lazy(() => import("./pages/Sitemap"));
+const RobotsTxt = lazy(() => import("./pages/RobotsTxt"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const PoliticasPrivacidade = lazy(() => import("./pages/PoliticasPrivacidade"));
 
@@ -58,7 +59,7 @@ const AppContent = () => {
           <Route path="/" element={<Index />} />
           <Route path="/buscar" element={<Search />} />
           <Route path="/sitemap.xml" element={<Sitemap />} />
-          <Route path="/robots.txt" element={<NotFound />} />
+          <Route path="/robots.txt" element={<RobotsTxt />} />
           <Route path="/politicas-de-privacidade" element={<PoliticasPrivacidade />} />
           <Route path="/gone" element={<Gone />} />
           

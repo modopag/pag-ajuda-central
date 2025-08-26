@@ -53,392 +53,276 @@ const DEMO_CATEGORIES: Category[] = [
   }
 ];
 
-const DEMO_ARTICLES: Article[] = [
-  {
-    id: 'art-1',
-    title: 'Como criar uma conta no modoPAG?',
-    slug: 'como-criar-conta-modopag',
-    category_id: 'cat-1',
-    content: `# Como criar uma conta no modoPAG
-
-Para criar sua conta no modoPAG, siga estes passos simples:
-
-## 1. Acesse o site oficial
-Vá para [modopag.com.br](https://modopag.com.br) e clique em "Criar Conta".
-
-## 2. Preencha seus dados
-- Nome completo
-- E-mail válido
-- CPF ou CNPJ
-- Telefone
-
-## 3. Confirme seu e-mail
-Verifique sua caixa de entrada e clique no link de confirmação.
-
-## 4. Configure sua senha
-Crie uma senha segura com pelo menos 8 caracteres.
-
-> **Dica:** Use uma combinação de letras, números e símbolos para maior segurança.
-
-Pronto! Sua conta está criada e você pode começar a usar o modoPAG.`,
-    status: 'published',
-    published_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    author: 'Admin',
-    meta_title: 'Como criar uma conta no modoPAG? | modoPAG - Central de Ajuda',
-    meta_description: 'Aprenda como criar sua conta no modoPAG em poucos passos simples. Guia completo com todas as informações necessárias.',
-    noindex: false,
-    reading_time_minutes: 2,
-    type: 'artigo',
-    view_count: 145,
-  },
-  {
-    id: 'art-2',
-    title: 'Esqueci minha senha, como recuperar?',
-    slug: 'recuperar-senha-modopag',
-    category_id: 'cat-1',
-    content: `# Esqueci minha senha, como recuperar?
-
-Se você esqueceu sua senha do modoPAG, não se preocupe! É muito fácil recuperá-la.
-
-## Passo a passo para recuperar senha
-
-### 1. Acesse a página de login
-Vá para [modopag.com.br/login](https://modopag.com.br/login)
-
-### 2. Clique em "Esqueci minha senha"
-Na tela de login, procure pelo link "Esqueci minha senha" abaixo do campo de senha.
-
-### 3. Digite seu e-mail
-Informe o e-mail cadastrado em sua conta.
-
-### 4. Verifique seu e-mail
-Em poucos minutos você receberá um e-mail com as instruções para criar uma nova senha.
-
-### 5. Crie sua nova senha
-Clique no link do e-mail e defina sua nova senha.
-
-## Não recebeu o e-mail?
-
-- Verifique a caixa de spam/lixo eletrônico
-- Aguarde alguns minutos (pode demorar até 10 minutos)
-- Certifique-se de que digitou o e-mail correto
-
-Se ainda assim não receber, entre em contato com nosso suporte.`,
-    status: 'published',
-    published_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    author: 'Admin',
-    meta_title: 'Esqueci minha senha modoPAG, como recuperar? | modoPAG - Central de Ajuda',
-    meta_description: 'Guia completo para recuperar sua senha do modoPAG. Passo a passo simples e rápido para acessar sua conta novamente.',
-    noindex: false,
-    reading_time_minutes: 3,
-    type: 'artigo',
-    view_count: 89,
-  },
-  {
-    id: 'art-3',
-    title: 'Quais métodos de pagamento são aceitos?',
-    slug: 'metodos-pagamento-aceitos',
-    category_id: 'cat-2',
-    content: `# Quais métodos de pagamento são aceitos?
-
-O modoPAG aceita diversos métodos de pagamento para sua comodidade.
-
-## Cartões de Crédito
-- Visa
-- Mastercard
-- American Express
-- Elo
-- Hipercard
-
-## Cartões de Débito
-- Visa Débito
-- Mastercard Débito
-- Elo Débito
-
-## PIX
-Pagamento instantâneo disponível 24h por dia, todos os dias da semana.
-
-## Boleto Bancário
-Vencimento em até 3 dias úteis após a emissão.
-
-## Carteiras Digitais
-- PicPay
-- PayPal
-- Mercado Pago
-
-## Dinheiro em Conta
-Saldo disponível em sua conta modoPAG.
-
-### Taxas e Prazos
-
-| Método | Taxa | Prazo de Compensação |
-|--------|------|---------------------|
-| PIX | Gratuito | Instantâneo |
-| Cartão Crédito | 2,5% | D+1 |
-| Cartão Débito | 1,5% | D+1 |
-| Boleto | R$ 2,50 | D+3 |
-
-> **Importante:** As taxas podem variar conforme o plano contratado.`,
-    status: 'published',
-    published_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    author: 'Admin',
-    meta_title: 'Métodos de pagamento aceitos pelo modoPAG | Central de Ajuda',
-    meta_description: 'Conheça todos os métodos de pagamento aceitos pelo modoPAG: cartões, PIX, boleto e carteiras digitais. Taxas e prazos inclusos.',
-    noindex: false,
-    reading_time_minutes: 4,
-    type: 'tutorial',
-    view_count: 234,
-  },
-  {
-    id: 'art-4',
-    title: 'Como funciona o PIX no modoPAG?',
-    slug: 'como-funciona-pix-modopag',
-    category_id: 'cat-2',
-    content: `# Como funciona o PIX no modoPAG?
-
-O PIX é o método de pagamento mais rápido e prático disponível no modoPAG.
-
-## O que é PIX?
-
-O PIX é o sistema de pagamentos instantâneos criado pelo Banco Central do Brasil. Com ele, você pode fazer transferências e pagamentos 24 horas por dia, 7 dias da semana, incluindo feriados.
-
-## Como usar PIX no modoPAG
-
-### Para fazer um pagamento:
-
-1. **Selecione PIX** como método de pagamento
-2. **Escaneie o QR Code** com o app do seu banco
-3. **Confirme a transação** no seu celular
-4. **Pronto!** O pagamento é processado instantaneamente
-
-### Para receber por PIX:
-
-1. **Cadastre suas chaves PIX** na área de conta
-2. **Compartilhe sua chave** com quem vai pagar
-3. **Receba instantaneamente** na sua conta modoPAG
-
-## Vantagens do PIX
-
-✅ **Instantâneo**: Pagamentos processados em segundos  
-✅ **Gratuito**: Sem taxas para pessoa física  
-✅ **Disponível 24/7**: Funciona a qualquer hora  
-✅ **Seguro**: Protegido pelo Banco Central  
-
-## Tipos de chave PIX
-
-- **CPF/CNPJ**: Seu documento
-- **E-mail**: Endereço de e-mail cadastrado
-- **Telefone**: Número de celular
-- **Chave aleatória**: Sequência gerada automaticamente
-
-## Limites PIX
-
-| Período | Limite |
-|---------|--------|
-| Por transação | R$ 20.000 |
-| Durante o dia | R$ 20.000 |
-| Durante a noite (20h-6h) | R$ 1.000 |
-
-> **Dica:** Os limites podem ser alterados no app do seu banco.`,
-    status: 'published',
-    published_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    author: 'Admin',
-    meta_title: 'Como funciona o PIX no modoPAG? Guia completo | Central de Ajuda',
-    meta_description: 'Entenda como usar PIX no modoPAG. Guia completo com passo a passo, vantagens, limites e dicas para pagamentos instantâneos.',
-    noindex: false,
-    reading_time_minutes: 5,
-    type: 'tutorial',
-    view_count: 178,
-  },
-  {
-    id: 'art-5',
-    title: 'App não está funcionando, o que fazer?',
-    slug: 'app-nao-funciona-solucoes',
-    category_id: 'cat-3',
-    content: `# App não está funcionando, o que fazer?
-
-Se o app do modoPAG não está funcionando corretamente, siga estas soluções:
-
-## Soluções Básicas
-
-### 1. Verifique sua conexão
-- Teste se a internet está funcionando
-- Mude de Wi-Fi para dados móveis (ou vice-versa)
-- Reinicie seu roteador se necessário
-
-### 2. Force o fechamento do app
-- **Android**: Abra o gerenciador de apps e force o fechamento
-- **iOS**: Deslize para cima e remova o app da tela
-
-### 3. Reinicie seu celular
-Um simples restart pode resolver muitos problemas temporários.
-
-## Soluções Avançadas
-
-### 4. Atualize o aplicativo
-- Vá na loja de aplicativos (Google Play ou App Store)
-- Procure por "modoPAG"
-- Toque em "Atualizar" se disponível
-
-### 5. Limpe o cache (Android)
-1. Vá em Configurações > Apps
-2. Encontre o modoPAG
-3. Toque em "Armazenamento"
-4. Selecione "Limpar Cache"
-
-### 6. Desinstale e reinstale
-⚠️ **Atenção**: Certifique-se de lembrar seus dados de login antes de desinstalar.
-
-## Problemas Específicos
-
-### App trava na tela de login
-- Verifique se sua senha está correta
-- Tente recuperar a senha se necessário
-- Limpe os dados do app (Android) ou reinstale (iOS)
-
-### App fica lento
-- Feche outros aplicativos em execução
-- Verifique se há espaço livre no celular
-- Reinicie o dispositivo
-
-### Não consigo fazer pagamentos
-- Verifique sua conexão com a internet
-- Confirme se os dados do cartão estão corretos
-- Tente um método de pagamento diferente
-
-## Ainda não resolveu?
-
-Entre em contato com nosso suporte técnico:
-
-- **Chat ao vivo**: Disponível das 8h às 18h
-- **WhatsApp**: (11) 99999-9999
-- **E-mail**: suporte@modopag.com.br
-
-Inclua as seguintes informações:
-- Modelo do celular
-- Versão do sistema operacional
-- Versão do app
-- Descrição detalhada do problema`,
-    status: 'published',
-    published_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    author: 'Admin',
-    meta_title: 'App modoPAG não funciona? Soluções e dicas | Central de Ajuda',
-    meta_description: 'Problemas com o app modoPAG? Confira soluções práticas para resolver travamentos, lentidão e outros problemas técnicos.',
-    noindex: false,
-    reading_time_minutes: 6,
-    type: 'tutorial',
-    view_count: 67,
-  },
-  {
-    id: 'art-6',
-    title: 'Como entrar em contato com o suporte?',
-    slug: 'contato-suporte-modopag',
-    category_id: 'cat-3',
-    content: `# Como entrar em contato com o suporte?
-
-Precisa de ajuda? Temos diversos canais de atendimento para você!
-
-## Canais de Atendimento
-
-### 💬 Chat ao Vivo
-**Disponível**: Segunda a sexta, 8h às 18h  
-**Como acessar**: Entre no app ou site e clique no ícone de chat  
-**Tempo médio de resposta**: 2 minutos  
-
-### 📱 WhatsApp
-**Número**: (11) 99999-9999  
-**Disponível**: 24 horas por dia  
-**Como usar**: Salve o número e mande uma mensagem  
-
-### 📧 E-mail
-**Endereço**: suporte@modopag.com.br  
-**Tempo de resposta**: Até 24 horas  
-**Melhor para**: Dúvidas detalhadas e documentos  
-
-### 📞 Telefone
-**Central de Atendimento**: 0800-123-4567  
-**Disponível**: Segunda a sexta, 8h às 18h  
-**Gratuito**: Para todo o Brasil  
-
-## Antes de Entrar em Contato
-
-Para um atendimento mais rápido, tenha em mãos:
-
-✅ **CPF ou CNPJ** cadastrado na conta  
-✅ **E-mail** da conta modoPAG  
-✅ **Descrição detalhada** do problema  
-✅ **Prints ou fotos** se necessário  
-
-## Tipos de Suporte por Canal
-
-### Chat ao Vivo ⚡
-Ideal para:
-- Dúvidas rápidas sobre pagamentos
-- Problemas com login
-- Informações sobre taxas
-- Suporte básico do app
-
-### WhatsApp 📱
-Ideal para:
-- Emergências fora do horário comercial
-- Compartilhar prints e documentos
-- Seguimento de chamados
-- Suporte via áudio/vídeo
-
-### E-mail 📧
-Ideal para:
-- Solicitações formais
-- Envio de documentos
-- Problemas complexos
-- Denúncias e sugestões
-
-### Telefone 📞
-Ideal para:
-- Problemas urgentes com dinheiro
-- Bloqueio de conta
-- Fraudes e segurança
-- Atendimento personalizado
-
-## Central de Ajuda Online
-
-Antes de entrar em contato, visite nossa Central de Ajuda:
-
-🔗 **faq.modopag.com.br**
-
-Você pode encontrar respostas para:
-- Perguntas frequentes
-- Tutoriais passo a passo
-- Guias de segurança
-- Novidades e atualizações
-
-## Status dos Serviços
-
-Verificar se há problemas conhecidos:
-
-🔗 **status.modopag.com.br**
-
-- Status em tempo real dos serviços
-- Manutenções programadas
-- Histórico de incidentes
-
-> **Dica**: Nosso chat ao vivo é o canal mais rápido para a maioria das dúvidas!`,
-    status: 'published',
-    published_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    author: 'Admin',
-    meta_title: 'Como falar com suporte modoPAG? Todos os canais | Central de Ajuda',
-    meta_description: 'Conheça todos os canais para falar com o suporte modoPAG: chat, WhatsApp, e-mail e telefone. Horários e dicas inclusos.',
-    noindex: false,
-    reading_time_minutes: 4,
-    type: 'artigo',
-    view_count: 112,
-  }
-];
+  const DEMO_ARTICLES: Article[] = [
+    {
+      id: 'art-1',
+      title: 'Como criar uma conta no modoPAG?',
+      slug: 'como-criar-conta-modopag',
+      category_id: 'cat-1',
+      content: `<h1>Como criar uma conta no modoPAG</h1>
+
+<p><strong>Criar uma conta no modoPAG é simples e rápido!</strong> Siga este passo a passo completo para começar a usar nossa plataforma de pagamentos digitais.</p>
+
+<h2>1. Acesse o site oficial</h2>
+<p>Vá para <a href="https://modopag.com.br" target="_blank" rel="noopener">modopag.com.br</a> e clique no botão <strong>"Criar Conta"</strong> no canto superior direito da tela.</p>
+
+<h2>2. Preencha seus dados pessoais</h2>
+<p>Complete o formulário com as seguintes informações obrigatórias:</p>
+<ul>
+  <li><strong>Nome completo:</strong> Digite seu nome como aparece nos documentos</li>
+  <li><strong>E-mail:</strong> Use um e-mail válido que você tenha acesso</li>
+  <li><strong>CPF ou CNPJ:</strong> Informe o documento correto</li>
+  <li><strong>Telefone celular:</strong> Para verificação via SMS</li>
+</ul>
+
+<blockquote>
+  <p><strong>💡 Dica de segurança:</strong> Use um e-mail que você acessa frequentemente, pois enviamos notificações importantes por lá.</p>
+</blockquote>
+
+<h2>3. Confirme seu e-mail</h2>
+<p>Após preencher os dados, você receberá um e-mail de confirmação. <strong>Clique no link dentro de 24 horas</strong> para ativar sua conta.</p>
+
+<h2>4. Configure sua senha segura</h2>
+<p>Crie uma senha forte seguindo estas diretrizes:</p>
+<ul>
+  <li>Mínimo de 8 caracteres</li>
+  <li>Pelo menos 1 letra maiúscula</li>
+  <li>Pelo menos 1 número</li>
+  <li>Pelo menos 1 símbolo especial (@, #, $, etc.)</li>
+</ul>
+
+<h2>5. Verificação via SMS</h2>
+<p>Digite o código de 6 dígitos que será enviado para o celular cadastrado. O código é válido por 10 minutos.</p>
+
+<h2>Pronto! Sua conta está criada</h2>
+<p>Agora você pode acessar sua área do cliente e começar a usar todos os recursos do modoPAG:</p>
+<ul>
+  <li>Realizar pagamentos e transferências</li>
+  <li>Receber pagamentos via PIX, cartão e boleto</li>  
+  <li>Acompanhar extratos e comprovantes</li>
+  <li>Configurar notificações</li>
+</ul>
+
+<p><strong>Problemas na criação da conta?</strong> Entre em contato com nosso suporte pelo chat ou WhatsApp.</p>`,
+      status: 'published',
+      published_at: new Date('2024-01-15').toISOString(),
+      updated_at: new Date('2024-01-20').toISOString(),
+      author: 'Equipe modoPAG',
+      meta_title: 'Como criar conta no modoPAG? Guia completo passo a passo',
+      meta_description: 'Aprenda como criar sua conta no modoPAG em poucos minutos. Guia completo com passo a passo, dicas de segurança e solução de problemas.',
+      noindex: false,
+      reading_time_minutes: 3,
+      type: 'tutorial',
+      view_count: 1245,
+    },
+    {
+      id: 'art-2', 
+      title: 'Esqueci minha senha, como recuperar?',
+      slug: 'recuperar-senha-modopag',
+      category_id: 'cat-1',
+      content: `<h1>Esqueci minha senha, como recuperar?</h1>
+
+<p><strong>Esqueceu sua senha do modoPAG?</strong> Não se preocupe! É muito fácil recuperá-la seguindo nosso processo seguro de redefinição.</p>
+
+<h2>Passo a passo para recuperar senha</h2>
+
+<h3>1. Acesse a página de login</h3>
+<p>Vá para <a href="https://modopag.com.br/login" target="_blank" rel="noopener">modopag.com.br/login</a> no seu computador ou celular.</p>
+
+<h3>2. Clique em "Esqueci minha senha"</h3>
+<p>Na tela de login, procure pelo link <strong>"Esqueci minha senha"</strong> logo abaixo do campo de senha.</p>
+
+<h3>3. Digite seu e-mail cadastrado</h3>
+<p>Informe o e-mail que você usou para criar sua conta no modoPAG. Certifique-se de digitá-lo corretamente.</p>
+
+<h3>4. Verifique seu e-mail</h3>
+<p>Em até 5 minutos você receberá um e-mail da modoPAG com o assunto <strong>"Redefinir senha da sua conta"</strong>.</p>
+
+<h3>5. Clique no link seguro</h3>
+<p>No e-mail, clique no botão <strong>"Redefinir Senha"</strong>. Esse link é válido por 2 horas por segurança.</p>
+
+<h3>6. Crie sua nova senha</h3>
+<p>Digite uma nova senha forte seguindo os critérios de segurança:</p>
+<ul>
+  <li>Entre 8 e 30 caracteres</li>
+  <li>Pelo menos 1 letra maiúscula</li>
+  <li>Pelo menos 1 letra minúscula</li>
+  <li>Pelo menos 1 número</li>
+  <li>Pelo menos 1 símbolo especial</li>
+</ul>
+
+<h2>Não recebeu o e-mail?</h2>
+
+<p>Se não recebeu o e-mail de recuperação, verifique:</p>
+
+<h3>✅ Caixa de spam/lixo eletrônico</h3>
+<p>O e-mail pode ter ido para a pasta de spam. Procure por remetente <strong>noreply@modopag.com.br</strong>.</p>
+
+<h3>✅ E-mail digitado corretamente</h3>
+<p>Confirme se o e-mail informado está exato, sem espaços extras ou caracteres incorretos.</p>
+
+<h3>✅ Aguarde alguns minutos</h3>
+<p>O e-mail pode demorar até 10 minutos para chegar, especialmente em horários de pico.</p>
+
+<h2>Ainda com problemas?</h2>
+
+<p>Se mesmo após seguir todos os passos você não conseguir recuperar sua senha, entre em contato conosco:</p>
+
+<ul>
+  <li><strong>Chat online:</strong> Disponível das 8h às 18h</li>
+  <li><strong>WhatsApp:</strong> (11) 99999-9999</li>
+  <li><strong>E-mail:</strong> suporte@modopag.com.br</li>
+</ul>
+
+<blockquote>
+  <p><strong>🔒 Dica de segurança:</strong> Nunca compartilhe sua senha com terceiros. A modoPAG jamais solicitará sua senha por telefone ou e-mail.</p>
+</blockquote>`,
+      status: 'published',
+      published_at: new Date('2024-01-18').toISOString(),
+      updated_at: new Date('2024-01-22').toISOString(),
+      author: 'Equipe modoPAG',
+      meta_title: 'Como recuperar senha esquecida do modoPAG? Passo a passo',
+      meta_description: 'Esqueceu sua senha do modoPAG? Siga nosso guia passo a passo para recuperar o acesso à sua conta de forma rápida e segura.',
+      noindex: false,
+      reading_time_minutes: 4,
+      type: 'tutorial',
+      view_count: 892,
+    },
+    {
+      id: 'art-3',
+      title: 'Quais métodos de pagamento aceita o modoPAG?',
+      slug: 'metodos-pagamento-modopag',
+      category_id: 'cat-2',
+      content: `<h1>Quais métodos de pagamento aceita o modoPAG?</h1>
+
+<p><strong>O modoPAG aceita diversos métodos de pagamento</strong> para oferecer máxima flexibilidade aos nossos usuários. Conheça todas as opções disponíveis:</p>
+
+<h2>💳 Cartões de Crédito</h2>
+<p>Aceitamos as principais bandeiras do mercado:</p>
+<ul>
+  <li><strong>Visa:</strong> Crédito nacional e internacional</li>
+  <li><strong>Mastercard:</strong> Todas as modalidades</li>
+  <li><strong>American Express:</strong> Crédito tradicional e corporate</li>
+  <li><strong>Elo:</strong> Bandeira nacional</li>
+  <li><strong>Hipercard:</strong> Crédito tradicional</li>
+  <li><strong>Diners Club:</strong> Para compras corporativas</li>
+</ul>
+
+<h2>💎 Cartões de Débito</h2>
+<p>Débito online direto da sua conta bancária:</p>
+<ul>
+  <li><strong>Visa Débito:</strong> Principais bancos brasileiros</li>
+  <li><strong>Mastercard Débito:</strong> Débito eletrônico</li>
+  <li><strong>Elo Débito:</strong> Bandeira nacional</li>
+</ul>
+
+<h2>⚡ PIX - Pagamento Instantâneo</h2>
+<p><strong>O método mais rápido e econômico!</strong></p>
+<ul>
+  <li>✅ <strong>Disponível 24h por dia, 7 dias por semana</strong></li>
+  <li>✅ <strong>Sem taxas para pessoa física</strong></li>
+  <li>✅ <strong>Confirmação em até 10 segundos</strong></li>
+  <li>✅ <strong>Seguro e regulamentado pelo Banco Central</strong></li>
+</ul>
+
+<h2>📄 Boleto Bancário</h2>
+<p>Tradicional e confiável:</p>
+<ul>
+  <li>Vencimento padrão em 3 dias úteis</li>
+  <li>Pode ser pago em bancos, lotéricas e internet banking</li>
+  <li>Compensação em até 3 dias úteis após pagamento</li>
+</ul>
+
+<h2>📱 Carteiras Digitais</h2>
+<p>Pagamento rápido através de apps:</p>
+<ul>
+  <li><strong>PicPay:</strong> Saldo ou cartão vinculado</li>
+  <li><strong>PayPal:</strong> Para compras internacionais</li>
+  <li><strong>Mercado Pago:</strong> Todas as modalidades</li>
+  <li><strong>PagSeguro:</strong> Digital wallet</li>
+</ul>
+
+<h2>💰 Saldo modoPAG</h2>
+<p>Use o saldo disponível em sua conta:</p>
+<ul>
+  <li>Saldo de recebimentos anteriores</li>
+  <li>Transferências recebidas</li>
+  <li>Cashback de transações</li>
+</ul>
+
+<h2>📊 Tabela de Taxas e Prazos</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Método de Pagamento</th>
+      <th>Taxa</th>
+      <th>Prazo de Compensação</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>PIX</strong></td>
+      <td>Gratuito*</td>
+      <td>Instantâneo</td>
+    </tr>
+    <tr>
+      <td><strong>Cartão de Crédito</strong></td>
+      <td>2,5% a 3,2%**</td>
+      <td>D+1 útil</td>
+    </tr>
+    <tr>
+      <td><strong>Cartão de Débito</strong></td>
+      <td>1,8% a 2,1%**</td>
+      <td>D+1 útil</td>
+    </tr>
+    <tr>
+      <td><strong>Boleto</strong></td>
+      <td>R$ 3,50</td>
+      <td>D+3 úteis</td>
+    </tr>
+    <tr>
+      <td><strong>Carteiras Digitais</strong></td>
+      <td>1,9% a 2,8%**</td>
+      <td>D+1 útil</td>
+    </tr>
+    <tr>
+      <td><strong>Saldo modoPAG</strong></td>
+      <td>Gratuito</td>
+      <td>Instantâneo</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><small>* Gratuito para pessoa física. ** Taxas podem variar conforme plano contratado.</small></p>
+
+<blockquote>
+  <p><strong>💡 Dica importante:</strong> As taxas podem ser reduzidas de acordo com seu volume de transações e plano escolhido. Consulte nosso time comercial!</p>
+</blockquote>
+
+<h2>Como escolher o melhor método?</h2>
+
+<h3>Para pagamentos urgentes:</h3>
+<p>Use <strong>PIX</strong> ou <strong>Saldo modoPAG</strong> - são instantâneos e sem taxas.</p>
+
+<h3>Para parcelamentos:</h3>
+<p>Cartão de crédito oferece opções de parcelamento em até 12x.</p>
+
+<h3>Para quem não tem conta bancária:</h3>
+<p>Boleto bancário pode ser pago em diversos estabelecimentos.</p>
+
+<p><strong>Tem dúvidas sobre qual método usar?</strong> Nossa equipe está disponível para ajudar via chat ou WhatsApp!</p>`,
+      status: 'published',
+      published_at: new Date('2024-01-20').toISOString(),
+      updated_at: new Date('2024-01-25').toISOString(),
+      author: 'Equipe modoPAG',
+      meta_title: 'Métodos de pagamento modoPAG: PIX, cartão, boleto e mais',
+      meta_description: 'Conheça todos os métodos de pagamento aceitos pelo modoPAG: PIX, cartões, boleto, carteiras digitais. Compare taxas e prazos.',
+      noindex: false,
+      reading_time_minutes: 6,
+      type: 'artigo',
+      view_count: 1567,
+    }];
 
 const DEMO_TAGS: Tag[] = [
   { id: 'tag-1', name: 'Login', slug: 'login', created_at: new Date().toISOString() },
