@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import NotFound from './NotFound';
 import { SEOHelmet } from '@/components/SEO/SEOHelmet';
 import ArticleFeedback from '@/components/ArticleFeedback';
 import RelatedArticles from '@/components/RelatedArticles';
@@ -124,8 +125,7 @@ export default function ArticleSilo() {
   }
 
   if (notFound || !article || !category || !categorySlug || !articleSlug) {
-    navigate('/404', { replace: true });
-    return null;
+    return <NotFound />;
   }
 
   const canonicalUrl = generateCanonicalUrl(generateArticleUrl(categorySlug, articleSlug), seo.site_url);

@@ -7,7 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import { getDataAdapter } from '@/lib/data-adapter';
 import { useDebounce } from '@/hooks/useDebounce';
 import { trackFAQSearch } from '@/utils/analytics';
-import type { Article } from '@/types/admin';
+import { generateArticleUrl } from '@/utils/urlGenerator';
+import type { Article, Category } from '@/types/admin';
 
 interface SearchAutocompleteProps {
   placeholder?: string;
@@ -24,6 +25,7 @@ export function SearchAutocomplete({
 }: SearchAutocompleteProps) {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<Article[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -44,6 +46,13 @@ export function SearchAutocomplete({
       setIsLoading(true);
       try {
         const adapter = await getDataAdapter();
+        
+        // Load categories if not already loaded
+        if (categories.length === 0) {
+          const allCategories = await adapter.getCategories();
+          setCategories(allCategories);
+        }
+        
         const articles = await adapter.getArticles({ 
           status: 'published',
           search: debouncedQuery 
@@ -97,13 +106,16 @@ export function SearchAutocomplete({
     } else {
       navigate(`/buscar?q=${encodeURIComponent(searchTerm)}`);
     }
-  }, [query, suggestions.length, onSearch, navigate]);
+  }, [query, suggestions.length, onSearch, navigate, categories]);
 
   // Handle suggestion click
   const handleSuggestionClick = (article: Article) => {
     setShowSuggestions(false);
     setQuery('');
-    navigate(`/artigo/${article.slug}`);
+    const category = categories.find(c => c.id === article.category_id);
+    if (category) {
+      navigate(generateArticleUrl(category.slug, article.slug));
+    }
   };
 
   // Handle keyboard navigation

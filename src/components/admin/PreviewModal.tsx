@@ -75,7 +75,7 @@ export function PreviewModal({ article, onPublish, isPublishing, disabled }: Pre
             <div className="border rounded-lg p-4 bg-gray-50">
               <div className="space-y-2">
                 <div className="text-xs text-green-700">
-                  https://ajuda.modopag.com.br/artigo/{article.slug}
+                  https://ajuda.modopag.com.br/categoria/{article.slug}
                 </div>
                 <h3 className="text-xl text-blue-600 hover:underline cursor-pointer line-clamp-2">
                   {metaTitle}

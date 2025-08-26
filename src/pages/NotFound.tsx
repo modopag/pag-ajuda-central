@@ -17,8 +17,8 @@ const NotFound = () => {
     navigate(`/buscar?q=${encodeURIComponent(query)}`);
   };
 
-  const handleCategoryClick = (categoryId: string) => {
-    navigate(`/categoria/${categoryId}`);
+  const handleCategoryClick = (categorySlug: string) => {
+    navigate(`/${categorySlug}/`);
   };
 
   const handleWhatsAppClick = () => {

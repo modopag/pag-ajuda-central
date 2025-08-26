@@ -13,11 +13,13 @@ import { trackFAQSearch, trackWhatsAppCTA } from "@/utils/analytics";
 import { monitoring } from "@/utils/monitoring";
 import { useSearchWithFilters } from "@/hooks/useSearchWithFilters";
 import { useArticleTags } from "@/hooks/useArticleTags";
+import { generateArticleUrl, generateCategoryUrl } from "@/utils/urlGenerator";
 import type { Article, Category } from "@/types/admin";
 
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
+  const [categories, setCategories] = useState<Category[]>([]);
 
   // Use the search hook with real data
   const searchResults = useSearchWithFilters({
@@ -194,7 +196,11 @@ const Search = () => {
                           
                           <h2 className="text-xl font-semibold">
                             <Link 
-                              to={`/artigo/${article.slug}`}
+                              to={generateArticleUrl(
+                                categories.find(c => c.id === article.category_id)?.slug || 
+                                searchResults.categories.find(c => c.id === article.category_id)?.slug || '',
+                                article.slug
+                              )}
                               className="text-foreground hover:text-primary transition-colors"
                             >
                               {highlightText(article.title, query)}
@@ -324,7 +330,7 @@ const Search = () => {
                       {searchResults.categories.slice(0, 6).map((category) => (
                         <Link
                           key={category.id}
-                          to={`/categoria/${category.slug}`}
+                          to={generateCategoryUrl(category.slug)}
                           className="inline-flex items-center px-3 py-1 rounded-full text-xs border border-border hover:bg-accent hover:text-accent-foreground transition-colors"
                         >
                           {category.name}

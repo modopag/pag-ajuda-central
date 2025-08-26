@@ -16,8 +16,6 @@ import Gone from "@/pages/Gone";
 const Index = lazy(() => import("./pages/Index"));
 const CategorySilo = lazy(() => import("./pages/CategorySilo"));
 const ArticleSilo = lazy(() => import("./pages/ArticleSilo"));
-const Category = lazy(() => import("./pages/Category"));
-const Article = lazy(() => import("./pages/Article"));
 const Search = lazy(() => import("./pages/Search"));
 const Sitemap = lazy(() => import("./pages/Sitemap"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -56,16 +54,13 @@ const AppContent = () => {
       
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          {/* Public pages - New SILO structure */}
+          {/* Reserved routes - highest priority */}
           <Route path="/" element={<Index />} />
           <Route path="/buscar" element={<Search />} />
           <Route path="/sitemap.xml" element={<Sitemap />} />
+          <Route path="/robots.txt" element={<NotFound />} />
           <Route path="/politicas-de-privacidade" element={<PoliticasPrivacidade />} />
           <Route path="/gone" element={<Gone />} />
-          
-          {/* OLD URLs - These will be handled by RedirectHandler for 301 redirects */}
-          <Route path="/categoria/:slug" element={<Category />} />
-          <Route path="/artigo/:slug" element={<Article />} />
           
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -83,7 +78,7 @@ const AppContent = () => {
             <Route path="feedback" element={<AdminFeedback />} />
           </Route>
           
-          {/* NEW SILO URLs - These have priority over catch-all */}
+          {/* NEW SILO URLs */}
           <Route path="/:categorySlug/" element={<CategorySilo />} />
           <Route path="/:categorySlug/:articleSlug" element={<ArticleSilo />} />
           

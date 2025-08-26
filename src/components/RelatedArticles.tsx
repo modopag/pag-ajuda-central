@@ -4,7 +4,8 @@ import { Clock, Tag as TagIcon, ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { getDataAdapter } from '@/lib/data-adapter';
-import type { Article, Tag } from '@/types/admin';
+import { generateArticleUrl, generateCategoryUrl } from '@/utils/urlGenerator';
+import type { Article, Tag, Category } from '@/types/admin';
 
 interface RelatedArticlesProps {
   currentArticleId: string;
@@ -18,6 +19,7 @@ export default function RelatedArticles({
   maxArticles = 3 
 }: RelatedArticlesProps) {
   const [relatedArticles, setRelatedArticles] = useState<Article[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -25,6 +27,10 @@ export default function RelatedArticles({
       setIsLoading(true);
       try {
         const adapter = await getDataAdapter();
+        
+        // Load categories first
+        const allCategories = await adapter.getCategories();
+        setCategories(allCategories);
         
         // Get all published articles from the same category
         const categoryArticles = await adapter.getArticles({ 
@@ -154,7 +160,7 @@ export default function RelatedArticles({
               </div>
               <CardTitle className="line-clamp-2 leading-tight">
                 <Link 
-                  to={`/artigo/${article.slug}`}
+                  to={generateArticleUrl(categories.find(c => c.id === article.category_id)?.slug || '', article.slug)}
                   className="hover:text-primary transition-colors"
                 >
                   {article.title}
@@ -177,7 +183,7 @@ export default function RelatedArticles({
       {/* Link to category */}
       <div className="mt-8 text-center">
         <Link 
-          to={`/categoria/${categoryId}`}
+          to={generateCategoryUrl(categories.find(c => c.id === categoryId)?.slug || '')}
           className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
         >
           Ver todos os artigos desta categoria

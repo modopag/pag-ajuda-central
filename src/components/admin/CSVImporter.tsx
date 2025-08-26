@@ -36,7 +36,7 @@ export function CSVImporter({ onImportComplete }: CSVImporterProps) {
   const downloadTemplate = () => {
     const csvContent = [
       'from_path,to_path,type,is_active',
-      '/artigo/exemplo-antigo,/artigo/exemplo-novo,301,true',
+      '/categoria/exemplo-antigo,/exemplo-antigo/,301,true',
       '/pagina-descontinuada,/410,301,true',
       'https://site-antigo.com/pagina,/nova-pagina,301,true'
     ].join('\n');

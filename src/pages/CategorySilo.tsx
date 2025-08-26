@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import NotFound from './NotFound';
 import { SEOHelmet } from '@/components/SEO/SEOHelmet';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -99,8 +100,7 @@ export default function CategorySilo() {
   }
 
   if (notFound || !category || !categorySlug) {
-    navigate('/404', { replace: true });
-    return null;
+    return <NotFound />;
   }
 
   const canonicalUrl = generateCanonicalUrl(generateCategoryUrl(categorySlug), seo.site_url);
