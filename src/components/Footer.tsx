@@ -1,9 +1,12 @@
 import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useCookieConsent } from "@/hooks/useCookieConsent";
 
 const Footer = () => {
+  const { showBanner } = useCookieConsent();
+  
   return (
-    <footer className="bg-modopag-black text-white mt-20">
+    <footer className={`bg-modopag-black text-white mt-20 ${showBanner ? 'mb-32' : ''}`}>
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo e Descrição */}
@@ -32,10 +35,10 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-white mb-4">Institucional</h3>
             <ul className="space-y-2 text-sm">
-              <li><a href="https://modopag.com.br/sobre-nos/" target="_blank" className="text-gray-300 hover:text-accent transition-colors">Sobre nós</a></li>
-              <li><a href="https://modopag.com.br/termos-de-uso-e-condicoes-de-uso/" target="_blank" className="text-gray-300 hover:text-accent transition-colors">Termos e condições de uso</a></li>
-              <li><a href="https://modopag.com.br/politicas-de-privacidade/" target="_blank" className="text-gray-300 hover:text-accent transition-colors">Políticas de privacidade</a></li>
-              <li><a href="https://modopag.com.br/termo-consentimento-produto-modopag-pagbank/" target="_blank" className="text-gray-300 hover:text-accent transition-colors">Termos de consentimento</a></li>
+              <li><a href="https://modopag.com.br/sobre-nos/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-modopag-yellow transition-colors">Sobre nós</a></li>
+              <li><a href="https://modopag.com.br/termos-de-uso-e-condicoes-de-uso/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-modopag-yellow transition-colors">Termos e condições de uso</a></li>
+              <li><a href="https://modopag.com.br/politicas-de-privacidade/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-modopag-yellow transition-colors">Políticas de privacidade</a></li>
+              <li><a href="https://modopag.com.br/termo-consentimento-produto-modopag-pagbank/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-modopag-yellow transition-colors">Termos de consentimento</a></li>
             </ul>
           </div>
           
@@ -43,9 +46,9 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-white mb-4">Produtos</h3>
             <ul className="space-y-2 text-sm">
-              <li><a href="https://modopag.com.br/maquininhas/" target="_blank" className="text-gray-300 hover:text-accent transition-colors">Maquininhas</a></li>
-              <li><a href="https://modopag.com.br/modolink/" target="_blank" className="text-gray-300 hover:text-accent transition-colors">modoLINK</a></li>
-              <li><a href="https://modopag.com.br/calculadora-de-repasse/" target="_blank" className="text-gray-300 hover:text-accent transition-colors">Calculadora de taxas</a></li>
+              <li><a href="https://modopag.com.br/maquininhas/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-modopag-yellow transition-colors">Maquininhas</a></li>
+              <li><a href="https://modopag.com.br/modolink/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-modopag-yellow transition-colors">modoLINK</a></li>
+              <li><a href="https://modopag.com.br/calculadora-de-repasse/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-modopag-yellow transition-colors">Calculadora de taxas</a></li>
             </ul>
           </div>
           
@@ -53,8 +56,8 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-white mb-4">Suporte</h3>
             <ul className="space-y-2 text-sm">
-              <li><a href="/" className="text-gray-300 hover:text-accent transition-colors">Central de Ajuda</a></li>
-              <li><a href="mailto:contato@modopag.com.br" className="text-gray-300 hover:text-accent transition-colors">Fale Conosco</a></li>
+              <li><Link to="/" className="text-gray-300 hover:text-modopag-yellow transition-colors">Central de Ajuda</Link></li>
+              <li><a href="mailto:contato@modopag.com.br" className="text-gray-300 hover:text-modopag-yellow transition-colors">Fale Conosco</a></li>
             </ul>
           </div>
         </div>
@@ -70,16 +73,16 @@ const Footer = () => {
             
             {/* Redes Sociais */}
             <div className="flex space-x-4 mt-4 md:mt-0">
-              <a href="https://www.facebook.com/people/Modo-PAG/61560902013241/" target="_blank" className="text-gray-300 hover:text-accent transition-colors">
+              <a href="https://www.facebook.com/people/Modo-PAG/61560902013241/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-modopag-yellow transition-colors" aria-label="Facebook do modoPAG">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="https://www.instagram.com/modopag/" target="_blank" className="text-gray-300 hover:text-accent transition-colors">
+              <a href="https://www.instagram.com/modopag/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-modopag-yellow transition-colors" aria-label="Instagram do modoPAG">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="https://www.linkedin.com/company/modopag/about/?viewAsMember=true" target="_blank" className="text-gray-300 hover:text-accent transition-colors">
+              <a href="https://www.linkedin.com/company/modopag/about/?viewAsMember=true" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-modopag-yellow transition-colors" aria-label="LinkedIn do modoPAG">
                 <Linkedin className="w-5 h-5" />
               </a>
-              <a href="https://x.com/modopag" target="_blank" className="text-gray-300 hover:text-accent transition-colors">
+              <a href="https://x.com/modopag" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-modopag-yellow transition-colors" aria-label="Twitter/X do modoPAG">
                 <Twitter className="w-5 h-5" />
               </a>
             </div>
