@@ -16,7 +16,7 @@ import { getDataAdapter } from '@/lib/data-adapter';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { ImageUploader } from '@/components/admin/ImageUploader';
 import { useAutoSave } from '@/hooks/useAutoSave';
-import { validateSEO, calculateReadingTime, generateSlug } from '@/utils/seoValidations';
+import { validateSEO, calculateReadingTime, generateSlug, canPublish, extractFirstParagraph } from '@/utils/seoValidations';
 import type { Article, Category, Tag, ArticleStatus } from '@/types/admin';
 
 export default function AdminArticleEdit() {
