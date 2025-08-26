@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { optimizeImage } from '@/utils/imageOptimization';
 
 interface ImageUploaderProps {
   onUpload: (file: File, altText: string) => Promise<string>;
@@ -35,7 +36,18 @@ export const ImageUploader = ({
 
     setIsUploading(true);
     try {
-      await onUpload(file, altText);
+      // Optimize image to WEBP format
+      const { file: optimizedFile, originalSize, newSize } = await optimizeImage(file);
+      
+      // Create a File object from the optimized blob
+      const optimizedFileObj = new File([optimizedFile], file.name.replace(/\.[^/.]+$/, '.webp'), {
+        type: 'image/webp',
+        lastModified: Date.now()
+      });
+      
+      console.log(`Image optimized: ${originalSize} → ${newSize} bytes (${Math.round((1 - newSize/originalSize) * 100)}% reduction)`);
+      
+      await onUpload(optimizedFileObj, altText);
     } catch (error) {
       console.error('Erro no upload:', error);
       alert('Erro ao fazer upload da imagem');

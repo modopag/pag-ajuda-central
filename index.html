@@ -1,13 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Central de Ajuda da modoPAG | Suporte e FAQ</title>
     <meta name="description" content="Encontre respostas rápidas sobre maquininhas, taxas, pagamentos e mais na Central de Ajuda da modoPAG. Suporte completo para sua empresa." />
+    
+    <!-- Critical Resource Preloading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+    
+    <!-- Preload critical fonts with async loading -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"></noscript>
+    
+    <!-- Preload critical assets -->
+    <link rel="preload" href="/src/assets/modopag-logo-yellow.webp" as="image" type="image/webp" />
+    <link rel="preload" href="/src/assets/modopag-logo-black.webp" as="image" type="image/webp" />
+    
     <meta name="author" content="modoPAG" />
     
     <!-- Favicon -->
@@ -26,6 +38,9 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@modopag" />
     <meta name="twitter:image" content="https://ajuda.modopag.com.br/src/assets/modopag-logo-yellow.webp" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://ajuda.modopag.com.br" />
   </head>
 
   <body>

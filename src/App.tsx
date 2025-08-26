@@ -4,23 +4,35 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from 'react-helmet-async';
-import Index from "./pages/Index";
-import Category from "./pages/Category";
-import Article from "./pages/Article";
-import Search from "./pages/Search";
-import Sitemap from "./pages/Sitemap";
-import AdminLogin from "./pages/admin/AdminLogin";
-import AdminLayout from "./pages/admin/AdminLayout";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminArticles from "./pages/admin/AdminArticles";
-import AdminArticleEdit from "./pages/admin/AdminArticleEdit";
-import AdminCategories from "./pages/admin/AdminCategories";
-import AdminTags from "./pages/admin/AdminTags";
-import AdminMedia from "./pages/admin/AdminMedia";
-import AdminRedirects from "./pages/admin/AdminRedirects";
-import AdminSettings from "./pages/admin/AdminSettings";
-import AdminFeedback from "./pages/admin/AdminFeedback";
-import NotFound from "./pages/NotFound";
+import { Suspense, lazy } from 'react';
+
+// Lazy load main pages for code splitting
+const Index = lazy(() => import("./pages/Index"));
+const Category = lazy(() => import("./pages/Category"));
+const Article = lazy(() => import("./pages/Article"));
+const Search = lazy(() => import("./pages/Search"));
+const Sitemap = lazy(() => import("./pages/Sitemap"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+// Lazy load admin pages
+const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminArticles = lazy(() => import("./pages/admin/AdminArticles"));
+const AdminArticleEdit = lazy(() => import("./pages/admin/AdminArticleEdit"));
+const AdminCategories = lazy(() => import("./pages/admin/AdminCategories"));
+const AdminTags = lazy(() => import("./pages/admin/AdminTags"));
+const AdminMedia = lazy(() => import("./pages/admin/AdminMedia"));
+const AdminRedirects = lazy(() => import("./pages/admin/AdminRedirects"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const AdminFeedback = lazy(() => import("./pages/admin/AdminFeedback"));
+
+// Loading component for suspense fallback
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  </div>
+);
 
 const queryClient = new QueryClient();
 
@@ -31,31 +43,33 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/category/:categoryId" element={<Category />} />
-            <Route path="/article/:articleId" element={<Article />} />
-            <Route path="/buscar" element={<Search />} />
-            <Route path="/sitemap.xml" element={<Sitemap />} />
-            
-            {/* Admin Routes */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="articles" element={<AdminArticles />} />
-              <Route path="articles/new" element={<AdminArticleEdit />} />
-              <Route path="articles/:id/edit" element={<AdminArticleEdit />} />
-              <Route path="categories" element={<AdminCategories />} />
-              <Route path="tags" element={<AdminTags />} />
-              <Route path="media" element={<AdminMedia />} />
-              <Route path="redirects" element={<AdminRedirects />} />  
-              <Route path="settings" element={<AdminSettings />} />
-              <Route path="feedback" element={<AdminFeedback />} />
-            </Route>
-            
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/category/:categoryId" element={<Category />} />
+              <Route path="/article/:articleId" element={<Article />} />
+              <Route path="/buscar" element={<Search />} />
+              <Route path="/sitemap.xml" element={<Sitemap />} />
+              
+              {/* Admin Routes */}
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="articles" element={<AdminArticles />} />
+                <Route path="articles/new" element={<AdminArticleEdit />} />
+                <Route path="articles/:id/edit" element={<AdminArticleEdit />} />
+                <Route path="categories" element={<AdminCategories />} />
+                <Route path="tags" element={<AdminTags />} />
+                <Route path="media" element={<AdminMedia />} />
+                <Route path="redirects" element={<AdminRedirects />} />  
+                <Route path="settings" element={<AdminSettings />} />
+                <Route path="feedback" element={<AdminFeedback />} />
+              </Route>
+              
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </TooltipProvider>
     </HelmetProvider>
