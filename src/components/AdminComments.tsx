@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MessageSquare, Plus, User, MessageCircle, ThumbsDown } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { AuthService } from '@/lib/auth';
 import type { Feedback } from '@/types/admin';
 
 interface Comment {
@@ -17,10 +18,9 @@ interface Comment {
 
 interface AdminCommentsProps {
   articleId: string;
-  userRole?: string; // Will implement proper role checking later
 }
 
-const AdminComments = ({ articleId, userRole = 'admin' }: AdminCommentsProps) => {
+const AdminComments = ({ articleId }: AdminCommentsProps) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [userFeedback, setUserFeedback] = useState<Feedback[]>([]);
   const [newComment, setNewComment] = useState('');
@@ -28,8 +28,9 @@ const AdminComments = ({ articleId, userRole = 'admin' }: AdminCommentsProps) =>
   const [showForm, setShowForm] = useState(false);
   const [activeTab, setActiveTab] = useState<'comments' | 'feedback'>('comments');
 
-  // Only show for admin users
-  if (userRole !== 'admin') {
+  // Only show for authenticated admin users
+  const currentUser = AuthService.getCurrentUser();
+  if (!currentUser || currentUser.role !== 'admin') {
     return null;
   }
 

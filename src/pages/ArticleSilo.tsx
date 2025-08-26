@@ -19,6 +19,7 @@ import type { Article, Category, Tag } from '@/types/admin';
 import { Clock, Eye, Tag as TagIcon, ChevronRight, User, Heart, Share2, BookOpen } from 'lucide-react';
 import { handleArticleLike, handleArticleShare, isArticleLiked } from '@/utils/articleActions';
 import AdminComments from '@/components/AdminComments';
+import { AuthService } from '@/lib/auth';
 
 export default function ArticleSilo() {
   const { categorySlug, articleSlug } = useParams<{ categorySlug: string; articleSlug: string }>();
@@ -370,8 +371,10 @@ export default function ArticleSilo() {
           {/* Feedback */}
           <ArticleFeedback articleId={article.id.toString()} />
 
-          {/* Admin Comments */}
-          <AdminComments articleId={article.id.toString()} />
+          {/* Admin Comments - Only visible to authenticated admins */}
+          {AuthService.isAuthenticated() && AuthService.getCurrentUser()?.role === 'admin' && (
+            <AdminComments articleId={article.id.toString()} />
+          )}
 
           {/* Related Articles */}
           <RelatedArticles 
