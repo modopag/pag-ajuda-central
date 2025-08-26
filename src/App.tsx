@@ -33,6 +33,7 @@ const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminArticles = lazy(() => import("./pages/admin/AdminArticles"));
 const AdminArticleEdit = lazy(() => import("./pages/admin/AdminArticleEdit"));
+const AdminArticleNew = lazy(() => import("./pages/admin/AdminArticleNew"));
 const AdminCategories = lazy(() => import("./pages/admin/AdminCategories"));
 const AdminTags = lazy(() => import("./pages/admin/AdminTags"));
 const AdminMedia = lazy(() => import("./pages/admin/AdminMedia"));
@@ -78,7 +79,7 @@ const AppContent = () => {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="articles" element={<AdminArticles />} />
-            <Route path="articles/new" element={<AdminArticleEdit />} />
+            <Route path="articles/new" element={<AdminArticleNew />} />
             <Route path="articles/:id/edit" element={<AdminArticleEdit />} />
             <Route path="categories" element={<AdminCategories />} />
             <Route path="tags" element={<AdminTags />} />

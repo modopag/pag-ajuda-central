@@ -25,7 +25,15 @@ export default function AdminArticleEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const isEditing = id !== 'new';
+
+  // Validar que sempre temos um ID válido
+  useEffect(() => {
+    if (!id || id === 'new') {
+      console.error('AdminArticleEdit - invalid id received:', id);
+      navigate('/admin/articles/new');
+      return;
+    }
+  }, [id, navigate]);
 
   // Estados principais
   const [article, setArticle] = useState<Partial<Article>>({
@@ -55,7 +63,7 @@ export default function AdminArticleEdit() {
   const [activeTab, setActiveTab] = useState('content');
 
   // Validação de slug em tempo real
-  const slugValidation = useSlugValidation(article.slug || '', isEditing ? id : undefined);
+  const slugValidation = useSlugValidation(article.slug || '', id);
 
   // Validações SEO
   const seoValidations = useMemo(() => {
@@ -73,16 +81,16 @@ export default function AdminArticleEdit() {
     return calculateReadingTime(article.content || '');
   }, [article.content]);
 
-  // Auto-save
+  // Auto-save (só ativa se temos ID válido)
   useAutoSave({
     data: article,
     onSave: async (data) => {
-      if (isEditing && data.title?.trim()) {
+      if (id && data.title?.trim()) {
         const adapter = await getDataAdapter();
-        await adapter.updateArticle(id!, { ...data, reading_time_minutes: readingTime });
+        await adapter.updateArticle(id, { ...data, reading_time_minutes: readingTime });
       }
     },
-    enabled: isEditing && !!article.title?.trim()
+    enabled: !!id && !!article.title?.trim()
   });
 
   // Carregar dados iniciais
@@ -103,10 +111,10 @@ export default function AdminArticleEdit() {
         setCategories(categoriesData);
         setTags(tagsData);
 
-        // Se estiver editando, carregar o artigo
-        if (isEditing) {
+        // Carregar artigo (sempre deve ter ID válido)
+        if (id) {
           console.log('AdminArticleEdit - loading article for editing:', id);
-          const articleData = await adapter.getArticleById(id!);
+          const articleData = await adapter.getArticleById(id);
           
           if (articleData) {
             console.log('AdminArticleEdit - loaded article data:', articleData);
@@ -114,7 +122,7 @@ export default function AdminArticleEdit() {
             // Garantir que o conteúdo nunca seja undefined
             const safeArticleData = {
               ...articleData,
-              content: articleData.content || '',
+              content: articleData.content || '<p>Comece a escrever seu conteúdo aqui...</p>',
               meta_title: articleData.meta_title || '',
               meta_description: articleData.meta_description || '',
               canonical_url: articleData.canonical_url || '',
@@ -127,7 +135,7 @@ export default function AdminArticleEdit() {
             setArticle(safeArticleData);
             
             // Carregar tags do artigo
-            const articleTags = await adapter.getArticleTags(id!);
+            const articleTags = await adapter.getArticleTags(id);
             console.log('AdminArticleEdit - loaded article tags:', articleTags);
             setSelectedTags(articleTags.map(tag => tag.id));
           } else {
@@ -138,8 +146,6 @@ export default function AdminArticleEdit() {
             });
             navigate('/admin/articles');
           }
-        } else {
-          console.log('AdminArticleEdit - creating new article, using default state');
         }
       } catch (error) {
         console.error('AdminArticleEdit - error loading data:', error);
@@ -153,15 +159,15 @@ export default function AdminArticleEdit() {
     };
 
     loadData();
-  }, [id, isEditing, navigate, toast]);
+  }, [id, navigate, toast]);
 
-  // Atualizar slug automaticamente
-  useEffect(() => {
-    if (article.title && !isEditing) {
-      const newSlug = generateSlug(article.title);
-      setArticle(prev => ({ ...prev, slug: newSlug }));
-    }
-  }, [article.title, isEditing]);
+  // Atualizar slug automaticamente (removido - agora é gerado no backend)
+  // useEffect(() => {
+  //   if (article.title && !id) {
+  //     const newSlug = generateSlug(article.title);
+  //     setArticle(prev => ({ ...prev, slug: newSlug }));
+  //   }
+  // }, [article.title, id]);
 
   // Atualizar tempo de leitura
   useEffect(() => {
@@ -216,21 +222,18 @@ export default function AdminArticleEdit() {
         published_at: newStatus === 'published' ? new Date().toISOString() : article.published_at
       } as Article;
 
-      let savedArticle: Article;
-      
-      if (isEditing) {
-        savedArticle = await adapter.updateArticle(id!, articleData);
-      } else {
-        savedArticle = await adapter.createArticle(articleData);
+      // Sempre fazer UPDATE (nunca INSERT)
+      if (!id) {
+        throw new Error('ID do artigo é obrigatório');
       }
+      
+      const savedArticle = await adapter.updateArticle(id, articleData);
 
       // Atualizar tags
-      if (isEditing) {
-        // Remover todas as tags atuais
-        const currentTags = await adapter.getArticleTags(savedArticle.id);
-        for (const tag of currentTags) {
-          await adapter.removeTagFromArticle(savedArticle.id, tag.id);
-        }
+      // Remover todas as tags atuais
+      const currentTags = await adapter.getArticleTags(savedArticle.id);
+      for (const tag of currentTags) {
+        await adapter.removeTagFromArticle(savedArticle.id, tag.id);
       }
 
       // Adicionar novas tags
@@ -239,13 +242,9 @@ export default function AdminArticleEdit() {
       }
 
       toast({
-        title: isEditing ? "Artigo atualizado" : "Artigo criado",
+        title: "Artigo atualizado",
         description: `Status: ${savedArticle.status}`
       });
-
-      if (!isEditing) {
-        navigate(`/admin/articles/edit/${savedArticle.id}`);
-      }
     } catch (error) {
       console.error('Erro ao salvar artigo:', error);
       toast({
@@ -258,23 +257,43 @@ export default function AdminArticleEdit() {
   };
 
   const handleDuplicate = async () => {
-    if (!isEditing) return;
+    if (!id || !article.title) return;
     
-    const duplicatedArticle = {
-      ...article,
-      title: `${article.title} (Cópia)`,
-      slug: `${article.slug}-copia`,
-      status: 'draft' as ArticleStatus,
-      published_at: undefined
-    };
-    
-    setArticle(duplicatedArticle);
-    navigate('/admin/articles/edit/new');
-    
-    toast({
-      title: "Artigo duplicado",
-      description: "Você pode editar a cópia agora"
-    });
+    try {
+      setIsSaving(true);
+      const adapter = await getDataAdapter();
+      
+      // Criar novo artigo baseado no atual
+      const duplicatedArticle = await adapter.createArticle({
+        ...article,
+        title: `${article.title} (Cópia)`,
+        slug: '', // Será gerado automaticamente
+        status: 'draft',
+        published_at: null
+      } as any);
+
+      // Copiar tags se existirem
+      for (const tagId of selectedTags) {
+        await adapter.addTagToArticle(duplicatedArticle.id, tagId);
+      }
+      
+      toast({
+        title: "Artigo duplicado",
+        description: "Redirecionando para a cópia..."
+      });
+
+      // Navegar para o artigo duplicado
+      navigate(`/admin/articles/${duplicatedArticle.id}/edit`);
+      
+    } catch (error) {
+      console.error('Erro ao duplicar artigo:', error);
+      toast({
+        title: "Erro ao duplicar",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const getValidationIcon = (field: string) => {
@@ -310,7 +329,7 @@ export default function AdminArticleEdit() {
           </Button>
           <div>
             <h1 className="text-2xl font-bold">
-              {isEditing ? 'Editar Artigo' : 'Novo Artigo'}
+              Editar Artigo
             </h1>
             {article.slug && (
               <p className="text-sm text-muted-foreground">
@@ -372,15 +391,13 @@ export default function AdminArticleEdit() {
           disabled={isSaving || !article.title?.trim() || !article.category_id || !slugValidation.isValid}
         />
         
-        {isEditing && (
-          <Button variant="outline" onClick={handleDuplicate}>
-            <Copy className="w-4 h-4 mr-2" />
-            Duplicar
-          </Button>
-        )}
+        <Button variant="outline" onClick={handleDuplicate} disabled={isSaving}>
+          <Copy className="w-4 h-4 mr-2" />
+          Duplicar
+        </Button>
         
         {/* Auto-save indicator */}
-        {isEditing && article.title?.trim() && (
+        {id && article.title?.trim() && (
           <div className="flex items-center gap-1 text-xs text-muted-foreground ml-auto">
             <Clock className="w-3 h-3" />
             Auto-save ativo

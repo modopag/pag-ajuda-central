@@ -141,6 +141,36 @@ export default function AdminArticles() {
     }
   };
 
+  const handleDuplicateArticle = async (articleId: string) => {
+    try {
+      const adapter = await getDataAdapter();
+      const originalArticle = await adapter.getArticleById(articleId);
+      
+      if (!originalArticle) return;
+      
+      // Criar artigo duplicado
+      const duplicatedArticle = await adapter.createArticle({
+        ...originalArticle,
+        title: `${originalArticle.title} (Cópia)`,
+        slug: '', // Será gerado automaticamente
+        status: 'draft',
+        published_at: null
+      } as any);
+
+      // Copiar tags
+      const tags = await adapter.getArticleTags(articleId);
+      for (const tag of tags) {
+        await adapter.addTagToArticle(duplicatedArticle.id, tag.id);
+      }
+      
+      // Navegar para o artigo duplicado
+      window.location.href = `/admin/articles/${duplicatedArticle.id}/edit`;
+      
+    } catch (error) {
+      console.error("Error duplicating article:", error);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -326,9 +356,15 @@ export default function AdminArticles() {
                                 Editar
                               </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Copy className="w-4 h-4 mr-2" />
-                              Duplicar
+                            <DropdownMenuItem asChild>
+                              <Link to={`/admin/articles/${article.id}/edit`} 
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      handleDuplicateArticle(article.id);
+                                    }}>
+                                <Copy className="w-4 h-4 mr-2" />
+                                Duplicar
+                              </Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
