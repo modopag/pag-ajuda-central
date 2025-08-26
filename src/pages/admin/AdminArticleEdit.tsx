@@ -40,7 +40,7 @@ export default function AdminArticleEdit() {
     og_description: '',
     og_image: '',
     noindex: false,
-    type: 'guide',
+    type: 'artigo',
     reading_time_minutes: 1
   });
 
@@ -468,9 +468,10 @@ export default function AdminArticleEdit() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="faq">FAQ</SelectItem>
-                    <SelectItem value="guide">Guia</SelectItem>
+                    <SelectItem value="artigo">Artigo</SelectItem>
                     <SelectItem value="tutorial">Tutorial</SelectItem>
+                    <SelectItem value="aviso">Aviso</SelectItem>
+                    <SelectItem value="atualização">Atualização</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

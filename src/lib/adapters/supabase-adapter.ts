@@ -1,153 +1,163 @@
 // Supabase adapter - future implementation placeholder
 
-import type { DataAdapter } from '@/types/admin';
+import type { DataAdapter, Category, Article, Tag, ArticleTag, Media, Redirect, Feedback, User, Setting, AnalyticsEvent, ArticleStatus } from '@/types/admin';
 
 export class SupabaseAdapter implements DataAdapter {
   constructor() {
-    throw new Error('SupabaseAdapter not implemented yet. Use MockAdapter for now.');
+    console.warn('SupabaseAdapter is not implemented yet. Use MockAdapter for now.');
   }
 
-  async getCategories(): Promise<any[]> {
-    throw new Error('Not implemented');
+  // Categories
+  async getCategories(): Promise<Category[]> {
+    throw new Error('SupabaseAdapter: getCategories not implemented yet');
   }
 
-  async getCategoryById(): Promise<any> {
-    throw new Error('Not implemented');
+  async getCategoryById(id: string): Promise<Category | null> {
+    throw new Error('SupabaseAdapter: getCategoryById not implemented yet');
   }
 
-  async createCategory(): Promise<any> {
-    throw new Error('Not implemented');
+  async createCategory(category: Omit<Category, 'id' | 'created_at' | 'updated_at'>): Promise<Category> {
+    throw new Error('SupabaseAdapter: createCategory not implemented yet');
   }
 
-  async updateCategory(): Promise<any> {
-    throw new Error('Not implemented');
+  async updateCategory(id: string, updates: Partial<Category>): Promise<Category> {
+    throw new Error('SupabaseAdapter: updateCategory not implemented yet');
   }
 
-  async deleteCategory(): Promise<void> {
-    throw new Error('Not implemented');
+  async deleteCategory(id: string): Promise<void> {
+    throw new Error('SupabaseAdapter: deleteCategory not implemented yet');
   }
 
-  async getArticles(): Promise<any[]> {
-    throw new Error('Not implemented');
+  // Articles
+  async getArticles(filters?: { category_id?: string; status?: ArticleStatus; search?: string }): Promise<Article[]> {
+    throw new Error('SupabaseAdapter: getArticles not implemented yet');
   }
 
-  async getArticleById(): Promise<any> {
-    throw new Error('Not implemented');
+  async getArticleById(id: string): Promise<Article | null> {
+    throw new Error('SupabaseAdapter: getArticleById not implemented yet');
   }
 
-  async getArticleBySlug(): Promise<any> {
-    throw new Error('Not implemented');
+  async getArticleBySlug(slug: string): Promise<Article | null> {
+    throw new Error('SupabaseAdapter: getArticleBySlug not implemented yet');
   }
 
-  async createArticle(): Promise<any> {
-    throw new Error('Not implemented');
+  async createArticle(article: Omit<Article, 'id' | 'updated_at' | 'view_count'>): Promise<Article> {
+    throw new Error('SupabaseAdapter: createArticle not implemented yet');
   }
 
-  async updateArticle(): Promise<any> {
-    throw new Error('Not implemented');
+  async updateArticle(id: string, updates: Partial<Article>): Promise<Article> {
+    throw new Error('SupabaseAdapter: updateArticle not implemented yet');
   }
 
-  async deleteArticle(): Promise<void> {
-    throw new Error('Not implemented');
+  async deleteArticle(id: string): Promise<void> {
+    throw new Error('SupabaseAdapter: deleteArticle not implemented yet');
   }
 
-  async getTags(): Promise<any[]> {
-    throw new Error('Not implemented');
+  // Tags
+  async getTags(): Promise<Tag[]> {
+    throw new Error('SupabaseAdapter: getTags not implemented yet');
   }
 
-  async getTagById(): Promise<any> {
-    throw new Error('Not implemented');
+  async getTagById(id: string): Promise<Tag | null> {
+    throw new Error('SupabaseAdapter: getTagById not implemented yet');
   }
 
-  async createTag(): Promise<any> {
-    throw new Error('Not implemented');
+  async createTag(tag: Omit<Tag, 'id' | 'created_at'>): Promise<Tag> {
+    throw new Error('SupabaseAdapter: createTag not implemented yet');
   }
 
-  async updateTag(): Promise<any> {
-    throw new Error('Not implemented');
+  async updateTag(id: string, updates: Partial<Tag>): Promise<Tag> {
+    throw new Error('SupabaseAdapter: updateTag not implemented yet');
   }
 
-  async deleteTag(): Promise<void> {
-    throw new Error('Not implemented');
+  async deleteTag(id: string): Promise<void> {
+    throw new Error('SupabaseAdapter: deleteTag not implemented yet');
   }
 
-  async getArticleTags(): Promise<any[]> {
-    throw new Error('Not implemented');
+  // Article Tags
+  async getArticleTags(articleId: string): Promise<Tag[]> {
+    throw new Error('SupabaseAdapter: getArticleTags not implemented yet');
   }
 
-  async addTagToArticle(): Promise<void> {
-    throw new Error('Not implemented');
+  async addTagToArticle(articleId: string, tagId: string): Promise<void> {
+    throw new Error('SupabaseAdapter: addTagToArticle not implemented yet');
   }
 
-  async removeTagFromArticle(): Promise<void> {
-    throw new Error('Not implemented');
+  async removeTagFromArticle(articleId: string, tagId: string): Promise<void> {
+    throw new Error('SupabaseAdapter: removeTagFromArticle not implemented yet');
   }
 
-  async getMediaList(): Promise<any[]> {
-    throw new Error('Not implemented');
+  // Media
+  async getMediaList(): Promise<Media[]> {
+    throw new Error('SupabaseAdapter: getMediaList not implemented yet');
   }
 
-  async getMediaById(): Promise<any> {
-    throw new Error('Not implemented');
+  async getMediaById(id: string): Promise<Media | null> {
+    throw new Error('SupabaseAdapter: getMediaById not implemented yet');
   }
 
-  async createMedia(): Promise<any> {
-    throw new Error('Not implemented');
+  async createMedia(media: Omit<Media, 'id' | 'created_at'>): Promise<Media> {
+    throw new Error('SupabaseAdapter: createMedia not implemented yet');
   }
 
-  async deleteMedia(): Promise<void> {
-    throw new Error('Not implemented');
+  async deleteMedia(id: string): Promise<void> {
+    throw new Error('SupabaseAdapter: deleteMedia not implemented yet');
   }
 
-  async getRedirects(): Promise<any[]> {
-    throw new Error('Not implemented');
+  // Redirects
+  async getRedirects(): Promise<Redirect[]> {
+    throw new Error('SupabaseAdapter: getRedirects not implemented yet');
   }
 
-  async createRedirect(): Promise<any> {
-    throw new Error('Not implemented');
+  async createRedirect(redirect: Omit<Redirect, 'id' | 'created_at'>): Promise<Redirect> {
+    throw new Error('SupabaseAdapter: createRedirect not implemented yet');
   }
 
-  async updateRedirect(): Promise<any> {
-    throw new Error('Not implemented');
+  async updateRedirect(id: string, updates: Partial<Redirect>): Promise<Redirect> {
+    throw new Error('SupabaseAdapter: updateRedirect not implemented yet');
   }
 
-  async deleteRedirect(): Promise<void> {
-    throw new Error('Not implemented');
+  async deleteRedirect(id: string): Promise<void> {
+    throw new Error('SupabaseAdapter: deleteRedirect not implemented yet');
   }
 
-  async getFeedback(): Promise<any[]> {
-    throw new Error('Not implemented');
+  // Feedback
+  async getFeedback(articleId?: string): Promise<Feedback[]> {
+    throw new Error('SupabaseAdapter: getFeedback not implemented yet');
   }
 
-  async createFeedback(): Promise<any> {
-    throw new Error('Not implemented');
+  async createFeedback(feedback: Omit<Feedback, 'id' | 'created_at'>): Promise<Feedback> {
+    throw new Error('SupabaseAdapter: createFeedback not implemented yet');
   }
 
-  async getSetting(): Promise<any> {
-    throw new Error('Not implemented');
+  // Settings
+  async getSetting(key: string): Promise<Setting | null> {
+    throw new Error('SupabaseAdapter: getSetting not implemented yet');
   }
 
-  async updateSetting(): Promise<any> {
-    throw new Error('Not implemented');
+  async updateSetting(key: string, value: string, type?: Setting['type']): Promise<Setting> {
+    throw new Error('SupabaseAdapter: updateSetting not implemented yet');
   }
 
-  async getAllSettings(): Promise<any[]> {
-    throw new Error('Not implemented');
+  async getAllSettings(): Promise<Setting[]> {
+    throw new Error('SupabaseAdapter: getAllSettings not implemented yet');
   }
 
-  async trackEvent(): Promise<void> {
-    throw new Error('Not implemented');
+  // Analytics
+  async trackEvent(event: Omit<AnalyticsEvent, 'timestamp'>): Promise<void> {
+    throw new Error('SupabaseAdapter: trackEvent not implemented yet');
   }
 
-  async getEvents(): Promise<any[]> {
-    throw new Error('Not implemented');
+  async getEvents(filters?: { event_type?: string; limit?: number }): Promise<AnalyticsEvent[]> {
+    throw new Error('SupabaseAdapter: getEvents not implemented yet');
   }
 
+  // Data management
   async exportData(): Promise<string> {
-    throw new Error('Not implemented');
+    throw new Error('SupabaseAdapter: exportData not implemented yet');
   }
 
-  async importData(): Promise<void> {
-    throw new Error('Not implemented');
+  async importData(jsonData: string): Promise<void> {
+    throw new Error('SupabaseAdapter: importData not implemented yet');
   }
 }

@@ -58,24 +58,24 @@ export const validateSEO = (data: SEOData): SEOValidation[] => {
     });
   }
 
-  // Validação da meta descrição
+  // Validação da meta descrição (OBRIGATÓRIO para publicação)
   if (!data.metaDescription?.trim()) {
     validations.push({
       field: 'metaDescription',
-      message: 'Meta descrição é recomendada',
-      type: 'warning'
+      message: 'Meta descrição é obrigatória para publicação',
+      type: 'error'
+    });
+  } else if (data.metaDescription.length > 160) {
+    validations.push({
+      field: 'metaDescription',
+      message: `Meta descrição muito longa (${data.metaDescription.length}/160 caracteres) - BLOQUEIA PUBLICAÇÃO`,
+      type: 'error'
     });
   } else if (data.metaDescription.length < 120) {
     validations.push({
       field: 'metaDescription',
       message: `Meta descrição curta (${data.metaDescription.length}/160 caracteres)`,
       type: 'warning'
-    });
-  } else if (data.metaDescription.length > 160) {
-    validations.push({
-      field: 'metaDescription',
-      message: `Meta descrição muito longa (${data.metaDescription.length}/160 caracteres)`,
-      type: 'error'
     });
   } else {
     validations.push({
@@ -106,7 +106,7 @@ export const validateSEO = (data: SEOData): SEOValidation[] => {
     });
   }
 
-  // Validação do conteúdo
+  // Validação do conteúdo e 1º parágrafo
   const contentLength = data.content.replace(/<[^>]*>/g, '').trim().length;
   if (contentLength < 300) {
     validations.push({
@@ -122,7 +122,68 @@ export const validateSEO = (data: SEOData): SEOValidation[] => {
     });
   }
 
+  // Validação do primeiro parágrafo (OBRIGATÓRIO para publicação)
+  const firstParagraph = extractFirstParagraph(data.content);
+  if (!firstParagraph.trim()) {
+    validations.push({
+      field: 'firstParagraph',
+      message: 'Primeiro parágrafo é obrigatório - deve responder diretamente à pergunta - BLOQUEIA PUBLICAÇÃO',
+      type: 'error'
+    });
+  } else if (firstParagraph.length < 50) {
+    validations.push({
+      field: 'firstParagraph',
+      message: 'Primeiro parágrafo muito curto - deve responder à pergunta de forma clara',
+      type: 'warning'
+    });
+  } else {
+    validations.push({
+      field: 'firstParagraph',
+      message: 'Primeiro parágrafo adequado',
+      type: 'success'
+    });
+  }
+
   return validations;
+};
+
+// Nova função para extrair o primeiro parágrafo
+export const extractFirstParagraph = (content: string): string => {
+  // Remove tags HTML e pega o primeiro parágrafo
+  const text = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  const paragraphs = text.split('\n').filter(p => p.trim().length > 0);
+  return paragraphs[0] || '';
+};
+
+// Nova função para validar se pode publicar
+export const canPublish = (data: SEOData): { canPublish: boolean; blockingErrors: string[] } => {
+  const validations = validateSEO(data);
+  const blockingErrors: string[] = [];
+  
+  // Campos obrigatórios para publicação
+  if (!data.title.trim()) {
+    blockingErrors.push('Título é obrigatório');
+  }
+  
+  if (!data.metaDescription?.trim()) {
+    blockingErrors.push('Meta descrição é obrigatória');
+  } else if (data.metaDescription.length > 160) {
+    blockingErrors.push('Meta descrição excede 160 caracteres');
+  }
+  
+  const firstParagraph = extractFirstParagraph(data.content);
+  if (!firstParagraph.trim()) {
+    blockingErrors.push('Primeiro parágrafo é obrigatório');
+  }
+  
+  if (!data.slug.trim()) {
+    blockingErrors.push('Slug é obrigatório');
+  }
+  
+  return {
+    canPublish: blockingErrors.length === 0,
+    blockingErrors
+  };
 };
 
 export const calculateReadingTime = (content: string): number => {

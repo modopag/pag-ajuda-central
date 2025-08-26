@@ -20,6 +20,7 @@ export default function AdminSettings() {
     default_meta_description: "",
     default_og_image: "",
     robots_txt: "",
+    site_url: "https://ajuda.modopag.com.br/",
   });
   const [helpSettings, setHelpSettings] = useState<HelpQuickSettings>({
     phone: "",

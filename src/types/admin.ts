@@ -2,7 +2,8 @@
 
 export type ArticleStatus = 'draft' | 'review' | 'published' | 'archived';
 export type RedirectType = 301 | 302;
-export type UserRole = 'admin' | 'editor' | 'viewer';
+export type UserRole = 'admin' | 'editor' | 'author' | 'viewer';
+export type ArticleType = 'artigo' | 'tutorial' | 'aviso' | 'atualização';
 export type MediaType = 'image' | 'document' | 'video';
 
 // Database-like structures (matching future Supabase schema)
@@ -40,8 +41,9 @@ export interface Article {
   
   // Additional fields
   reading_time_minutes: number;
-  type: 'faq' | 'guide' | 'tutorial';
+  type: ArticleType;
   view_count: number;
+  first_paragraph?: string; // Required for SEO validation
 }
 
 export interface Tag {
@@ -107,6 +109,7 @@ export interface GlobalSEOSettings {
   default_meta_description: string;
   default_og_image: string;
   robots_txt: string;
+  site_url: string; // For canonical URLs and sitemap
 }
 
 export interface HelpQuickSettings {
@@ -134,9 +137,16 @@ export interface BrandSettings {
 
 // Analytics events
 export interface AnalyticsEvent {
-  event_type: 'faq_search' | 'faq_view_article' | 'faq_feedback';
+  event_type: 'faq_search' | 'faq_view_article' | 'faq_feedback' | 'whatsapp_cta_click';
   data: Record<string, any>;
   timestamp: string;
+}
+
+// SEO validation interface
+export interface SEOValidationResult {
+  canPublish: boolean;
+  errors: string[];
+  warnings: string[];
 }
 
 // Data adapter interface (for future Supabase migration)

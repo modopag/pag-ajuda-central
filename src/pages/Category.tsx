@@ -200,12 +200,12 @@ export default function Category() {
 
   // JSON-LD para FAQs ou CollectionPage
   const isFAQCategory = category.name.toLowerCase().includes('faq') || 
-                       filteredArticles.some(art => art.type === 'faq');
+                       filteredArticles.some(art => art.type === 'artigo');
   
   let jsonLd;
   if (isFAQCategory) {
     const faqs = filteredArticles
-      .filter(art => art.type === 'faq')
+      .filter(art => art.type === 'artigo')
       .slice(0, 10)
       .map(art => ({
         question: art.title,
@@ -304,9 +304,10 @@ export default function Category() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="">Todos os tipos</SelectItem>
-                      <SelectItem value="faq">FAQ</SelectItem>
-                      <SelectItem value="guide">Guia</SelectItem>
+                      <SelectItem value="artigo">Artigo</SelectItem>
                       <SelectItem value="tutorial">Tutorial</SelectItem>
+                      <SelectItem value="aviso">Aviso</SelectItem>
+                      <SelectItem value="atualização">Atualização</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

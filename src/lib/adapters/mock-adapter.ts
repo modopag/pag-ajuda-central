@@ -89,7 +89,7 @@ Pronto! Sua conta está criada e você pode começar a usar o modoPAG.`,
     meta_description: 'Aprenda como criar sua conta no modoPAG em poucos passos simples. Guia completo com todas as informações necessárias.',
     noindex: false,
     reading_time_minutes: 2,
-    type: 'faq',
+    type: 'artigo',
     view_count: 145,
   },
   {
@@ -133,7 +133,7 @@ Se ainda assim não receber, entre em contato com nosso suporte.`,
     meta_description: 'Guia completo para recuperar sua senha do modoPAG. Passo a passo simples e rápido para acessar sua conta novamente.',
     noindex: false,
     reading_time_minutes: 3,
-    type: 'faq',
+    type: 'artigo',
     view_count: 89,
   },
   {
@@ -189,7 +189,7 @@ Saldo disponível em sua conta modoPAG.
     meta_description: 'Conheça todos os métodos de pagamento aceitos pelo modoPAG: cartões, PIX, boleto e carteiras digitais. Taxas e prazos inclusos.',
     noindex: false,
     reading_time_minutes: 4,
-    type: 'guide',
+    type: 'tutorial',
     view_count: 234,
   },
   {
@@ -251,7 +251,7 @@ O PIX é o sistema de pagamentos instantâneos criado pelo Banco Central do Bras
     meta_description: 'Entenda como usar PIX no modoPAG. Guia completo com passo a passo, vantagens, limites e dicas para pagamentos instantâneos.',
     noindex: false,
     reading_time_minutes: 5,
-    type: 'guide',
+    type: 'tutorial',
     view_count: 178,
   },
   {
@@ -435,7 +435,7 @@ Verificar se há problemas conhecidos:
     meta_description: 'Conheça todos os canais para falar com o suporte modoPAG: chat, WhatsApp, e-mail e telefone. Horários e dicas inclusos.',
     noindex: false,
     reading_time_minutes: 4,
-    type: 'faq',
+    type: 'artigo',
     view_count: 112,
   }
 ];
