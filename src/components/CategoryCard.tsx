@@ -1,4 +1,6 @@
 import { LucideIcon } from "lucide-react";
+import { ImageOptimizer } from "@/components/performance/ImageOptimizer";
+import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
 
 interface CategoryCardProps {
   title: string;
@@ -10,18 +12,31 @@ interface CategoryCardProps {
 }
 
 const CategoryCard = ({ title, description, icon: Icon, iconUrl, onClick, articleCount }: CategoryCardProps) => {
+  const { elementRef, hasIntersected } = useIntersectionObserver<HTMLDivElement>({ 
+    threshold: 0.1, 
+    triggerOnce: true 
+  });
+
   return (
     <div 
+      ref={elementRef}
       className="category-card group"
       onClick={onClick}
     >
       <div className="category-icon group-hover:text-accent">
         {iconUrl ? (
-          <img 
-            src={iconUrl} 
-            alt={`Ícone da categoria ${title}`} 
-            className="w-full h-full object-contain"
-          />
+          hasIntersected ? (
+            <ImageOptimizer
+              src={iconUrl} 
+              alt={`Ícone da categoria ${title}`} 
+              className="w-full h-full object-contain"
+              width={64}
+              height={64}
+              priority={false}
+            />
+          ) : (
+            <div className="w-full h-full bg-muted animate-pulse rounded" />
+          )
         ) : Icon ? (
           <Icon className="w-full h-full" />
         ) : null}

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Clock, Tag as TagIcon, ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { RelatedArticlesSkeleton } from '@/components/skeletons/RelatedArticlesSkeleton';
 import { getDataAdapter } from '@/lib/data-adapter';
 import { generateArticleUrl, generateCategoryUrl } from '@/utils/urlGenerator';
 import type { Article, Tag, Category } from '@/types/admin';
@@ -108,29 +109,7 @@ export default function RelatedArticles({
   };
 
   if (isLoading) {
-    return (
-      <section className="mt-12 pt-8 border-t">
-        <h2 className="text-2xl font-bold text-foreground mb-6">
-          Artigos relacionados
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {Array.from({ length: maxArticles }).map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <CardHeader>
-                <div className="h-4 bg-muted rounded w-16 mb-2"></div>
-                <div className="h-6 bg-muted rounded w-3/4"></div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="h-4 bg-muted rounded"></div>
-                  <div className="h-4 bg-muted rounded w-2/3"></div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-    );
+    return <RelatedArticlesSkeleton maxArticles={maxArticles} />;
   }
 
   if (relatedArticles.length === 0) {

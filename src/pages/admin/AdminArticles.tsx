@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { getDataAdapter } from "@/lib/data-adapter";
 import type { Article, Category, ArticleStatus } from "@/types/admin";
+import { AdminArticlesSkeleton } from "@/components/skeletons/AdminArticlesSkeleton";
 import {
   Plus,
   Search,
@@ -172,14 +173,7 @@ export default function AdminArticles() {
   };
 
   if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-muted rounded w-64 mb-4"></div>
-          <div className="h-64 bg-muted rounded"></div>
-        </div>
-      </div>
-    );
+    return <AdminArticlesSkeleton />;
   }
 
   return (

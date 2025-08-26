@@ -10,6 +10,7 @@ import { CookiePreferencesModal } from '@/components/CookiePreferencesModal';
 import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 import { GA4Debug } from '@/components/GA4Debug';
 import { PerformanceMonitor } from '@/components/performance/PerformanceMonitor';
+import { PerformanceTracker } from '@/components/performance/PerformanceTracker';
 import { QAChecklist } from '@/components/qa/QAChecklist';
 import { QASummary } from '@/components/qa/QASummary';
 import { RedirectHandler } from '@/components/RedirectHandler';
@@ -116,6 +117,7 @@ const App = () => (
           <CookiePreferencesModal />
           <GA4Debug />
           <PerformanceMonitor />
+          <PerformanceTracker />
           <QAChecklist />
           <QASummary />
         </ErrorBoundary>
