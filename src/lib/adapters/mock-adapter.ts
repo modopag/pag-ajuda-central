@@ -50,6 +50,17 @@ const DEMO_CATEGORIES: Category[] = [
     is_active: true,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+  },
+  {
+    id: 'cat-4',
+    name: 'Conta Digital',
+    slug: 'conta-digital',
+    description: 'Informações sobre conta digital, funcionalidades e benefícios',
+    icon_url: '💰',
+    position: 4,
+    is_active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   }
 ];
 
@@ -322,6 +333,283 @@ const DEMO_CATEGORIES: Category[] = [
       reading_time_minutes: 6,
       type: 'artigo',
       view_count: 1567,
+    },
+    {
+      id: 'art-4',
+      title: 'O que é a conta digital modoPAG?',
+      slug: 'o-que-e-conta-digital-modopag',
+      category_id: 'cat-4',
+      content: `<h1>O que é a conta digital modoPAG?</h1>
+
+<p><strong>A conta digital modoPAG é uma solução financeira completa</strong> que oferece praticidade, segurança e economia para suas transações do dia a dia.</p>
+
+<h2>✨ Principais características</h2>
+
+<h3>📱 100% Digital</h3>
+<p>Sua conta funciona inteiramente pelo aplicativo, sem necessidade de ir a agências bancárias:</p>
+<ul>
+  <li>Abertura de conta em minutos</li>
+  <li>Gerenciamento completo pelo app</li>
+  <li>Suporte online 24/7</li>
+  <li>Interface intuitiva e moderna</li>
+</ul>
+
+<h3>💰 Sem taxas abusivas</h3>
+<p>Economize com nossa política de tarifas transparentes:</p>
+<ul>
+  <li><strong>Conta gratuita:</strong> Sem taxa de manutenção</li>
+  <li><strong>PIX gratuito:</strong> Transferências instantâneas sem custo</li>
+  <li><strong>TED limitada:</strong> Até 2 gratuitas por mês</li>
+  <li><strong>Cartão de débito:</strong> Anuidade zero</li>
+</ul>
+
+<h3>🔒 Máxima segurança</h3>
+<p>Sua conta protegida pelos mais altos padrões de segurança:</p>
+<ul>
+  <li>Criptografia de ponta a ponta</li>
+  <li>Autenticação biométrica</li>
+  <li>Notificações em tempo real</li>
+  <li>Bloqueio automático em caso de suspeita</li>
+</ul>
+
+<h2>🚀 Funcionalidades disponíveis</h2>
+
+<h3>💳 Cartão de débito virtual e físico</h3>
+<p>Receba seu cartão virtual na hora e o físico em casa:</p>
+<ul>
+  <li>Função contactless (aproximação)</li>
+  <li>Válido em todo território nacional</li>
+  <li>Controle de limites pelo app</li>
+  <li>Bloqueio e desbloqueio instantâneo</li>
+</ul>
+
+<h3>⚡ PIX integrado</h3>
+<p>Receba e envie dinheiro na velocidade da luz:</p>
+<ul>
+  <li>Chaves PIX ilimitadas (CPF, e-mail, celular)</li>
+  <li>QR Code dinâmico para recebimentos</li>
+  <li>Agendamento de transferências</li>
+  <li>Limites personalizáveis</li>
+</ul>
+
+<h3>📊 Controle financeiro inteligente</h3>
+<p>Organize suas finanças como nunca antes:</p>
+<ul>
+  <li>Categorização automática de gastos</li>
+  <li>Metas de economia personalizadas</li>
+  <li>Relatórios mensais detalhados</li>
+  <li>Alertas de gastos por categoria</li>
+</ul>
+
+<h2>🎯 Quem pode abrir uma conta?</h2>
+
+<p>Nossa conta digital está disponível para:</p>
+<ul>
+  <li><strong>Pessoa Física:</strong> Brasileiros e residentes no Brasil</li>
+  <li><strong>Idade mínima:</strong> 18 anos completos</li>
+  <li><strong>Documentação:</strong> CPF regular e RG válido</li>
+  <li><strong>Comprovação:</strong> Endereço atualizado (últimos 3 meses)</li>
+</ul>
+
+<blockquote>
+  <p><strong>💡 Dica especial:</strong> A conta digital modoPAG é perfeita para freelancers, empreendedores e pessoas que buscam praticidade no dia a dia!</p>
+</blockquote>
+
+<h2>📈 Vantagens exclusivas</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Recurso</th>
+      <th>Conta Tradicional</th>
+      <th>Conta Digital modoPAG</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Taxa de manutenção</strong></td>
+      <td>R$ 15-30/mês</td>
+      <td><strong>R$ 0</strong></td>
+    </tr>
+    <tr>
+      <td><strong>PIX</strong></td>
+      <td>Limitado</td>
+      <td><strong>Ilimitado e gratuito</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Cartão de débito</strong></td>
+      <td>R$ 25-40/ano</td>
+      <td><strong>R$ 0</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Atendimento</strong></td>
+      <td>Horário comercial</td>
+      <td><strong>24/7 online</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Pronto para começar?</strong> Abra sua conta digital modoPAG agora mesmo e descubra um novo jeito de cuidar do seu dinheiro!</p>`,
+      status: 'published',
+      published_at: new Date('2024-01-25').toISOString(),
+      updated_at: new Date('2024-01-30').toISOString(),
+      author: 'Equipe modoPAG',
+      meta_title: 'Conta digital modoPAG: gratuita, segura e sem burocracia',
+      meta_description: 'Descubra a conta digital modoPAG: sem taxas, PIX gratuito, cartão sem anuidade e controle financeiro inteligente. Abra agora mesmo!',
+      noindex: false,
+      reading_time_minutes: 5,
+      type: 'artigo',
+      view_count: 2134,
+    },
+    {
+      id: 'art-5',
+      title: 'Como abrir uma conta digital no modoPAG?',
+      slug: 'como-abrir-conta-digital-modopag',
+      category_id: 'cat-4',
+      content: `<h1>Como abrir uma conta digital no modoPAG?</h1>
+
+<p><strong>Abrir sua conta digital no modoPAG é rápido, seguro e 100% online!</strong> Em menos de 10 minutos você terá acesso a todos os recursos da nossa plataforma financeira.</p>
+
+<h2>📋 Documentos necessários</h2>
+<p>Tenha em mãos os seguintes documentos antes de começar:</p>
+<ul>
+  <li><strong>CPF:</strong> Regularizado junto à Receita Federal</li>
+  <li><strong>RG ou CNH:</strong> Documento de identidade com foto</li>
+  <li><strong>Comprovante de endereço:</strong> Últimos 3 meses (conta de luz, água, telefone)</li>
+  <li><strong>Selfie:</strong> Para validação biométrica</li>
+</ul>
+
+<h2>🚀 Passo a passo completo</h2>
+
+<h3>1️⃣ Baixe o aplicativo</h3>
+<p>Instale o app oficial modoPAG:</p>
+<ul>
+  <li><strong>Android:</strong> Google Play Store</li>
+  <li><strong>iOS:</strong> Apple App Store</li>
+  <li><strong>Versão web:</strong> app.modopag.com.br</li>
+</ul>
+
+<h3>2️⃣ Inicie o cadastro</h3>
+<p>Na tela inicial, toque em <strong>"Abrir minha conta"</strong>:</p>
+<ul>
+  <li>Informe seu CPF completo</li>
+  <li>Digite seu nome completo</li>
+  <li>Insira uma senha forte (8+ caracteres)</li>
+  <li>Confirme seu e-mail principal</li>
+</ul>
+
+<h3>3️⃣ Dados pessoais</h3>
+<p>Preencha suas informações com atenção:</p>
+<ul>
+  <li>Data de nascimento</li>
+  <li>Nome da mãe completo</li>
+  <li>Estado civil</li>
+  <li>Profissão e renda mensal</li>
+</ul>
+
+<h3>4️⃣ Endereço residencial</h3>
+<p>Confirme seu endereço atual:</p>
+<ul>
+  <li>CEP (busca automática)</li>
+  <li>Número da residência</li>
+  <li>Complemento (se houver)</li>
+  <li>Ponto de referência</li>
+</ul>
+
+<h3>5️⃣ Verificação de identidade</h3>
+<p>Processo de validação biométrica:</p>
+<ul>
+  <li>Fotografe a frente do seu RG/CNH</li>
+  <li>Fotografe o verso do documento</li>
+  <li>Tire uma selfie segurando o documento</li>
+  <li>Aguarde a validação automática (2-5 minutos)</li>
+</ul>
+
+<h3>6️⃣ Comprovante de endereço</h3>
+<p>Envie uma foto nítida do comprovante:</p>
+<ul>
+  <li>Deve estar em seu nome ou de parente próximo</li>
+  <li>Data máxima de 3 meses</li>
+  <li>Endereço deve coincidir com o informado</li>
+  <li>Imagem clara e legível</li>
+</ul>
+
+<h3>7️⃣ Configurações de segurança</h3>
+<p>Defina suas preferências de proteção:</p>
+<ul>
+  <li>Ative a biometria (digital/facial)</li>
+  <li>Configure seu PIN de 6 dígitos</li>
+  <li>Defina limites de transações</li>
+  <li>Escolha notificações por e-mail/SMS</li>
+</ul>
+
+<h2>✅ Aprovação da conta</h2>
+
+<p><strong>Análise automática:</strong> Na maioria dos casos, a aprovação é instantânea!</p>
+
+<h3>🚦 Status possíveis</h3>
+<ul>
+  <li><strong>✅ Aprovada:</strong> Conta ativada imediatamente</li>
+  <li><strong>⏳ Em análise:</strong> Revisão manual (até 24h)</li>
+  <li><strong>📋 Pendente:</strong> Documentos adicionais necessários</li>
+  <li><strong>❌ Recusada:</strong> Não atende aos critérios (raro)</li>
+</ul>
+
+<h2>🎉 Primeiros passos após aprovação</h2>
+
+<h3>Ative seu cartão virtual</h3>
+<p>Seu cartão de débito estará disponível imediatamente:</p>
+<ul>
+  <li>Visualize dados do cartão no app</li>
+  <li>Configure senha de 4 dígitos</li>
+  <li>Ative compras online</li>
+  <li>Solicite cartão físico (opcional)</li>
+</ul>
+
+<h3>Configure o PIX</h3>
+<p>Registre suas chaves PIX preferidas:</p>
+<ul>
+  <li>CPF (já vem pré-cadastrado)</li>
+  <li>E-mail principal</li>
+  <li>Número de celular</li>
+  <li>Chave aleatória (se desejar)</li>
+</ul>
+
+<h2>⚠️ Problemas na abertura?</h2>
+
+<h3>Documento não aprovado</h3>
+<p>Se sua identidade não foi validada:</p>
+<ul>
+  <li>Certifique-se de que a foto está nítida</li>
+  <li>Documento deve estar dentro da validade</li>
+  <li>Evite reflexos ou sombras na imagem</li>
+  <li>Tente novamente em ambiente bem iluminado</li>
+</ul>
+
+<h3>CPF irregular</h3>
+<p>Regularize sua situação antes de abrir a conta:</p>
+<ul>
+  <li>Acesse receita.fazenda.gov.br</li>
+  <li>Verifique pendências em seu CPF</li>
+  <li>Quite eventuais débitos pendentes</li>
+  <li>Aguarde atualização no sistema (48h)</li>
+</ul>
+
+<blockquote>
+  <p><strong>🎯 Dica importante:</strong> Durante o processo, mantenha uma conexão estável de internet e evite sair do aplicativo até concluir todas as etapas!</p>
+</blockquote>
+
+<p><strong>Ainda com dificuldades?</strong> Nossa equipe de suporte está pronta para ajudar via chat online ou WhatsApp!</p>`,
+      status: 'published',
+      published_at: new Date('2024-02-01').toISOString(),
+      updated_at: new Date('2024-02-05').toISOString(),
+      author: 'Equipe modoPAG',
+      meta_title: 'Como abrir conta digital modoPAG: passo a passo completo',
+      meta_description: 'Aprenda como abrir sua conta digital modoPAG em 10 minutos. Passo a passo completo, documentos necessários e dicas para aprovação rápida.',
+      noindex: false,
+      reading_time_minutes: 7,
+      type: 'tutorial',
+      view_count: 3021,
     }];
 
 const DEMO_TAGS: Tag[] = [
