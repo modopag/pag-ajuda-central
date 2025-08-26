@@ -1,5 +1,5 @@
 import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
-import modopagLogo from "@/assets/modopag-logo.png";
+import modopagLogo from "@/assets/modopag-logo-yellow.svg";
 
 const Footer = () => {
   return (
@@ -11,7 +11,7 @@ const Footer = () => {
             <img 
               src={modopagLogo} 
               alt="modoPAG" 
-              className="h-10 w-auto mb-4 filter brightness-0 invert"
+              className="h-10 w-auto mb-4"
             />
             <p className="text-gray-300 text-sm leading-relaxed mb-4">
               Ative o modo de vender com as menores taxas do Brasil!

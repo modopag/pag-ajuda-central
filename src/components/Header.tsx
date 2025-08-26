@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
-import modopagLogo from "@/assets/modopag-logo.png";
+import modopagLogo from "@/assets/modopag-logo-black.svg";
 import {
   NavigationMenu,
   NavigationMenuContent,

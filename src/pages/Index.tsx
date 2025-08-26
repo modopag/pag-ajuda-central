@@ -49,12 +49,6 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Reclame AQUI Section */}
-      <ReclameAquiSection />
-      
-      {/* FAQ Section */}
-      <FAQSection />
-      
       {/* Categories Section */}
       <section className="py-16 px-4">
         <div className="container mx-auto">
@@ -105,32 +99,11 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Reclame AQUI Section moved to bottom */}
-      <section className="py-16 px-4 bg-background">
-        <div className="container mx-auto text-center">
-          <h2 className="text-3xl font-bold text-foreground mb-6">
-            Uma empresa com integridade comprovada
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-            <div className="bg-card p-6 rounded-xl border border-border">
-              <div className="text-2xl font-bold text-accent mb-2">Top 100</div>
-              <p className="text-sm text-muted-foreground">Prêmio do Reclame AQUI 2025</p>
-            </div>
-            <div className="bg-card p-6 rounded-xl border border-border">
-              <div className="text-2xl font-bold text-accent mb-2">RA1000</div>
-              <p className="text-sm text-muted-foreground">Selo Reclame AQUI</p>
-            </div>
-            <div className="bg-card p-6 rounded-xl border border-border">
-              <div className="text-2xl font-bold text-accent mb-2">30M+</div>
-              <p className="text-sm text-muted-foreground">Operações desde 2024</p>
-            </div>
-            <div className="bg-card p-6 rounded-xl border border-border">
-              <div className="text-2xl font-bold text-accent mb-2">8.1/10</div>
-              <p className="text-sm text-muted-foreground">Nota média dos clientes</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Reclame AQUI Section */}
+      <ReclameAquiSection />
+      
+      {/* FAQ Section */}
+      <FAQSection />
       
       <Footer />
     </div>
