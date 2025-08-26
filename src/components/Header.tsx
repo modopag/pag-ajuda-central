@@ -26,7 +26,7 @@ const Header = () => {
               src="/lovable-uploads/4b2a0e83-bf23-41f9-baa7-6c102ce25035.png"
               alt="modoPAG - Central de Ajuda"
               title="Ir para a página inicial"
-              className="h-10 md:h-12 w-auto"
+              className="h-12 md:h-16 w-auto"
               width="280"
               height="60"
             />
