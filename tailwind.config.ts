@@ -18,12 +18,26 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				'sans': ['Poppins', 'system-ui', 'sans-serif'],
+				'poppins': ['Poppins', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+				
+				// modoPAG Brand Colors
+				'modopag': {
+					yellow: 'hsl(var(--modopag-yellow))',
+					'yellow-hover': 'hsl(var(--modopag-yellow-hover))',
+					black: 'hsl(var(--modopag-black))',
+					gray: 'hsl(var(--modopag-gray))',
+					'text-gray': 'hsl(var(--modopag-text-gray))',
+				},
+				
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
