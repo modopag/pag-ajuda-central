@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Eye, Send, Copy, AlertCircle, CheckCircle, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Save, Send, Copy, AlertCircle, CheckCircle, AlertTriangle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,9 @@ import { useToast } from '@/hooks/use-toast';
 import { getDataAdapter } from '@/lib/data-adapter';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { ImageUploader } from '@/components/admin/ImageUploader';
+import { PreviewModal } from '@/components/admin/PreviewModal';
 import { useAutoSave } from '@/hooks/useAutoSave';
+import { useSlugValidation } from '@/hooks/useSlugValidation';
 import { validateSEO, calculateReadingTime, generateSlug, canPublish, extractFirstParagraph } from '@/utils/seoValidations';
 import type { Article, Category, Tag, ArticleStatus } from '@/types/admin';
 
@@ -49,7 +51,11 @@ export default function AdminArticleEdit() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   const [activeTab, setActiveTab] = useState('content');
+
+  // Validação de slug em tempo real
+  const slugValidation = useSlugValidation(article.slug || '', isEditing ? id : undefined);
 
   // Validações SEO
   const seoValidations = useMemo(() => {
@@ -339,7 +345,7 @@ export default function AdminArticleEdit() {
           disabled={isSaving}
         >
           <Save className="w-4 h-4 mr-2" />
-          Salvar Rascunho
+          {isSaving ? 'Salvando...' : 'Salvar Rascunho'}
         </Button>
         
         <Button 
@@ -351,13 +357,20 @@ export default function AdminArticleEdit() {
           Enviar para Revisão
         </Button>
         
-        <Button 
-          onClick={() => handleSave('published')}
-          disabled={isSaving || !article.title?.trim() || !article.category_id}
-        >
-          <Eye className="w-4 h-4 mr-2" />
-          Publicar
-        </Button>
+        {/* Preview & Publicar Modal */}
+        <PreviewModal
+          article={article}
+          onPublish={async () => {
+            setIsPublishing(true);
+            try {
+              await handleSave('published');
+            } finally {
+              setIsPublishing(false);
+            }
+          }}
+          isPublishing={isPublishing}
+          disabled={isSaving || !article.title?.trim() || !article.category_id || !slugValidation.isValid}
+        />
         
         {isEditing && (
           <Button variant="outline" onClick={handleDuplicate}>
@@ -365,16 +378,42 @@ export default function AdminArticleEdit() {
             Duplicar
           </Button>
         )}
+        
+        {/* Auto-save indicator */}
+        {isEditing && article.title?.trim() && (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground ml-auto">
+            <Clock className="w-3 h-3" />
+            Auto-save ativo
+          </div>
+        )}
       </div>
 
       {/* Validações SEO */}
-      {seoValidations.length > 0 && (
+      {(seoValidations.length > 0 || !slugValidation.isValid) && (
         <Card>
           <CardHeader>
             <CardTitle className="text-sm">Validações SEO</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
+              {/* Validação de slug em tempo real */}
+              {!slugValidation.isValid && (
+                <div className="flex items-center gap-2 text-sm">
+                  <AlertCircle className="w-4 h-4 text-red-500" />
+                  <span className="text-red-600">
+                    {slugValidation.isChecking ? 'Verificando slug...' : slugValidation.error}
+                  </span>
+                </div>
+              )}
+              
+              {slugValidation.isChecking && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Clock className="w-4 h-4 text-blue-500 animate-spin" />
+                  <span className="text-blue-600">Verificando disponibilidade do slug...</span>
+                </div>
+              )}
+              
+              {/* Validações SEO existentes */}
               {seoValidations.map((validation, index) => (
                 <div key={index} className="flex items-center gap-2 text-sm">
                   {getValidationIcon(validation.field)}
@@ -503,13 +542,29 @@ export default function AdminArticleEdit() {
                   <div className="flex items-center gap-2">
                     <Label htmlFor="slug">Slug *</Label>
                     {getValidationIcon('slug')}
+                    {!slugValidation.isValid && !slugValidation.isChecking && (
+                      <AlertCircle className="w-4 h-4 text-red-500" />
+                    )}
+                    {slugValidation.isChecking && (
+                      <Clock className="w-4 h-4 text-blue-500 animate-spin" />
+                    )}
+                    {slugValidation.isValid && !slugValidation.isChecking && article.slug && (
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                    )}
                   </div>
                   <Input
                     id="slug"
                     value={article.slug || ''}
                     onChange={(e) => handleInputChange('slug', e.target.value)}
                     placeholder="url-do-artigo"
+                    className={!slugValidation.isValid ? 'border-red-500' : ''}
                   />
+                  {!slugValidation.isValid && slugValidation.error && (
+                    <p className="text-xs text-red-600">{slugValidation.error}</p>
+                  )}
+                  {slugValidation.isValid && article.slug && (
+                    <p className="text-xs text-green-600">Slug disponível</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
