@@ -1,5 +1,11 @@
-import { HelpCircle, Search, MessageSquare } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "./ui/button";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "./ui/accordion";
 
 const FAQSection = () => {
   const faqs = [
@@ -48,58 +54,30 @@ const FAQSection = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {faqs.map((faq, index) => (
-            <div key={index} className="bg-card p-6 rounded-xl border border-border hover:shadow-lg transition-all duration-300">
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <HelpCircle className="w-4 h-4 text-accent" />
-                </div>
-                <div>
-                  <span className="inline-block px-2 py-1 bg-accent/10 text-accent text-xs font-medium rounded mb-2">
-                    {faq.category}
-                  </span>
-                  <h3 className="font-semibold text-foreground mb-2">
-                    {faq.question}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {faq.answer}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        {/* Contact Block for when users don't find answers */}
-        <div className="bg-secondary p-8 rounded-2xl text-center">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center">
-              <Search className="w-8 h-8 text-accent" />
-            </div>
-          </div>
-          <h3 className="text-xl font-bold text-foreground mb-2">
-            Não encontrou sua resposta?
-          </h3>
-          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-            Nossa equipe está pronta para ajudar você com qualquer dúvida específica sobre nossos produtos e serviços.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              variant="default" 
-              className="bg-accent text-accent-foreground hover:bg-accent/90"
-              onClick={() => window.open('https://wa.me/5571981470573?text=Venho%20do%20site%20e%20quero%20mais%20informa%C3%A7%C3%B5es%20sobre%20a%20modoPAG.%20%5Bbotao%5D', '_blank')}
-            >
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Falar no WhatsApp
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={() => window.location.href = 'mailto:contato@modopag.com.br'}
-            >
-              Enviar e-mail
-            </Button>
-          </div>
+        <div className="max-w-4xl mx-auto">
+          <Accordion type="single" collapsible className="space-y-4">
+            {faqs.map((faq, index) => (
+              <AccordionItem key={index} value={`item-${index}`} className="bg-card border border-border rounded-xl px-6">
+                <AccordionTrigger className="text-left py-6 hover:no-underline">
+                  <div className="flex items-start space-x-3 w-full">
+                    <span className="inline-block px-2 py-1 bg-accent/10 text-accent text-xs font-medium rounded flex-shrink-0 mt-1">
+                      {faq.category}
+                    </span>
+                    <h3 className="font-semibold text-foreground text-left">
+                      {faq.question}
+                    </h3>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pb-6">
+                  <div className="ml-16">
+                    <p className="text-muted-foreground">
+                      {faq.answer}
+                    </p>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
       </div>
     </section>
