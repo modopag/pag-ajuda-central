@@ -47,10 +47,11 @@ export function SmartRelatedArticles({
     try {
       const adapter = await getDataAdapter();
       
-      // Load categories and articles
-      const [allCategories, allArticles] = await Promise.all([
+      // Load categories, articles, and current article details
+      const [allCategories, allArticles, currentArticle] = await Promise.all([
         adapter.getCategories(),
-        adapter.getArticles({ status: 'published' })
+        adapter.getArticles({ status: 'published' }),
+        adapter.getArticleById(currentArticleId).catch(() => null)
       ]);
       
       setCategories(allCategories);
@@ -60,7 +61,12 @@ export function SmartRelatedArticles({
         article => article.id !== currentArticleId
       );
 
-      // Score articles using advanced algorithm
+      if (candidateArticles.length === 0) {
+        setRelatedArticles([]);
+        return;
+      }
+
+      // Score articles using enhanced algorithm
       const scoredArticles: ScoredArticle[] = candidateArticles.map(article => {
         const reasons: string[] = [];
         let score = 0;
@@ -71,59 +77,106 @@ export function SmartRelatedArticles({
           reasons.push('Mesma categoria');
         }
 
-        // Shared tags (40% weight)
-        const articleTags = tags.filter(tag => 
-          // Simplified - in real app, you'd have proper tag relationships
-          article.title.toLowerCase().includes(tag.name.toLowerCase()) ||
-          article.meta_description?.toLowerCase().includes(tag.name.toLowerCase())
-        );
-        if (articleTags.length > 0) {
-          score += 40 * (articleTags.length / Math.max(tags.length, 1));
-          reasons.push(`${articleTags.length} tag(s) em comum`);
+        // Content similarity (40% weight) - improved algorithm
+        if (tags.length > 0) {
+          // Title keyword matching
+          const titleWords = article.title.toLowerCase().split(/\s+/);
+          const tagNames = tags.map(t => t.name.toLowerCase());
+          const titleMatches = titleWords.filter(word => 
+            tagNames.some(tag => tag.includes(word) || word.includes(tag))
+          ).length;
+          
+          if (titleMatches > 0) {
+            const titleScore = Math.min(titleMatches / titleWords.length, 0.4) * 40;
+            score += titleScore;
+            reasons.push('Palavras-chave similares');
+          }
+
+          // Description similarity
+          if (article.meta_description && currentArticle?.meta_description) {
+            const commonWords = article.meta_description.toLowerCase()
+              .split(/\s+/)
+              .filter(word => word.length > 3 && 
+                currentArticle.meta_description?.toLowerCase().includes(word)
+              ).length;
+            
+            if (commonWords > 2) {
+              score += Math.min(commonWords * 2, 15);
+              reasons.push('Conteúdo relacionado');
+            }
+          }
         }
 
-        // View count popularity (20% weight)
-        const viewScore = Math.min((article.view_count || 0) / 1000, 1) * 20;
+        // Popularity score (20% weight) - enhanced
+        const viewCount = article.view_count || 0;
+        const avgViews = Math.max(candidateArticles.reduce((sum, a) => sum + (a.view_count || 0), 0) / candidateArticles.length, 1);
+        const viewScore = Math.min((viewCount / avgViews), 2) * 10;
         score += viewScore;
-        if (viewScore > 5) {
+        
+        if (viewCount > avgViews * 1.5) {
           reasons.push('Artigo popular');
         }
 
-        // Recency bonus (10% weight)  
-        const daysOld = Math.floor(
-          (Date.now() - new Date(article.updated_at).getTime()) / (1000 * 60 * 60 * 24)
-        );
+        // Recency bonus (10% weight)
+        const articleDate = new Date(article.updated_at);
+        const daysOld = Math.floor((Date.now() - articleDate.getTime()) / (1000 * 60 * 60 * 24));
+        
         if (daysOld <= 7) {
           score += 10;
           reasons.push('Recém atualizado');
         } else if (daysOld <= 30) {
           score += 5;
+          reasons.push('Conteúdo recente');
         }
 
-        // Reading time similarity (bonus)
-        const currentReadingTime = 5; // You'd get this from current article
+        // Reading time similarity bonus
+        const currentReadingTime = currentArticle?.reading_time_minutes || 5;
         const timeDiff = Math.abs((article.reading_time_minutes || 5) - currentReadingTime);
         if (timeDiff <= 2) {
           score += 5;
           reasons.push('Tempo de leitura similar');
         }
 
-        // Article type relevance
+        // Article type bonuses
         if (article.type === 'tutorial') {
-          score += 3;
+          score += 5;
           reasons.push('Tutorial prático');
+        } else if (article.type === 'artigo' && currentArticle?.type === 'artigo') {
+          score += 3;
+          reasons.push('Mesmo tipo de conteúdo');
+        }
+
+        // Quality indicators
+        if (article.meta_description && article.meta_description.length > 100) {
+          score += 2; // Well-documented articles
         }
 
         return { article, score, reasons };
       });
 
-      // Sort by score and take top articles
+      // Sort by score and apply diversity filter
       scoredArticles.sort((a, b) => b.score - a.score);
-      const topArticles = scoredArticles.slice(0, maxArticles * 2); // Get more for variety
       
-      setRelatedArticles(topArticles);
+      // Ensure variety in results - don't show all from same category
+      const diverseArticles: ScoredArticle[] = [];
+      const categoryCount: Record<string, number> = {};
+      
+      for (const scoredArticle of scoredArticles) {
+        const catId = scoredArticle.article.category_id;
+        const currentCatCount = categoryCount[catId] || 0;
+        
+        if (currentCatCount < 2 || diverseArticles.length < maxArticles) {
+          diverseArticles.push(scoredArticle);
+          categoryCount[catId] = currentCatCount + 1;
+          
+          if (diverseArticles.length >= maxArticles * 2) break;
+        }
+      }
+      
+      setRelatedArticles(diverseArticles);
     } catch (error) {
       console.error('Erro ao carregar artigos relacionados:', error);
+      setRelatedArticles([]);
     } finally {
       setIsLoading(false);
     }

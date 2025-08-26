@@ -44,14 +44,26 @@ export const useTableOfContents = (options: UseTableOfContentsOptions = {}) => {
     return id;
   }, []);
 
-  // Extract headings from content
+  // Extract headings from content with better DOM monitoring
   useEffect(() => {
     const extractHeadings = () => {
-      const headingElements = document.querySelectorAll(selector);
-      const existingIds = new Set<string>();
+      // Look specifically in article content area first
+      const contentArea = document.querySelector('.article-content, .prose, main, [role="main"]') || document;
+      const headingElements = contentArea.querySelectorAll(selector);
       
-      const extractedHeadings: Heading[] = Array.from(headingElements).map((element) => {
-        const text = element.textContent || '';
+      if (headingElements.length === 0) {
+        // Fallback: search in the entire document
+        const allHeadings = document.querySelectorAll(selector);
+        if (allHeadings.length === 0) return;
+      }
+      
+      const existingIds = new Set<string>();
+      const finalElements = headingElements.length > 0 ? headingElements : document.querySelectorAll(selector);
+      
+      const extractedHeadings: Heading[] = Array.from(finalElements).map((element) => {
+        const text = element.textContent?.trim() || '';
+        if (!text) return null;
+        
         let id = element.id;
         
         // Generate ID if not exists
@@ -68,15 +80,44 @@ export const useTableOfContents = (options: UseTableOfContentsOptions = {}) => {
           level: parseInt(element.tagName.charAt(1), 10),
           element: element as HTMLElement
         };
-      });
+      }).filter(Boolean) as Heading[];
       
       setHeadings(extractedHeadings);
     };
 
-    // Wait for content to be rendered
-    const timer = setTimeout(extractHeadings, 500);
+    // Multiple attempts to extract headings
+    const attemptExtraction = (attempt = 0) => {
+      extractHeadings();
+      
+      // If no headings found and we haven't tried enough times, try again
+      if (attempt < 3) {
+        setTimeout(() => attemptExtraction(attempt + 1), 200 * (attempt + 1));
+      }
+    };
+
+    // Start extraction process
+    const timer = setTimeout(() => attemptExtraction(), 100);
     
-    return () => clearTimeout(timer);
+    // Also listen for DOM changes
+    const observer = new MutationObserver((mutations) => {
+      const hasNewContent = mutations.some(mutation => 
+        mutation.type === 'childList' && mutation.addedNodes.length > 0
+      );
+      
+      if (hasNewContent) {
+        setTimeout(extractHeadings, 300);
+      }
+    });
+    
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+    
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
   }, [selector, generateId]);
 
   // Set up intersection observer for active heading tracking

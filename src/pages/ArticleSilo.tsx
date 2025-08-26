@@ -251,104 +251,69 @@ export default function ArticleSilo() {
 
       <main id="main-content" className="relative z-10 container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
-          <div className="lg:grid lg:grid-cols-12 lg:gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-12">
             {/* Main Content */}
-            <div className="lg:col-span-8 xl:col-span-7">
-              {/* Breadcrumbs */}
-              <nav aria-label="Breadcrumb" className="mb-8">
-                <ol className="flex items-center space-x-1 md:space-x-2 text-sm text-muted-foreground flex-wrap">
-                  <li>
-                    <Link to="/" className="hover:text-primary transition-colors flex items-center gap-1">
-                      <ChevronRight className="w-3 h-3 rotate-180" />
-                      <span className="hidden sm:inline">Central de Ajuda</span>
-                      <span className="sm:hidden">Início</span>
-                    </Link>
-                  </li>
-                  <ChevronRight className="w-3 h-3 md:w-4 md:h-4" />
-                  <li>
-                    <Link 
-                      to={generateCategoryUrl(categorySlug)} 
-                      className="hover:text-primary transition-colors truncate max-w-[150px] sm:max-w-none"
-                      title={category.name}
-                    >
-                      {category.name}
-                    </Link>
-                  </li>
-                  <ChevronRight className="w-3 h-3 md:w-4 md:h-4" />
-                  <li className="text-foreground font-medium truncate max-w-[200px] sm:max-w-none" aria-current="page" title={article.title}>
-                    {article.title}
-                  </li>
-                </ol>
-              </nav>
-
+            <div className="lg:col-span-7 xl:col-span-8">
               {/* Table of Contents - Mobile */}
               <TableOfContents mobileCollapsible={true} />
 
               {/* Article Header */}
-              <header className="mb-8">
-                {tags.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-2 mb-4">
-                    {tags.map((tag) => (
-                      <Badge key={tag.id} variant="outline" className="text-xs hover:bg-primary/5 transition-colors">
-                        <TagIcon className="w-3 h-3 mr-1" />
-                        {tag.name}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-
-                <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  {article.title}
-                </h1>
-
-                {article.meta_description && (
-                  <p className="text-xl text-muted-foreground mb-8 max-w-3xl leading-relaxed">
-                    {article.meta_description}
-                  </p>
-                )}
-
-                <div className="flex flex-wrap items-center gap-4 md:gap-6 text-sm text-muted-foreground mb-6">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-primary" />
-                    <span>Atualizado em {new Date(article.updated_at).toLocaleDateString('pt-BR')}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Eye className="w-4 h-4 text-accent" />
-                    <span>{(article.view_count || 0).toLocaleString()} visualizações</span>
-                  </div>
-                  {(article.reading_time_minutes || 5) > 0 && (
-                    <div className="flex items-center gap-2">
-                      <BookOpen className="w-4 h-4 text-primary" />
-                      <span>{article.reading_time_minutes || 5} min de leitura</span>
+              <header className="mb-8 space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <Badge variant="secondary" className="font-medium">
+                      {article.type}
+                    </Badge>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Clock className="w-4 h-4" />
+                      <span>{article.reading_time_minutes || 5} minutos de leitura</span>
                     </div>
-                  )}
-                  <div className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-primary" />
-                    <span>Equipe modoPAG</span>
                   </div>
+                  
+                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text text-transparent">
+                    {article.title}
+                  </h1>
+                  
+                  {article.meta_description && (
+                    <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-4xl">
+                      {article.meta_description}
+                    </p>
+                  )}
                 </div>
 
-                {/* Article Actions */}
-                <div className="flex flex-wrap items-center gap-3 mb-8">
-                  <Button 
-                    size="sm" 
-                    variant={liked ? "default" : "outline"} 
-                    className={liked ? "bg-primary text-primary-foreground" : "hover:bg-primary/5 hover:border-primary/20"}
-                    onClick={handleLike}
-                    disabled={liked}
-                  >
-                    <Heart className={`w-4 h-4 mr-2 ${liked ? "fill-current" : ""}`} />
-                    {liked ? "Curtido" : "Curtir"}
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="hover:bg-accent/5 hover:border-accent/20"
-                    onClick={handleShare}
-                  >
-                    <Share2 className="w-4 h-4 mr-2" />
-                    Compartilhar
-                  </Button>
+                {/* Article Meta */}
+                <div className="flex items-center justify-between flex-wrap gap-4 py-6 border-y border-border/50">
+                  <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <User className="w-4 h-4" />
+                      <span>Atualizado em {new Date(article.updated_at).toLocaleDateString('pt-BR')}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Eye className="w-4 h-4" />
+                      <span>{article.view_count || 0} visualizações</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      size="sm" 
+                      variant={liked ? "default" : "outline"} 
+                      className="hover:bg-primary/5 hover:border-primary/20"
+                      onClick={handleLike}
+                    >
+                      <Heart className={`w-4 h-4 mr-2 ${liked ? "fill-current" : ""}`} />
+                      {liked ? "Curtido" : "Curtir"}
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="hover:bg-accent/5 hover:border-accent/20"
+                      onClick={handleShare}
+                    >
+                      <Share2 className="w-4 h-4 mr-2" />
+                      Compartilhar
+                    </Button>
+                  </div>
                 </div>
               </header>
 
@@ -387,10 +352,10 @@ export default function ArticleSilo() {
             </div>
 
             {/* Sidebar - Desktop Only */}
-            <div className="hidden lg:block lg:col-span-4 xl:col-span-5">
-              <div className="space-y-6">
+            <div className="hidden lg:block lg:col-span-5 xl:col-span-4">
+              <div className="space-y-6 sticky top-24">
                 {/* Table of Contents */}
-                <TableOfContents className="xl:pr-8" />
+                <TableOfContents />
                 
                 {/* Smart Related Articles */}
                 <SmartRelatedArticles 
@@ -398,7 +363,7 @@ export default function ArticleSilo() {
                   categoryId={category.id.toString()}
                   tags={tags}
                   sidebarMode={true}
-                  className="xl:pr-8"
+                  maxArticles={4}
                 />
               </div>
             </div>
