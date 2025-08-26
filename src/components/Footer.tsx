@@ -1,5 +1,5 @@
 import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
-import modopagLogo from "@/assets/modopag-logo-black.png";
+import modopagLogo from "@/assets/modopag-logo.png";
 
 const Footer = () => {
   return (
