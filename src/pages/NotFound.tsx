@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { MessageSquare, Home, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { trackWhatsAppCTA } from "@/utils/analytics";
-import { logEvent } from "@/utils/monitoring";
+import { monitoring } from "@/utils/monitoring";
 
 const NotFound = () => {
   const navigate = useNavigate();
@@ -27,11 +27,7 @@ const NotFound = () => {
   };
 
   // Track 404 event
-  logEvent('page_not_found', { 
-    url: window.location.pathname,
-    referrer: document.referrer,
-    timestamp: Date.now()
-  });
+  monitoring.track404Error(window.location.pathname, document.referrer);
 
   return (
     <>

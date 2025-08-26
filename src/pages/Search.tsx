@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { MessageSquare, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { trackFAQSearch, trackWhatsAppCTA } from "@/utils/analytics";
-import { logEvent } from "@/utils/monitoring";
+import { monitoring } from "@/utils/monitoring";
 
 // Mock data - em produção viria do MockAdapter
 const mockArticles = [
@@ -69,7 +69,7 @@ const Search = () => {
         
         // Track empty results
         if (filtered.length === 0) {
-          logEvent('search_no_results', { query, timestamp: Date.now() });
+          monitoring.trackEmptySearch(query);
         }
       }, 300);
     } else {
