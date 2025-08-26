@@ -1,5 +1,5 @@
 import CategoryCard from "./CategoryCard";
-import { Skeleton } from "./ui/skeleton";
+import { CategoryGridSkeleton } from '@/components/skeletons/CategoryGridSkeleton';
 import { useCategories } from "@/hooks/useCategories";
 
 interface CategoryGridProps {
@@ -10,13 +10,7 @@ const CategoryGrid = ({ onCategoryClick }: CategoryGridProps) => {
   const { categories, loading, error } = useCategories();
 
   if (loading) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {Array.from({ length: 9 }).map((_, index) => (
-          <Skeleton key={index} className="h-32 w-full" />
-        ))}
-      </div>
-    );
+    return <CategoryGridSkeleton />;
   }
 
   if (error) {

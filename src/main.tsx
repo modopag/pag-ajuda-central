@@ -22,6 +22,11 @@ initializePerformanceMonitoring();
 if (typeof window !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     initEnhancedTracking();
+    
+    // Initialize SEO optimizations
+    import('./utils/seoOptimizer').then(({ initSEOOptimizations }) => {
+      initSEOOptimizations();
+    });
   });
 }
 

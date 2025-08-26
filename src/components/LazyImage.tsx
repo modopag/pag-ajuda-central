@@ -7,6 +7,7 @@ interface LazyImageProps {
   className?: string;
   fallbackSrc?: string;
   loading?: 'lazy' | 'eager';
+  onLoad?: () => void;
 }
 
 export const LazyImage = ({ 
@@ -14,7 +15,8 @@ export const LazyImage = ({
   alt, 
   className,
   fallbackSrc = '/placeholder.svg',
-  loading = 'lazy'
+  loading = 'lazy',
+  onLoad: externalOnLoad
 }: LazyImageProps) => {
   const [imageSrc, setImageSrc] = useState(src);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,6 +24,7 @@ export const LazyImage = ({
 
   const handleLoad = () => {
     setIsLoading(false);
+    externalOnLoad?.();
   };
 
   const handleError = () => {

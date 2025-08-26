@@ -9,6 +9,7 @@ import { CookieBanner } from '@/components/CookieBanner';
 import { CookiePreferencesModal } from '@/components/CookiePreferencesModal';
 import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 import { GA4Debug } from '@/components/GA4Debug';
+import { PerformanceMonitor } from '@/components/performance/PerformanceMonitor';
 import { RedirectHandler } from '@/components/RedirectHandler';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useSettings } from '@/hooks/useSettings';
@@ -106,6 +107,7 @@ const App = () => (
           <CookieBanner />
           <CookiePreferencesModal />
           <GA4Debug />
+          <PerformanceMonitor />
         </ErrorBoundary>
       </TooltipProvider>
     </HelmetProvider>
