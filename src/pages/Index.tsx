@@ -17,11 +17,8 @@ const Index = () => {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    toast({
-      title: "Pesquisa realizada",
-      description: `Você pesquisou por: "${query}"`,
-    });
-    // Aqui seria implementada a lógica de busca real
+    // Navigate to search page with query
+    navigate(`/buscar?q=${encodeURIComponent(query)}`);
   };
 
   const handleCategoryClick = (categoryId: string) => {

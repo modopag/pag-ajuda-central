@@ -1,4 +1,6 @@
-import { Facebook, Instagram, Linkedin, Twitter, Square } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
+import { Link } from "react-router-dom";
+import logoYellow from "@/assets/modopag-logo-yellow.svg";
 
 const Footer = () => {
   return (
@@ -7,12 +9,20 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo e Descrição */}
           <div className="md:col-span-1">
-            <div className="flex items-center space-x-1 mb-4">
-              <Square className="w-6 h-6 text-accent fill-current" />
-              <span className="text-xl font-bold text-white">
-                modo<span className="text-accent">PAG</span>
-              </span>
-            </div>
+            <Link 
+              to="/" 
+              className="inline-block mb-4"
+              aria-label="modoPAG - Central de Ajuda"
+            >
+              <img 
+                src={logoYellow}
+                alt="modoPAG - Central de Ajuda"
+                title="Ir para a página inicial"
+                className="h-8 w-auto"
+                width="280"
+                height="60"
+              />
+            </Link>
             <p className="text-gray-300 text-sm leading-relaxed mb-4">
               Ative o modo de vender com as menores taxas do Brasil!
             </p>

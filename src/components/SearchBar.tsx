@@ -1,48 +1,59 @@
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Search, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "./ui/button";
+import { useDebounce } from "@/hooks/useDebounce";
+import { trackFAQSearch } from "@/utils/analytics";
 
 interface SearchBarProps {
   onSearch?: (query: string) => void;
   placeholder?: string;
 }
 
-const SearchBar = ({ onSearch, placeholder = "Pesquisar" }: SearchBarProps) => {
+const SearchBar = ({ onSearch, placeholder = "Digite sua pesquisa..." }: SearchBarProps) => {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  
+  // Debounce search query to avoid excessive API calls
+  const debouncedQuery = useDebounce(query, 300);
 
-  // Mock suggestions - em produção viria da API
+  // Mock suggestions - em produção, viriam de uma API
   const mockSuggestions = [
-    "Como solicitar minha maquininha?",
-    "Quais são as taxas da modoPAG?",
-    "Como funciona o prazo de recebimento?",
-    "O que é o modoLINK?",
-    "Como usar a conta digital?",
-    "Problemas com a maquininha",
-    "Taxas de crédito e débito",
+    "Como configurar minha maquininha?",
+    "Taxas de cartão de crédito",
+    "Problema com PIX",
+    "Como sacar meu dinheiro?",
+    "Maquininha não liga",
     "Cancelar transação",
-    "Cadastro de usuário",
-    "Primeira venda"
+    "Atualizar dados bancários",
+    "Como funciona o antecipação?",
+    "Resolver problemas de conexão",
+    "Configurar Wi-Fi na maquininha",
+    "Estorno de pagamento",
+    "Alterar plano de taxas"
   ];
 
-  useEffect(() => {
-    if (query.length > 1) {
+  const filterSuggestions = useCallback((searchQuery: string) => {
+    if (searchQuery.length > 2) {
       const filtered = mockSuggestions.filter(suggestion =>
-        suggestion.toLowerCase().includes(query.toLowerCase())
+        suggestion.toLowerCase().includes(searchQuery.toLowerCase())
       );
-      setSuggestions(filtered.slice(0, 5));
-      setShowSuggestions(true);
-    } else {
-      setSuggestions([]);
-      setShowSuggestions(false);
+      return filtered.slice(0, 6);
     }
-  }, [query]);
+    return [];
+  }, []);
+
+  useEffect(() => {
+    const filtered = filterSuggestions(debouncedQuery);
+    setSuggestions(filtered);
+    setShowSuggestions(filtered.length > 0 && query.length > 2);
+  }, [debouncedQuery, query, filterSuggestions]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (onSearch && query.trim()) {
+    if (query.trim() && onSearch) {
+      // Track search analytics
+      trackFAQSearch(query.trim(), suggestions.length);
       onSearch(query.trim());
       setShowSuggestions(false);
     }
@@ -51,6 +62,8 @@ const SearchBar = ({ onSearch, placeholder = "Pesquisar" }: SearchBarProps) => {
   const handleSuggestionClick = (suggestion: string) => {
     setQuery(suggestion);
     if (onSearch) {
+      // Track search analytics for suggestion clicks
+      trackFAQSearch(suggestion, 1);
       onSearch(suggestion);
     }
     setShowSuggestions(false);
@@ -60,7 +73,6 @@ const SearchBar = ({ onSearch, placeholder = "Pesquisar" }: SearchBarProps) => {
     setQuery("");
     setSuggestions([]);
     setShowSuggestions(false);
-    inputRef.current?.focus();
   };
 
   return (
@@ -68,13 +80,12 @@ const SearchBar = ({ onSearch, placeholder = "Pesquisar" }: SearchBarProps) => {
       <form onSubmit={handleSubmit} className="relative">
         <div className="relative">
           <input
-            ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={placeholder}
             className="search-bar pl-14 pr-32"
-            onFocus={() => query.length > 1 && setShowSuggestions(true)}
+            onFocus={() => query.length > 2 && setShowSuggestions(true)}
           />
           <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 w-6 h-6 text-muted-foreground" />
           

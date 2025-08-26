@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Square } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -8,6 +8,8 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/dropdown-navigation";
+import { Link } from "react-router-dom";
+import logoBlack from "@/assets/modopag-logo-black.svg";
 
 const Header = () => {
   return (
@@ -15,17 +17,20 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <div className="flex items-center space-x-1">
-              <Square 
-                className="w-6 h-6 text-foreground fill-current" 
-                aria-hidden="true"
-              />
-              <span className="text-xl font-bold text-foreground">
-                modo<span className="text-accent">PAG</span>
-              </span>
-            </div>
-          </div>
+          <Link 
+            to="/" 
+            className="flex items-center"
+            aria-label="modoPAG - Central de Ajuda"
+          >
+            <img 
+              src={logoBlack}
+              alt="modoPAG - Central de Ajuda"
+              title="Ir para a página inicial"
+              className="h-8 w-auto"
+              width="280"
+              height="60"
+            />
+          </Link>
           
           {/* Navigation */}
           <NavigationMenu className="hidden md:flex">
