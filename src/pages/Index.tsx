@@ -99,11 +99,11 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Reclame AQUI Section */}
-      <ReclameAquiSection />
-      
       {/* FAQ Section */}
       <FAQSection />
+      
+      {/* Reclame AQUI Section */}
+      <ReclameAquiSection />
       
       <Footer />
     </div>

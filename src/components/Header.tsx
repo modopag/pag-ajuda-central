@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
-import modopagLogo from "@/assets/modopag-logo-black.webp";
+import { ChevronDown, Square } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -16,12 +15,13 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center space-x-4">
-            <img 
-              src={modopagLogo} 
-              alt="modoPAG" 
-              className="h-10 w-auto"
-            />
+          <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1">
+              <Square className="w-6 h-6 text-foreground fill-current" />
+              <span className="text-xl font-bold text-foreground">
+                modo<span className="text-accent">PAG</span>
+              </span>
+            </div>
           </div>
           
           {/* Navigation */}
