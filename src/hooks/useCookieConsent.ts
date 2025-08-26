@@ -36,42 +36,47 @@ export const useCookieConsent = () => {
            (navigator as any).msDoNotTrack === '1';
   }, []);
 
-  // Load saved consent from localStorage
+  // Load saved consent from localStorage (delayed for performance)
   useEffect(() => {
-    const savedConsent = localStorage.getItem(STORAGE_KEY);
-    
-    if (savedConsent) {
-      try {
-        const consent: ConsentState = JSON.parse(savedConsent);
-        
-        // Check if consent is still valid (30 days)
-        const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
-        
-        if (consent.timestamp > thirtyDaysAgo) {
-          setPreferences(consent.preferences);
-          setHasConsented(consent.hasConsented);
-          updateConsentMode(consent.preferences);
-        } else {
-          // Consent expired, show banner again
+    // Delay execution to not block initial render
+    const timeoutId = setTimeout(() => {
+      const savedConsent = localStorage.getItem(STORAGE_KEY);
+      
+      if (savedConsent) {
+        try {
+          const consent: ConsentState = JSON.parse(savedConsent);
+          
+          // Check if consent is still valid (30 days)
+          const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+          
+          if (consent.timestamp > thirtyDaysAgo) {
+            setPreferences(consent.preferences);
+            setHasConsented(consent.hasConsented);
+            updateConsentMode(consent.preferences);
+          } else {
+            // Consent expired, show banner again
+            setShowBanner(true);
+          }
+        } catch (error) {
+          console.error('Error parsing saved consent:', error);
           setShowBanner(true);
         }
-      } catch (error) {
-        console.error('Error parsing saved consent:', error);
+      } else {
+        // No saved consent, show banner
         setShowBanner(true);
       }
-    } else {
-      // No saved consent, show banner
-      setShowBanner(true);
-    }
 
-    // If DNT is enabled, respect it
-    if (isDNTEnabled()) {
-      const dntPreferences = { ...DEFAULT_PREFERENCES, analytics: false, marketing: false };
-      setPreferences(dntPreferences);
-      updateConsentMode(dntPreferences);
-      setHasConsented(true);
-      setShowBanner(false);
-    }
+      // If DNT is enabled, respect it
+      if (isDNTEnabled()) {
+        const dntPreferences = { ...DEFAULT_PREFERENCES, analytics: false, marketing: false };
+        setPreferences(dntPreferences);
+        updateConsentMode(dntPreferences);
+        setHasConsented(true);
+        setShowBanner(false);
+      }
+    }, 100); // Small delay to allow critical rendering
+
+    return () => clearTimeout(timeoutId);
   }, [isDNTEnabled]);
 
   // Update Google Consent Mode

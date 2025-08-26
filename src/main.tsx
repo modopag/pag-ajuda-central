@@ -3,25 +3,32 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 
-// Import performance monitoring and bundle analyzer
-import { initializePerformanceMonitoring } from './utils/performance';
-import { initEnhancedTracking } from './utils/ga4Events';
-import './utils/qaRunner'; // Auto-runs QA tests in development
+// Import performance optimizer for production
+import './utils/performanceOptimizer';
 
-// Import bundle analyzer for development performance monitoring
+// Conditionally import performance monitoring only in development
 if (import.meta.env.DEV) {
-  import('./utils/bundleAnalyzer');
-  // Also import lighthouse utilities in development
-  import('./utils/lighthouse');
+  // Delay performance monitoring to not block initial render
+  setTimeout(() => {
+    import('./utils/performance').then(({ initializePerformanceMonitoring }) => {
+      initializePerformanceMonitoring();
+    });
+    
+    import('./utils/bundleAnalyzer');
+    import('./utils/lighthouse');
+    import('./utils/qaRunner'); // Auto-runs QA tests in development
+  }, 1000);
 }
 
-// Initialize performance monitoring
-initializePerformanceMonitoring();
-
-// Initialize enhanced GA4 tracking
+// Initialize enhanced GA4 tracking (non-blocking)
 if (typeof window !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
-    initEnhancedTracking();
+    // Delay GA4 initialization to not block critical rendering
+    setTimeout(() => {
+      import('./utils/ga4Events').then(({ initEnhancedTracking }) => {
+        initEnhancedTracking();
+      });
+    }, 500);
   });
 }
 

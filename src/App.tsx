@@ -5,15 +5,16 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from 'react-helmet-async';
-import { CookieBanner } from '@/components/CookieBanner';
-import { CookiePreferencesModal } from '@/components/CookiePreferencesModal';
+import { AsyncCookieBanner } from '@/components/AsyncCookieBanner';
 import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 import { RedirectHandler } from '@/components/RedirectHandler';
 import { useSettings } from '@/hooks/useSettings';
 import Gone from "@/pages/Gone";
 
-// Lazy load main pages for code splitting
-const Index = lazy(() => import("./pages/Index"));
+// Eagerly load critical pages for better performance
+import Index from "./pages/Index";
+
+// Lazy load other pages for code splitting
 const CategorySilo = lazy(() => import("./pages/CategorySilo"));
 const ArticleSilo = lazy(() => import("./pages/ArticleSilo"));
 const Search = lazy(() => import("./pages/Search"));
@@ -100,8 +101,7 @@ const App = () => (
 
         <AppContent />
 
-        <CookieBanner />
-        <CookiePreferencesModal />
+        <AsyncCookieBanner />
       </TooltipProvider>
     </HelmetProvider>
   </QueryClientProvider>
