@@ -3,6 +3,7 @@ import { ChevronRight, Home, ArrowLeft, Clock, User } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import ArticleFeedback from "@/components/ArticleFeedback";
 
 // Mock data for articles
 const mockArticles = {
@@ -199,20 +200,7 @@ const Article = () => {
                   dangerouslySetInnerHTML={{ __html: article.content }}
                 />
                 
-                {/* Feedback Section */}
-                <div className="mt-12 p-6 bg-secondary rounded-xl">
-                  <h3 className="text-lg font-semibold text-foreground mb-4">
-                    Este artigo foi útil?
-                  </h3>
-                  <div className="flex space-x-4">
-                    <Button variant="outline" className="hover:bg-accent hover:text-accent-foreground">
-                      👍 Sim
-                    </Button>
-                    <Button variant="outline" className="hover:bg-destructive hover:text-destructive-foreground">
-                      👎 Não
-                    </Button>
-                  </div>
-                </div>
+                <ArticleFeedback articleId={articleId || ""} />
               </article>
             </div>
             

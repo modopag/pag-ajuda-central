@@ -131,7 +131,7 @@ All colors MUST be HSL.
   }
   
   .category-card {
-    @apply bg-card border border-border rounded-xl p-6 text-center card-hover cursor-pointer;
+    @apply bg-card border border-border rounded-xl p-6 text-center card-hover cursor-pointer flex flex-col h-full;
   }
   
   .category-icon {

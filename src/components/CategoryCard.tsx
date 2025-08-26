@@ -28,11 +28,14 @@ const CategoryCard = ({ title, description, icon: Icon, onClick, articleCount }:
         </p>
       )}
       
-      {articleCount && (
-        <span className="text-xs text-muted-foreground">
-          {articleCount} {articleCount === 1 ? 'artigo' : 'artigos'}
+      <div className="flex items-center justify-between mt-auto">
+        <span className="text-xs text-accent font-medium bg-accent/10 px-2 py-1 rounded-full">
+          {articleCount || 0} {(articleCount || 0) === 1 ? 'artigo' : 'artigos'}
         </span>
-      )}
+        <div className="text-xs text-muted-foreground group-hover:text-accent transition-colors">
+          →
+        </div>
+      </div>
     </div>
   );
 };
