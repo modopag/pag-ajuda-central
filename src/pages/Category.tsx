@@ -5,6 +5,8 @@ import Footer from '@/components/Footer';
 import { SEOHelmet } from '@/components/SEO/SEOHelmet';
 import { generateCategoryJsonLd, generateFAQJsonLd } from '@/utils/jsonLd';
 import { getDataAdapter } from '@/lib/data-adapter';
+import { useSearchWithFilters } from '@/hooks/useSearchWithFilters';
+import { useArticleTags } from '@/hooks/useArticleTags';
 import type { Article, Category as CategoryType, Tag } from '@/types/admin';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,123 +15,117 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search, Filter, Clock, User, MessageSquare, Home, ChevronRight } from 'lucide-react';
+import { Search, Filter, Clock, User, MessageSquare, Home, ChevronRight, X } from 'lucide-react';
+import { trackWhatsAppCTA } from '@/utils/analytics';
 
 const ARTICLES_PER_PAGE = 12;
 
 export default function Category() {
-  const { categoryId } = useParams();
+  const { slug } = useParams(); // Changed from categoryId to slug
   const [searchParams, setSearchParams] = useSearchParams();
   
   const [category, setCategory] = useState<CategoryType | null>(null);
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [filteredArticles, setFilteredArticles] = useState<Article[]>([]);
-  const [tags, setTags] = useState<Tag[]>([]);
-  const [relatedArticles, setRelatedArticles] = useState<Article[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingCategory, setIsLoadingCategory] = useState(true);
   
-  // Paginação e filtros
+  // Get filters from URL
   const currentPage = parseInt(searchParams.get('page') || '1');
-  const selectedTag = searchParams.get('tag') || '';
+  const selectedTagIds = searchParams.get('tags')?.split(',').filter(Boolean) || [];
   const selectedType = searchParams.get('type') || '';
   const searchQuery = searchParams.get('q') || '';
 
-  const totalPages = Math.ceil(filteredArticles.length / ARTICLES_PER_PAGE);
-  const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
-  const currentArticles = filteredArticles.slice(startIndex, startIndex + ARTICLES_PER_PAGE);
+  // Use the new search hook
+  const searchResults = useSearchWithFilters({
+    query: searchQuery,
+    categoryId: category?.id,
+    tagIds: selectedTagIds,
+    articleType: selectedType,
+    page: currentPage
+  }, {
+    itemsPerPage: ARTICLES_PER_PAGE
+  });
 
+  const { allTags } = useArticleTags({ includeAll: true });
+
+  const totalPages = Math.ceil(searchResults.filteredCount / ARTICLES_PER_PAGE);
+
+  // Load category data by slug
   useEffect(() => {
     const loadCategoryData = async () => {
-      if (!categoryId) return;
+      if (!slug) return;
       
-      setIsLoading(true);
+      setIsLoadingCategory(true);
       try {
         const adapter = await getDataAdapter();
         
-        // Carregar categoria
-        const categoryData = await adapter.getCategoryById(categoryId);
+        // Find category by slug
+        const categories = await adapter.getCategories();
+        const categoryData = categories.find(cat => cat.slug === slug && cat.is_active);
+        
         if (!categoryData) {
           setCategory(null);
-          setIsLoading(false);
+          setIsLoadingCategory(false);
           return;
         }
         
         setCategory(categoryData);
-        
-        // Carregar artigos da categoria (apenas publicados)
-        const [categoryArticles, allTags] = await Promise.all([
-          adapter.getArticles({ category_id: categoryId, status: 'published' }),
-          adapter.getTags()
-        ]);
-        
-        setArticles(categoryArticles);
-        setTags(allTags);
-        
-        // Carregar artigos relacionados (outras categorias)
-        const otherArticles = await adapter.getArticles({ status: 'published' });
-        const related = otherArticles
-          .filter(art => art.category_id !== categoryId)
-          .slice(0, 3);
-        setRelatedArticles(related);
-        
       } catch (error) {
         console.error('Erro ao carregar categoria:', error);
       } finally {
-        setIsLoading(false);
+        setIsLoadingCategory(false);
       }
     };
 
     loadCategoryData();
-  }, [categoryId]);
+  }, [slug]);
 
-  // Aplicar filtros
-  useEffect(() => {
-    let filtered = articles;
-
-    // Filtro por busca
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(article =>
-        article.title.toLowerCase().includes(query) ||
-        article.content.toLowerCase().includes(query)
-      );
-    }
-
-    // Filtro por tag
-    if (selectedTag) {
-      // Aqui seria necessário implementar a relação article-tags no adapter
-      // Por enquanto, simulamos
-      filtered = filtered.filter(article => 
-        article.title.toLowerCase().includes(selectedTag.toLowerCase())
-      );
-    }
-
-    // Filtro por tipo
-    if (selectedType) {
-      filtered = filtered.filter(article => article.type === selectedType);
-    }
-
-    setFilteredArticles(filtered);
-  }, [articles, searchQuery, selectedTag, selectedType]);
-
-  const updateSearchParams = (key: string, value: string) => {
+  const updateSearchParams = (key: string, value: string | string[]) => {
     const newParams = new URLSearchParams(searchParams);
-    if (value) {
+    
+    if (Array.isArray(value)) {
+      if (value.length > 0) {
+        newParams.set(key, value.join(','));
+      } else {
+        newParams.delete(key);
+      }
+    } else if (value) {
       newParams.set(key, value);
     } else {
       newParams.delete(key);
     }
+    
     newParams.delete('page'); // Reset page when filtering
     setSearchParams(newParams);
+  };
+
+  const handleTagToggle = (tagId: string) => {
+    const currentTags = selectedTagIds.slice();
+    const tagIndex = currentTags.indexOf(tagId);
+    
+    if (tagIndex > -1) {
+      currentTags.splice(tagIndex, 1);
+    } else {
+      currentTags.push(tagId);
+    }
+    
+    updateSearchParams('tags', currentTags);
   };
 
   const handlePageChange = (page: number) => {
     const newParams = new URLSearchParams(searchParams);
     newParams.set('page', page.toString());
     setSearchParams(newParams);
+    
+    // Scroll to top when changing pages
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  if (isLoading) {
+  const clearAllFilters = () => {
+    setSearchParams(new URLSearchParams());
+  };
+
+  const hasActiveFilters = searchQuery || selectedTagIds.length > 0 || selectedType;
+
+  if (isLoadingCategory) {
     return (
       <>
         <SEOHelmet 
@@ -200,11 +196,11 @@ export default function Category() {
 
   // JSON-LD para FAQs ou CollectionPage
   const isFAQCategory = category.name.toLowerCase().includes('faq') || 
-                       filteredArticles.some(art => art.type === 'artigo');
+                       searchResults.articles.some(art => art.type === 'artigo');
   
   let jsonLd;
   if (isFAQCategory) {
-    const faqs = filteredArticles
+    const faqs = searchResults.articles
       .filter(art => art.type === 'artigo')
       .slice(0, 10)
       .map(art => ({
@@ -213,7 +209,7 @@ export default function Category() {
       }));
     jsonLd = generateFAQJsonLd(faqs);
   } else {
-    jsonLd = generateCategoryJsonLd(category, filteredArticles);
+    jsonLd = generateCategoryJsonLd(category, searchResults.articles);
   }
 
   return (
@@ -252,7 +248,7 @@ export default function Category() {
               {category.description}
             </p>
             <p className="text-sm text-muted-foreground">
-              {filteredArticles.length} {filteredArticles.length === 1 ? 'artigo encontrado' : 'artigos encontrados'}
+              {searchResults.filteredCount} {searchResults.filteredCount === 1 ? 'artigo encontrado' : 'artigos encontrados'}
             </p>
           </div>
 
@@ -280,20 +276,22 @@ export default function Category() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Tag</label>
-                  <Select value={selectedTag} onValueChange={(value) => updateSearchParams('tag', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Todas as tags" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Todas as tags</SelectItem>
-                      {tags.map((tag) => (
-                        <SelectItem key={tag.id} value={tag.slug}>
-                          {tag.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <label className="text-sm font-medium">Tags</label>
+                  <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                    {allTags.map((tag) => (
+                      <Badge
+                        key={tag.id}
+                        variant={selectedTagIds.includes(tag.id) ? "default" : "outline"}
+                        className="cursor-pointer transition-colors"
+                        onClick={() => handleTagToggle(tag.id)}
+                      >
+                        {tag.name}
+                        {selectedTagIds.includes(tag.id) && (
+                          <X className="w-3 h-3 ml-1" />
+                        )}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -315,23 +313,81 @@ export default function Category() {
                 <div className="flex items-end">
                   <Button
                     variant="outline"
-                    onClick={() => {
-                      setSearchParams(new URLSearchParams());
-                    }}
+                    onClick={clearAllFilters}
                     className="w-full"
+                    disabled={!hasActiveFilters}
                   >
                     Limpar Filtros
+                    {hasActiveFilters && (
+                      <X className="w-3 h-3 ml-1" />
+                    )}
                   </Button>
                 </div>
               </div>
+
+              {/* Active Filters Display */}
+              {hasActiveFilters && (
+                <div className="mt-4 pt-4 border-t">
+                  <p className="text-sm font-medium mb-2">Filtros ativos:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {searchQuery && (
+                      <Badge variant="secondary" className="flex items-center gap-1">
+                        Busca: "{searchQuery}"
+                        <X 
+                          className="w-3 h-3 cursor-pointer" 
+                          onClick={() => updateSearchParams('q', '')}
+                        />
+                      </Badge>
+                    )}
+                    {selectedTagIds.map(tagId => {
+                      const tag = allTags.find(t => t.id === tagId);
+                      return tag ? (
+                        <Badge key={tagId} variant="secondary" className="flex items-center gap-1">
+                          Tag: {tag.name}
+                          <X 
+                            className="w-3 h-3 cursor-pointer" 
+                            onClick={() => handleTagToggle(tagId)}
+                          />
+                        </Badge>
+                      ) : null;
+                    })}
+                    {selectedType && (
+                      <Badge variant="secondary" className="flex items-center gap-1">
+                        Tipo: {selectedType}
+                        <X 
+                          className="w-3 h-3 cursor-pointer" 
+                          onClick={() => updateSearchParams('type', '')}
+                        />
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
           {/* Lista de Artigos */}
-          {currentArticles.length > 0 ? (
+          {searchResults.isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {Array.from({ length: ARTICLES_PER_PAGE }).map((_, i) => (
+                <Card key={i} className="animate-pulse">
+                  <CardHeader>
+                    <div className="h-4 bg-muted rounded w-16 mb-2"></div>
+                    <div className="h-6 bg-muted rounded w-3/4"></div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <div className="h-4 bg-muted rounded"></div>
+                      <div className="h-4 bg-muted rounded w-2/3"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : searchResults.articles.length > 0 ? (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                {currentArticles.map((article) => (
+                {searchResults.articles.map((article) => (
                   <Card key={article.id} className="h-full hover:shadow-lg transition-shadow">
                     <CardHeader>
                       <div className="flex items-center justify-between mb-2">
@@ -413,7 +469,7 @@ export default function Category() {
                   Nenhum artigo encontrado
                 </h3>
                 <p className="text-muted-foreground mb-8">
-                  {searchQuery || selectedTag || selectedType 
+                  {searchQuery || selectedTagIds.length > 0 || selectedType 
                     ? 'Tente ajustar os filtros para encontrar o que procura.'
                     : 'Esta categoria ainda não possui artigos publicados.'}
                 </p>
@@ -421,7 +477,10 @@ export default function Category() {
                 <div className="space-y-4">
                   <p className="text-sm text-muted-foreground">Precisa de ajuda?</p>
                   <Button 
-                    onClick={() => window.open('https://wa.me/5571981470573?text=Vim%20da%20Central%20de%20Ajuda%20e%20preciso%20de%20suporte%20na%20categoria%20' + encodeURIComponent(category.name), '_blank')}
+                    onClick={() => {
+                      trackWhatsAppCTA('category_empty', `${category.name} - ${searchQuery || 'sem filtros'}`);
+                      window.open('https://wa.me/5571981470573?text=Vim%20da%20Central%20de%20Ajuda%20e%20preciso%20de%20suporte%20na%20categoria%20' + encodeURIComponent(category.name), '_blank');
+                    }}
                     className="bg-green-600 hover:bg-green-700"
                   >
                     <MessageSquare className="w-4 h-4 mr-2" />
@@ -430,38 +489,6 @@ export default function Category() {
                 </div>
               </div>
             </div>
-          )}
-
-          {/* Artigos Relacionados */}
-          {relatedArticles.length > 0 && (
-            <section className="mt-16 pt-8 border-t">
-              <h2 className="text-2xl font-bold text-foreground mb-6">
-                Artigos de outras categorias
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {relatedArticles.map((article) => (
-                  <Card key={article.id} className="hover:shadow-lg transition-shadow">
-                    <CardHeader>
-                      <Badge variant="outline" className="w-fit mb-2">{article.type}</Badge>
-                      <CardTitle className="line-clamp-2">
-                        <Link 
-                          to={`/article/${article.slug}`}
-                          className="hover:text-primary transition-colors"
-                        >
-                          {article.title}
-                        </Link>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <CardDescription className="line-clamp-2">
-                        {article.meta_description || 
-                         article.content.replace(/<[^>]*>/g, '').slice(0, 100) + '...'}
-                      </CardDescription>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </section>
           )}
         </main>
 
