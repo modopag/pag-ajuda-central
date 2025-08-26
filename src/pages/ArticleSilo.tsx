@@ -251,13 +251,9 @@ export default function ArticleSilo() {
 
       <main id="main-content" className="relative z-10 container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
-            <div className="xl:col-span-3">
-              {/* Table of Contents - Mobile only */}
-              <div className="xl:hidden mb-8">
-                <TableOfContents mobileCollapsible={true} />
-              </div>
+            <div className="lg:col-span-2">
 
               {/* Article Header */}
               <header className="mb-8 space-y-6">
@@ -354,8 +350,8 @@ export default function ArticleSilo() {
             </div>
 
             {/* Sidebar - Desktop only */}
-            <div className="hidden xl:block xl:col-span-1">
-              <div className="sticky top-24 space-y-6">
+            <div className="hidden lg:block lg:col-span-1">
+              <div className="sticky top-20 z-20 space-y-6 max-h-[calc(100vh-6rem)] overflow-hidden">
                 {/* Table of Contents */}
                 <TableOfContents />
                 
@@ -371,8 +367,9 @@ export default function ArticleSilo() {
             </div>
           </div>
 
-          {/* Smart Related Articles - Mobile/Tablet */}
-          <div className="xl:hidden mt-12">
+          {/* Mobile Table of Contents & Related Articles */}
+          <div className="lg:hidden space-y-8 mt-12">
+            <TableOfContents mobileCollapsible={true} />
             <SmartRelatedArticles 
               currentArticleId={article.id.toString()}
               categoryId={category.id.toString()}

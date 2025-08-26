@@ -93,8 +93,8 @@ export function TableOfContents({
 
   // Desktop sticky sidebar version
   return (
-    <div className={cn("sticky top-24 max-h-[calc(100vh-7rem)]", className)}>
-      <Card className="h-full border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5 backdrop-blur-sm">
+    <div className={cn("max-h-[calc(100vh-8rem)]", className)}>
+      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5 backdrop-blur-sm">
         <div className="p-4">
           <div className="flex items-center gap-2 mb-4">
             <List className="w-4 h-4 text-primary" />
