@@ -44,32 +44,53 @@ export const useTableOfContents = (options: UseTableOfContentsOptions = {}) => {
     return id;
   }, []);
 
-  // Extract headings from content with better DOM monitoring
+  // Extract headings from content with improved DOM monitoring
   useEffect(() => {
     const extractHeadings = () => {
-      // Look specifically in article content area first
-      const contentArea = document.querySelector('.article-content, .prose, main, [role="main"]') || document;
-      const headingElements = contentArea.querySelectorAll(selector);
+      // Wait for content to be fully rendered
+      const contentSelectors = [
+        '.article-content',
+        '.prose', 
+        'main',
+        '[role="main"]',
+        '.content'
+      ];
       
-      if (headingElements.length === 0) {
-        // Fallback: search in the entire document
-        const allHeadings = document.querySelectorAll(selector);
-        if (allHeadings.length === 0) return;
+      let contentArea = null;
+      for (const sel of contentSelectors) {
+        contentArea = document.querySelector(sel);
+        if (contentArea) break;
+      }
+      
+      // Use content area or fallback to document
+      const searchArea = contentArea || document;
+      const headingElements = searchArea.querySelectorAll(selector);
+      
+      // Filter out headings from navigation, header, footer
+      const validHeadings = Array.from(headingElements).filter(el => {
+        const element = el as Element;
+        const parent = element.closest('nav, header, footer, .header, .footer, .navigation');
+        return !parent;
+      });
+      
+      if (validHeadings.length === 0) {
+        setHeadings([]);
+        return;
       }
       
       const existingIds = new Set<string>();
-      const finalElements = headingElements.length > 0 ? headingElements : document.querySelectorAll(selector);
       
-      const extractedHeadings: Heading[] = Array.from(finalElements).map((element) => {
-        const text = element.textContent?.trim() || '';
-        if (!text) return null;
+      const extractedHeadings: Heading[] = validHeadings.map((element) => {
+        const htmlElement = element as HTMLElement;
+        const text = htmlElement.textContent?.trim() || '';
+        if (!text || text.length < 2) return null;
         
-        let id = element.id;
+        let id = htmlElement.id;
         
         // Generate ID if not exists
         if (!id) {
           id = generateId(text, existingIds);
-          element.id = id;
+          htmlElement.id = id;
         }
         
         existingIds.add(id);
@@ -77,45 +98,63 @@ export const useTableOfContents = (options: UseTableOfContentsOptions = {}) => {
         return {
           id,
           text,
-          level: parseInt(element.tagName.charAt(1), 10),
-          element: element as HTMLElement
+          level: parseInt(htmlElement.tagName.charAt(1), 10),
+          element: htmlElement
         };
       }).filter(Boolean) as Heading[];
       
-      setHeadings(extractedHeadings);
+      // Only update if we have meaningful changes
+      setHeadings(prev => {
+        if (prev.length !== extractedHeadings.length) return extractedHeadings;
+        const hasChanges = extractedHeadings.some((heading, i) => 
+          !prev[i] || prev[i].id !== heading.id || prev[i].text !== heading.text
+        );
+        return hasChanges ? extractedHeadings : prev;
+      });
     };
 
-    // Multiple attempts to extract headings
-    const attemptExtraction = (attempt = 0) => {
-      extractHeadings();
-      
-      // If no headings found and we haven't tried enough times, try again
-      if (attempt < 3) {
-        setTimeout(() => attemptExtraction(attempt + 1), 200 * (attempt + 1));
-      }
+    // Debounced extraction to avoid excessive re-renders
+    let extractionTimeout: NodeJS.Timeout;
+    const debouncedExtraction = () => {
+      clearTimeout(extractionTimeout);
+      extractionTimeout = setTimeout(extractHeadings, 150);
     };
 
-    // Start extraction process
-    const timer = setTimeout(() => attemptExtraction(), 100);
+    // Initial extraction with proper timing
+    const initialTimer = setTimeout(extractHeadings, 300);
     
-    // Also listen for DOM changes
+    // Listen for content changes
     const observer = new MutationObserver((mutations) => {
-      const hasNewContent = mutations.some(mutation => 
-        mutation.type === 'childList' && mutation.addedNodes.length > 0
-      );
+      const hasRelevantChanges = mutations.some(mutation => {
+        if (mutation.type === 'childList') {
+          // Check if added nodes contain headings
+          const addedNodes = Array.from(mutation.addedNodes);
+          return addedNodes.some(node => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              const element = node as Element;
+              return element.matches?.(selector) || element.querySelector?.(selector);
+            }
+            return false;
+          });
+        }
+        return false;
+      });
       
-      if (hasNewContent) {
-        setTimeout(extractHeadings, 300);
+      if (hasRelevantChanges) {
+        debouncedExtraction();
       }
     });
     
-    observer.observe(document.body, {
+    // Observe changes in content areas
+    const contentArea = document.querySelector('.article-content, .prose, main') || document.body;
+    observer.observe(contentArea, {
       childList: true,
       subtree: true
     });
     
     return () => {
-      clearTimeout(timer);
+      clearTimeout(initialTimer);
+      clearTimeout(extractionTimeout);
       observer.disconnect();
     };
   }, [selector, generateId]);
