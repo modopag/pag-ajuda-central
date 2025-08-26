@@ -5,6 +5,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from 'react-helmet-async';
+import { CookieBanner } from '@/components/CookieBanner';
+import { CookiePreferencesModal } from '@/components/CookiePreferencesModal';
+import { GoogleAnalytics } from '@/components/GoogleAnalytics';
+import { useSettings } from '@/hooks/useSettings';
 import Gone from "@/pages/Gone";
 
 // Lazy load main pages for code splitting
@@ -14,6 +18,7 @@ const Article = lazy(() => import("./pages/Article"));
 const Search = lazy(() => import("./pages/Search"));
 const Sitemap = lazy(() => import("./pages/Sitemap"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const PoliticasPrivacidade = lazy(() => import("./pages/PoliticasPrivacidade"));
 
 // Lazy load admin pages
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
@@ -38,44 +43,60 @@ const PageLoader = () => (
 
 const queryClient = new QueryClient();
 
+const AppContent = () => {
+  const { seo } = useSettings();
+  
+  return (
+    <BrowserRouter>
+      <GoogleAnalytics measurementId={seo.google_analytics_id} />
+      
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          {/* Public pages */}
+          <Route path="/" element={<Index />} />
+          <Route path="/categoria/:slug" element={<Category />} />
+          <Route path="/artigo/:slug" element={<Article />} />
+          <Route path="/buscar" element={<Search />} />
+          <Route path="/sitemap.xml" element={<Sitemap />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="articles" element={<AdminArticles />} />
+            <Route path="articles/new" element={<AdminArticleEdit />} />
+            <Route path="articles/:id/edit" element={<AdminArticleEdit />} />
+            <Route path="categories" element={<AdminCategories />} />
+            <Route path="tags" element={<AdminTags />} />
+            <Route path="media" element={<AdminMedia />} />
+            <Route path="redirects" element={<AdminRedirects />} />  
+            <Route path="monitoring" element={<AdminMonitoring />} />
+            <Route path="settings" element={<AdminSettings />} />
+            <Route path="feedback" element={<AdminFeedback />} />
+          </Route>
+          
+          {/* Error pages */}
+          <Route path="/politicas-de-privacidade" element={<PoliticasPrivacidade />} />
+          <Route path="/gone" element={<Gone />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <HelmetProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Suspense fallback={<PageLoader />}>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/categoria/:slug" element={<Category />} />
-                <Route path="/artigo/:slug" element={<Article />} />
-                <Route path="/buscar" element={<Search />} />
-                <Route path="/sitemap.xml" element={<Sitemap />} />
-                
-                {/* Admin Routes */}
-                <Route path="/admin/login" element={<AdminLogin />} />
-                <Route path="/admin" element={<AdminLayout />}>
-                  <Route index element={<AdminDashboard />} />
-                  <Route path="articles" element={<AdminArticles />} />
-                  <Route path="articles/new" element={<AdminArticleEdit />} />
-                  <Route path="articles/:id/edit" element={<AdminArticleEdit />} />
-                  <Route path="categories" element={<AdminCategories />} />
-                  <Route path="tags" element={<AdminTags />} />
-                  <Route path="media" element={<AdminMedia />} />
-                  <Route path="redirects" element={<AdminRedirects />} />  
-                  <Route path="monitoring" element={<AdminMonitoring />} />
-                  <Route path="settings" element={<AdminSettings />} />
-                  <Route path="feedback" element={<AdminFeedback />} />
-                </Route>
-                
-                {/* Error pages */}
-                <Route path="/gone" element={<Gone />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-          </Suspense>
-        </BrowserRouter>
+
+        <AppContent />
+
+        <CookieBanner />
+        <CookiePreferencesModal />
       </TooltipProvider>
     </HelmetProvider>
   </QueryClientProvider>

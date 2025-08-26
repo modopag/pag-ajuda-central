@@ -24,6 +24,7 @@ export default function AdminSettings() {
     default_og_image: "",
     robots_txt: "",
     site_url: "https://ajuda.modopag.com.br/",
+    google_analytics_id: "",
   });
   const [helpSettings, setHelpSettings] = useState<HelpQuickSettings>({
     phone: "",
@@ -276,6 +277,22 @@ export default function AdminSettings() {
                   placeholder="User-agent: *&#10;Allow: /"
                   rows={6}
                 />
+              </div>
+              
+              <Separator />
+              
+              <div>
+                <Label htmlFor="google_analytics_id">Google Analytics Measurement ID</Label>
+                <Input
+                  id="google_analytics_id"
+                  value={seoSettings.google_analytics_id || ""}
+                  onChange={(e) => setSeoSettings({...seoSettings, google_analytics_id: e.target.value})}
+                  placeholder="G-XXXXXXXXXX"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Digite o Measurement ID do Google Analytics 4. Exemplo: G-NSK1S3D9Z4. 
+                  Deixe vazio para não carregar o GA4.
+                </p>
               </div>
               
               <Button 

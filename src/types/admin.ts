@@ -110,6 +110,7 @@ export interface GlobalSEOSettings {
   default_og_image: string;
   robots_txt: string;
   site_url: string; // For canonical URLs and sitemap
+  google_analytics_id?: string; // Google Analytics Measurement ID
 }
 
 export interface HelpQuickSettings {

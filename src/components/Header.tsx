@@ -8,12 +8,15 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/dropdown-navigation";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { SearchAutocomplete } from '@/components/SearchAutocomplete';
 import { SkipLink } from '@/components/SkipLink';
 import logoBlack from "@/assets/modopag-logo-black.png";
 
 const Header = () => {
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
+
   return (
     <>
       <SkipLink />
@@ -35,15 +38,17 @@ const Header = () => {
                 height="40"
               />
             </Link>
-          
-          {/* Search Bar - Visible on medium screens and up */}
-          <div className="hidden md:flex flex-1 max-w-md mx-4">
-            <SearchAutocomplete 
-              placeholder="Pesquisar na central de ajuda..."
-              showButton={false}
-              className="w-full"
-            />
-          </div>
+            
+            {/* Search Bar - Hidden on home page to avoid duplication */}
+            {!isHomePage && (
+              <div className="hidden md:flex flex-1 max-w-md mx-4">
+                <SearchAutocomplete 
+                  placeholder="Pesquisar na central de ajuda..."
+                  showButton={false}
+                  className="w-full"
+                />
+              </div>
+            )}
           
           {/* Navigation */}
           <NavigationMenu className="hidden lg:flex">
@@ -110,14 +115,16 @@ const Header = () => {
             </NavigationMenuList>
           </NavigationMenu>
           
-          {/* Mobile Search Button */}
-          <Link 
-            to="/buscar" 
-            className="md:hidden p-2 hover:bg-accent/10 rounded-md transition-colors"
-            aria-label="Pesquisar"
-          >
-            <Search className="h-5 w-5" />
-          </Link>
+            {/* Mobile Search Button - Hidden on home page */}
+            {!isHomePage && (
+              <Link 
+                to="/buscar" 
+                className="md:hidden p-2 hover:bg-accent/10 rounded-md transition-colors"
+                aria-label="Pesquisar"
+              >
+                <Search className="h-5 w-5" />
+              </Link>
+            )}
           
           {/* CTA Button */}
           <Button 
