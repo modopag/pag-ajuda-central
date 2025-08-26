@@ -9,7 +9,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/dropdown-navigation";
 import { Link } from "react-router-dom";
-import logoBlack from "@/assets/modopag-logo-black.svg";
+import logoBlack from "@/assets/modopag-logo-black.png";
 
 const Header = () => {
   return (
@@ -23,7 +23,7 @@ const Header = () => {
             aria-label="modoPAG - Central de Ajuda"
           >
             <img 
-              src={logoBlack}
+              src="/lovable-uploads/4b2a0e83-bf23-41f9-baa7-6c102ce25035.png"
               alt="modoPAG - Central de Ajuda"
               title="Ir para a página inicial"
               className="h-8 w-auto"
