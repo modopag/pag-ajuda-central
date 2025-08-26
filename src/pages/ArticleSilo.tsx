@@ -112,9 +112,32 @@ export default function ArticleSilo() {
   const incrementViewCount = async () => {
     if (!article) return;
 
+    // Check if already viewed in this session
+    const sessionKey = `article_viewed_${article.id}`;
+    const hasViewed = sessionStorage.getItem(sessionKey);
+    
+    if (hasViewed) {
+      return; // Don't increment if already viewed in this session
+    }
+
     try {
       const adapter = await getDataAdapter();
-      // Mock increment for now - in real implementation this would update the database
+      
+      // Increment view count in storage
+      const articles = await adapter.getArticles();
+      const updatedArticles = articles.map(a => 
+        a.id === article.id 
+          ? { ...a, view_count: (a.view_count || 0) + 1 }
+          : a
+      );
+      
+      // Update in localStorage (mock adapter uses localStorage)
+      localStorage.setItem('modopag_articles', JSON.stringify(updatedArticles));
+      
+      // Mark as viewed in this session
+      sessionStorage.setItem(sessionKey, 'true');
+      
+      // Update local state
       setArticle(prev => prev ? { 
         ...prev, 
         view_count: (prev.view_count || 0) + 1 
