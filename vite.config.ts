@@ -20,46 +20,25 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    // Optimize bundle splitting for better performance
+    // Optimize bundle splitting
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          // Critical vendor chunks
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'react-vendor';
-            }
-            if (id.includes('react-router-dom')) {
-              return 'router-vendor';
-            }
-            if (id.includes('@radix-ui')) {
-              return 'ui-vendor';
-            }
-            if (id.includes('@tanstack/react-query')) {
-              return 'query-vendor';
-            }
-            if (id.includes('react-hook-form') || id.includes('zod')) {
-              return 'form-vendor';
-            }
-            if (id.includes('lucide-react')) {
-              return 'icons-vendor';
-            }
-            // Performance monitoring (development only)
-            if (id.includes('performance') || id.includes('lighthouse') || id.includes('bundleAnalyzer')) {
-              return 'dev-tools';
-            }
-            return 'vendors';
-          }
-          
-          // Admin pages chunk
-          if (id.includes('/pages/admin/')) {
-            return 'admin';
-          }
-          
-          // Cookie management chunk (can be lazy loaded)
-          if (id.includes('Cookie') && !id.includes('AsyncCookie')) {
-            return 'cookies';
-          }
+        manualChunks: {
+          // Vendor chunks
+          'react-vendor': ['react', 'react-dom'],
+          'router-vendor': ['react-router-dom'],
+          'ui-vendor': ['@radix-ui/react-accordion', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
+          'query-vendor': ['@tanstack/react-query'],
+          'form-vendor': ['react-hook-form', '@hookform/resolvers', 'zod'],
+          // Admin chunk
+          'admin': [
+            './src/pages/admin/AdminDashboard.tsx',
+            './src/pages/admin/AdminArticles.tsx',
+            './src/pages/admin/AdminCategories.tsx',
+            './src/pages/admin/AdminTags.tsx',
+            './src/pages/admin/AdminMedia.tsx',
+            './src/pages/admin/AdminSettings.tsx'
+          ]
         }
       }
     },
