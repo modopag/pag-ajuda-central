@@ -382,7 +382,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_base_slug: {
+        Args: { title_text: string }
+        Returns: string
+      }
+      generate_unique_slug: {
+        Args: {
+          article_id_param?: string
+          category_id_param: string
+          title_text: string
+        }
+        Returns: string
+      }
+      unaccent: {
+        Args: { "": string }
+        Returns: string
+      }
+      unaccent_init: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
     }
     Enums: {
       [_ in never]: never
