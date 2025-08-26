@@ -3,6 +3,8 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { cn } from '@/lib/utils';
 
+// Componente legado - use StableRichTextEditor para editores principais
+
 interface RichTextEditorProps {
   value: string;
   onChange: (value: string) => void;

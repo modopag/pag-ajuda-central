@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { getDataAdapter } from '@/lib/data-adapter';
-import { RichTextEditor } from '@/components/admin/RichTextEditor';
+import { StableRichTextEditor } from '@/components/admin/StableRichTextEditor';
 import { ImageUploader } from '@/components/admin/ImageUploader';
 import { PreviewModal } from '@/components/admin/PreviewModal';
 import { useAutoSave } from '@/hooks/useAutoSave';
@@ -61,7 +61,7 @@ export default function AdminArticleEdit() {
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [activeTab, setActiveTab] = useState('content');
-  const [editorKey, setEditorKey] = useState(0); // Key para forçar re-render do editor se necessário
+  const [editorResetTrigger, setEditorResetTrigger] = useState(0); // Trigger para reset do editor se necessário
 
   // Validação de slug em tempo real
   const slugValidation = useSlugValidation(article.slug || '', id);
@@ -248,6 +248,9 @@ export default function AdminArticleEdit() {
         await adapter.addTagToArticle(savedArticle.id, tagId);
       }
 
+      // Marcar editor como limpo após save bem-sucedido
+      setEditorResetTrigger(prev => prev + 1);
+      
       toast({
         title: "Artigo atualizado",
         description: `Status: ${savedArticle.status}`
@@ -338,9 +341,12 @@ export default function AdminArticleEdit() {
             <h1 className="text-2xl font-bold">
               Editar Artigo
             </h1>
-            {article.slug && (
+            {article.slug && article.category_id && categories.length > 0 && (
               <p className="text-sm text-muted-foreground">
-                /artigo/{article.slug}
+                {(() => {
+                  const category = categories.find(c => c.id === article.category_id);
+                  return category ? `/${category.slug}/${article.slug}` : `/artigo/${article.slug}`;
+                })()}
               </p>
             )}
           </div>
@@ -386,6 +392,7 @@ export default function AdminArticleEdit() {
         {/* Preview & Publicar Modal */}
         <PreviewModal
           article={article}
+          categories={categories}
           onPublish={async () => {
             setIsPublishing(true);
             try {
@@ -589,12 +596,13 @@ export default function AdminArticleEdit() {
               <CardTitle>Conteúdo do Artigo</CardTitle>
             </CardHeader>
             <CardContent>
-              <RichTextEditor
-                key={editorKey}
+              <StableRichTextEditor
                 value={article.content || ''}
                 onChange={(value) => handleInputChange('content', value || '')}
                 onImageUpload={handleImageUpload}
                 isVisible={activeTab === 'content'}
+                loading={isLoading}
+                articleId={id}
               />
             </CardContent>
           </Card>

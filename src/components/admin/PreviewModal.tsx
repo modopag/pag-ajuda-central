@@ -6,21 +6,30 @@ import { Eye, AlertCircle, CheckCircle } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { canPublish, type SEOData } from '@/utils/seoValidations';
-import type { Article } from '@/types/admin';
+import type { Article, Category } from '@/types/admin';
 
 interface PreviewModalProps {
   article: Partial<Article>;
+  categories?: Category[];
   onPublish: () => Promise<void>;
   isPublishing: boolean;
   disabled?: boolean;
 }
 
-export function PreviewModal({ article, onPublish, isPublishing, disabled }: PreviewModalProps) {
+export function PreviewModal({ article, categories = [], onPublish, isPublishing, disabled }: PreviewModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [publishValidation, setPublishValidation] = useState<{ canPublish: boolean; blockingErrors: string[] }>({
     canPublish: false,
     blockingErrors: []
   });
+
+  // Gerar URL SILO correta
+  const generateSiloUrl = (): string => {
+    if (!article.slug || !article.category_id) return '/';
+    
+    const category = categories.find(c => c.id === article.category_id);
+    return category ? `/${category.slug}/${article.slug}` : `/${article.slug}`;
+  };
 
   useEffect(() => {
     if (article.title && article.content) {
@@ -75,7 +84,7 @@ export function PreviewModal({ article, onPublish, isPublishing, disabled }: Pre
             <div className="border rounded-lg p-4 bg-gray-50">
               <div className="space-y-2">
                 <div className="text-xs text-green-700">
-                  https://ajuda.modopag.com.br/categoria/{article.slug}
+                  https://ajuda.modopag.com.br{generateSiloUrl()}
                 </div>
                 <h3 className="text-xl text-blue-600 hover:underline cursor-pointer line-clamp-2">
                   {metaTitle}

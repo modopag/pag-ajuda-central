@@ -79,6 +79,44 @@ export default function AdminArticles() {
     }
   };
 
+  const handleDuplicate = async (article: Article) => {
+    try {
+      const adapter = await getDataAdapter();
+      
+      // Criar novo artigo baseado no atual
+      const duplicatedArticle = await adapter.createArticle({
+        title: `${article.title} (Cópia)`,
+        slug: '', // Será gerado automaticamente
+        content: article.content || '',
+        status: 'draft',
+        category_id: article.category_id,
+        author: article.author || 'Admin',
+        meta_title: article.meta_title || '',
+        meta_description: article.meta_description || '',
+        canonical_url: article.canonical_url || '',
+        og_title: article.og_title || '',
+        og_description: article.og_description || '',
+        og_image: article.og_image || '',
+        noindex: !!article.noindex,
+        type: article.type || 'artigo',
+        reading_time_minutes: article.reading_time_minutes || 1,
+        published_at: null
+      });
+
+      // Recarregar lista
+      await loadData();
+      
+      console.log('AdminArticles - duplicated article:', duplicatedArticle);
+    } catch (error) {
+      console.error('AdminArticles - error duplicating article:', error);
+    }
+  };
+
+  const generateViewUrl = (article: Article): string => {
+    const category = categories.find(c => c.id === article.category_id);
+    return category ? `/${category.slug}/${article.slug}` : `#`;
+  };
+
   const applyFilters = () => {
     let filtered = articles;
 
@@ -139,36 +177,6 @@ export default function AdminArticles() {
       await loadData();
     } catch (error) {
       console.error("Error deleting article:", error);
-    }
-  };
-
-  const handleDuplicateArticle = async (articleId: string) => {
-    try {
-      const adapter = await getDataAdapter();
-      const originalArticle = await adapter.getArticleById(articleId);
-      
-      if (!originalArticle) return;
-      
-      // Criar artigo duplicado
-      const duplicatedArticle = await adapter.createArticle({
-        ...originalArticle,
-        title: `${originalArticle.title} (Cópia)`,
-        slug: '', // Será gerado automaticamente
-        status: 'draft',
-        published_at: null
-      } as any);
-
-      // Copiar tags
-      const tags = await adapter.getArticleTags(articleId);
-      for (const tag of tags) {
-        await adapter.addTagToArticle(duplicatedArticle.id, tag.id);
-      }
-      
-      // Navegar para o artigo duplicado
-      window.location.href = `/admin/articles/${duplicatedArticle.id}/edit`;
-      
-    } catch (error) {
-      console.error("Error duplicating article:", error);
     }
   };
 
@@ -339,10 +347,10 @@ export default function AdminArticles() {
                             <DropdownMenuLabel>Ações</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem asChild>
-                              <Link to={`/article/${article.slug}`} target="_blank">
-                                <Eye className="w-4 h-4 mr-2" />
-                                Ver Artigo
-                              </Link>
+                               <Link to={generateViewUrl(article)} target="_blank">
+                                 <Eye className="w-4 h-4 mr-2" />
+                                 Ver Artigo
+                               </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                               <Link to={`/admin/articles/${article.id}/edit`}>
@@ -350,16 +358,12 @@ export default function AdminArticles() {
                                 Editar
                               </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <Link to={`/admin/articles/${article.id}/edit`} 
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      handleDuplicateArticle(article.id);
-                                    }}>
-                                <Copy className="w-4 h-4 mr-2" />
-                                Duplicar
-                              </Link>
-                            </DropdownMenuItem>
+                             <DropdownMenuItem 
+                               onClick={() => handleDuplicate(article)}
+                             >
+                               <Copy className="w-4 h-4 mr-2" />
+                               Duplicar
+                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               className="text-destructive"
