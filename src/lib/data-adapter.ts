@@ -3,7 +3,7 @@
 import type { DataAdapter } from '@/types/admin';
 
 // Feature flag for data backend
-export const DATA_BACKEND: 'mock' | 'supabase' = 'mock';
+export const DATA_BACKEND: 'mock' | 'supabase' = 'supabase';
 
 let adapterInstance: DataAdapter | null = null;
 
