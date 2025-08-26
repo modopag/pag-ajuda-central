@@ -3,19 +3,28 @@ import { LucideIcon } from "lucide-react";
 interface CategoryCardProps {
   title: string;
   description?: string;
-  icon: LucideIcon;
+  icon?: LucideIcon;
+  iconUrl?: string;
   onClick?: () => void;
   articleCount?: number;
 }
 
-const CategoryCard = ({ title, description, icon: Icon, onClick, articleCount }: CategoryCardProps) => {
+const CategoryCard = ({ title, description, icon: Icon, iconUrl, onClick, articleCount }: CategoryCardProps) => {
   return (
     <div 
       className="category-card group"
       onClick={onClick}
     >
       <div className="category-icon group-hover:text-accent">
-        <Icon className="w-full h-full" />
+        {iconUrl ? (
+          <img 
+            src={iconUrl} 
+            alt={`Ícone da categoria ${title}`} 
+            className="w-full h-full object-contain"
+          />
+        ) : Icon ? (
+          <Icon className="w-full h-full" />
+        ) : null}
       </div>
       
       <h3 className="category-title group-hover:text-accent mb-2">
