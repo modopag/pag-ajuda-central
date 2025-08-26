@@ -27,6 +27,7 @@ const AdminMedia = lazy(() => import("./pages/admin/AdminMedia"));
 const AdminRedirects = lazy(() => import("./pages/admin/AdminRedirects"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminFeedback = lazy(() => import("./pages/admin/AdminFeedback"));
+const AdminMonitoring = lazy(() => import("./pages/admin/AdminMonitoring"));
 
 // Loading component for suspense fallback
 const PageLoader = () => (
@@ -63,6 +64,7 @@ const App = () => (
                   <Route path="tags" element={<AdminTags />} />
                   <Route path="media" element={<AdminMedia />} />
                   <Route path="redirects" element={<AdminRedirects />} />  
+                  <Route path="monitoring" element={<AdminMonitoring />} />
                   <Route path="settings" element={<AdminSettings />} />
                   <Route path="feedback" element={<AdminFeedback />} />
                 </Route>

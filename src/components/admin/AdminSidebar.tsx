@@ -20,6 +20,7 @@ import {
   Settings,
   MessageSquare,
   Lock,
+  Activity,
 } from "lucide-react";
 
 const menuItems = [
@@ -57,6 +58,11 @@ const menuItems = [
     title: "Feedback",
     url: "/admin/feedback",
     icon: MessageSquare,
+  },
+  {
+    title: "Performance",
+    url: "/admin/monitoring",
+    icon: Activity,
   },
   {
     title: "Configurações",
