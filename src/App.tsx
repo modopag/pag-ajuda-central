@@ -8,11 +8,14 @@ import { HelmetProvider } from 'react-helmet-async';
 import { CookieBanner } from '@/components/CookieBanner';
 import { CookiePreferencesModal } from '@/components/CookiePreferencesModal';
 import { GoogleAnalytics } from '@/components/GoogleAnalytics';
+import { RedirectHandler } from '@/components/RedirectHandler';
 import { useSettings } from '@/hooks/useSettings';
 import Gone from "@/pages/Gone";
 
 // Lazy load main pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
+const CategorySilo = lazy(() => import("./pages/CategorySilo"));
+const ArticleSilo = lazy(() => import("./pages/ArticleSilo"));
 const Category = lazy(() => import("./pages/Category"));
 const Article = lazy(() => import("./pages/Article"));
 const Search = lazy(() => import("./pages/Search"));
@@ -48,16 +51,21 @@ const AppContent = () => {
   
   return (
     <BrowserRouter>
+      <RedirectHandler />
       <GoogleAnalytics measurementId={seo.google_analytics_id} />
       
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          {/* Public pages */}
+          {/* Public pages - New SILO structure */}
           <Route path="/" element={<Index />} />
-          <Route path="/categoria/:slug" element={<Category />} />
-          <Route path="/artigo/:slug" element={<Article />} />
           <Route path="/buscar" element={<Search />} />
           <Route path="/sitemap.xml" element={<Sitemap />} />
+          <Route path="/politicas-de-privacidade" element={<PoliticasPrivacidade />} />
+          <Route path="/gone" element={<Gone />} />
+          
+          {/* OLD URLs - These will be handled by RedirectHandler for 301 redirects */}
+          <Route path="/categoria/:slug" element={<Category />} />
+          <Route path="/artigo/:slug" element={<Article />} />
           
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -75,10 +83,11 @@ const AppContent = () => {
             <Route path="feedback" element={<AdminFeedback />} />
           </Route>
           
-          {/* Error pages */}
-          <Route path="/politicas-de-privacidade" element={<PoliticasPrivacidade />} />
-          <Route path="/gone" element={<Gone />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          {/* NEW SILO URLs - These have priority over catch-all */}
+          <Route path="/:categorySlug/" element={<CategorySilo />} />
+          <Route path="/:categorySlug/:articleSlug" element={<ArticleSilo />} />
+          
+          {/* Catch-all 404 - MUST be last */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>

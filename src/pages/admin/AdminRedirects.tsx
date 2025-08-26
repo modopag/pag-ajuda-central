@@ -25,7 +25,7 @@ export default function AdminRedirects() {
   const [formData, setFormData] = useState({
     from_path: "",
     to_path: "",
-    type: 301 as RedirectType,
+    type: '301' as RedirectType,
     is_active: true
   });
   const { toast } = useToast();
@@ -163,7 +163,7 @@ export default function AdminRedirects() {
             <DialogTrigger asChild>
               <Button onClick={() => {
                 setEditingRedirect(null);
-                setFormData({ from_path: "", to_path: "", type: 301, is_active: true });
+                setFormData({ from_path: "", to_path: "", type: '301' as RedirectType, is_active: true });
               }}>
                 <Plus className="w-4 h-4 mr-2" />
                 Novo Redirecionamento
@@ -203,7 +203,7 @@ export default function AdminRedirects() {
                   <Label htmlFor="type">Tipo de Redirecionamento</Label>
                   <Select
                     value={formData.type.toString()}
-                    onValueChange={(value) => setFormData({ ...formData, type: parseInt(value) as RedirectType })}
+                    onValueChange={(value) => setFormData({ ...formData, type: value as RedirectType })}
                   >
                     <SelectTrigger className="bg-background">
                       <SelectValue placeholder="Selecione o tipo" />
@@ -285,8 +285,8 @@ export default function AdminRedirects() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={redirect.type === 301 ? "default" : "secondary"}>
-                      {redirect.type} - {redirect.type === 301 ? "Permanente" : "Temporário"}
+                    <Badge variant={redirect.type === '301' ? "default" : "secondary"}>
+                      {redirect.type} - {redirect.type === '301' ? "Permanente" : "Temporário"}
                     </Badge>
                   </TableCell>
                   <TableCell>

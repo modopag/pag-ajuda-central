@@ -1,10 +1,10 @@
 // Core types for the admin panel and data structures
 
 export type ArticleStatus = 'draft' | 'review' | 'published' | 'archived';
-export type RedirectType = 301 | 302;
 export type UserRole = 'admin' | 'editor' | 'author' | 'viewer';
 export type ArticleType = 'artigo' | 'tutorial' | 'aviso' | 'atualização';
 export type MediaType = 'image' | 'document' | 'video';
+export type RedirectType = '301' | '302' | '410';
 
 // Database-like structures (matching future Supabase schema)
 export interface Category {

@@ -16,7 +16,7 @@ export const createSlugRedirect = async (oldSlug: string, newSlug: string): Prom
       // Update existing redirect
       await adapter.updateRedirect(existingRedirect.id, {
         to_path: `/artigo/${newSlug}`,
-        type: 301 as RedirectType,
+        type: '301' as RedirectType,
         is_active: true
       });
     } else {
@@ -24,7 +24,7 @@ export const createSlugRedirect = async (oldSlug: string, newSlug: string): Prom
       await adapter.createRedirect({
         from_path: `/artigo/${oldSlug}`,
         to_path: `/artigo/${newSlug}`,
-        type: 301 as RedirectType,
+        type: '301' as RedirectType,
         is_active: true
       });
     }
@@ -73,7 +73,7 @@ export const createGoneRedirect = async (articleSlug: string): Promise<void> => 
     await adapter.createRedirect({
       from_path: `/artigo/${articleSlug}`,
       to_path: '/410', // Special path for gone content
-      type: 301 as RedirectType, // Use 301 to redirect to 410 page
+      type: '301' as RedirectType, // Use 301 to redirect to 410 page
       is_active: true
     });
   } catch (error) {
