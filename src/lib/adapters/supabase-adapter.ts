@@ -17,8 +17,16 @@ import type {
 } from '@/types/admin';
 
 export class SupabaseAdapter implements DataAdapter {
+  private static instanceCount = 0;
+  
   constructor() {
-    console.log('SupabaseAdapter initialized');
+    const instanceId = ++SupabaseAdapter.instanceCount;
+    console.log(`🔧 SupabaseAdapter: Instance #${instanceId} created`);
+    
+    // Warn if multiple instances are being created
+    if (instanceId > 1) {
+      console.warn(`⚠️ SupabaseAdapter: Multiple instances detected! This should not happen. Instance count: ${instanceId}`);
+    }
   }
 
   // Categories
