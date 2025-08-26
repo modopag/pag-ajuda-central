@@ -32,6 +32,7 @@ const Index = () => {
         description="Central de Ajuda modoPAG - Encontre respostas para suas dúvidas sobre pagamentos digitais, cartões e soluções financeiras."
         ogTitle="Central de Ajuda modoPAG"
         ogDescription="Encontre respostas para suas dúvidas sobre pagamentos digitais, cartões e soluções financeiras."
+        canonicalUrl="https://ajuda.modopag.com.br"
       />
       
       <div className="min-h-screen bg-background">

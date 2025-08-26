@@ -128,7 +128,7 @@ const Article = () => {
       <SEOHelmet
         title={`${article.meta_title || article.title} | modoPAG - Central de Ajuda`}
         description={article.meta_description}
-        canonicalUrl={article.canonical_url}
+        canonicalUrl={article.canonical_url || `https://ajuda.modopag.com.br/article/${article.slug}`}
         ogTitle={article.og_title || article.title}
         ogDescription={article.og_description || article.meta_description}
         ogImage={article.og_image}

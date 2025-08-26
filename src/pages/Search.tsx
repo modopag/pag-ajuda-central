@@ -104,7 +104,7 @@ const Search = () => {
   };
 
   const pageTitle = query ? `Busca por "${query}"` : "Buscar na Central de Ajuda";
-  const canonicalUrl = query ? `${window.location.origin}/buscar?q=${encodeURIComponent(query)}` : `${window.location.origin}/buscar`;
+  const canonicalUrl = query ? `https://ajuda.modopag.com.br/buscar?q=${encodeURIComponent(query)}` : `https://ajuda.modopag.com.br/buscar`;
 
   return (
     <>

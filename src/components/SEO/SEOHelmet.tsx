@@ -23,7 +23,7 @@ export const SEOHelmet = ({
   noindex = false,
   jsonLd
 }: SEOHelmetProps) => {
-  const defaultOgImage = 'https://modopag.com.br/images/og-default.png';
+  const defaultOgImage = 'https://ajuda.modopag.com.br/og-default.jpg';
   const defaultDescription = 'Central de Ajuda modoPAG - Encontre respostas para suas dúvidas sobre pagamentos digitais, cartões e soluções financeiras.';
 
   return (
