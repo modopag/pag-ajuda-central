@@ -61,6 +61,7 @@ export default function AdminArticleEdit() {
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [activeTab, setActiveTab] = useState('content');
+  const [editorKey, setEditorKey] = useState(0); // Key para forçar re-render do editor se necessário
 
   // Validação de slug em tempo real
   const slugValidation = useSlugValidation(article.slug || '', id);
@@ -81,13 +82,19 @@ export default function AdminArticleEdit() {
     return calculateReadingTime(article.content || '');
   }, [article.content]);
 
-  // Auto-save (só ativa se temos ID válido)
+  // Auto-save (só ativa se temos ID válido) com proteção contra erros
   useAutoSave({
     data: article,
     onSave: async (data) => {
-      if (id && data.title?.trim()) {
-        const adapter = await getDataAdapter();
-        await adapter.updateArticle(id, { ...data, reading_time_minutes: readingTime });
+      try {
+        if (id && data.title?.trim()) {
+          const adapter = await getDataAdapter();
+          await adapter.updateArticle(id, { ...data, reading_time_minutes: readingTime });
+          console.log('AdminArticleEdit - auto-save successful');
+        }
+      } catch (error) {
+        console.error('AdminArticleEdit - auto-save error (not blocking UI):', error);
+        // Não bloquear a UI em caso de erro de auto-save
       }
     },
     enabled: !!id && !!article.title?.trim()
@@ -448,14 +455,34 @@ export default function AdminArticleEdit() {
         </Card>
       )}
 
-      {/* Editor */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="content">Conteúdo</TabsTrigger>
-          <TabsTrigger value="seo">SEO</TabsTrigger>
-        </TabsList>
+      {/* Editor com abas persistentes */}
+      <div className="space-y-6">
+        {/* Tab Navigation - sempre visível */}
+        <div className="flex space-x-1 border-b">
+          <button
+            className={`px-4 py-2 font-medium text-sm rounded-t-lg transition-colors ${
+              activeTab === 'content'
+                ? 'bg-background text-foreground border-b-2 border-primary'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+            onClick={() => setActiveTab('content')}
+          >
+            Conteúdo
+          </button>
+          <button
+            className={`px-4 py-2 font-medium text-sm rounded-t-lg transition-colors ${
+              activeTab === 'seo'
+                ? 'bg-background text-foreground border-b-2 border-primary'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+            onClick={() => setActiveTab('seo')}
+          >
+            SEO
+          </button>
+        </div>
 
-        <TabsContent value="content" className="space-y-6">
+        {/* Content Tab - sempre renderizado, mas escondido quando não ativo */}
+        <div className={activeTab === 'content' ? 'block space-y-6' : 'hidden'}>
           <Card>
             <CardHeader>
               <CardTitle>Informações Básicas</CardTitle>
@@ -463,46 +490,50 @@ export default function AdminArticleEdit() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="title">Título *</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="title">Título *</Label>
+                    {getValidationIcon('title')}
+                  </div>
                   <Input
                     id="title"
                     value={article.title || ''}
                     onChange={(e) => handleInputChange('title', e.target.value)}
-                    placeholder="Digite o título do artigo..."
+                    placeholder="Título do artigo"
+                    required
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="category">Categoria *</Label>
-                  <Select 
-                    value={article.category_id || ''} 
+                  <Select
+                    value={article.category_id || ''}
                     onValueChange={(value) => handleInputChange('category_id', value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione uma categoria" />
                     </SelectTrigger>
-            <SelectContent className="bg-background border z-50">
-              {categories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
                   </Select>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label>Tags</Label>
-                <div className="flex flex-wrap gap-2">
+                <Label htmlFor="tags">Tags</Label>
+                <div className="flex flex-wrap gap-2 mb-2">
                   {tags.map((tag) => (
                     <Badge
                       key={tag.id}
                       variant={selectedTags.includes(tag.id) ? "default" : "outline"}
                       className="cursor-pointer"
                       onClick={() => {
-                        setSelectedTags(prev => 
-                          prev.includes(tag.id) 
+                        setSelectedTags(prev =>
+                          prev.includes(tag.id)
                             ? prev.filter(id => id !== tag.id)
                             : [...prev, tag.id]
                         );
@@ -514,55 +545,41 @@ export default function AdminArticleEdit() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="meta_description">Meta Description *</Label>
-                <div className="relative">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="metaDescription">Meta Descrição *</Label>
+                    {getValidationIcon('metaDescription')}
+                  </div>
                   <Textarea
-                    id="meta_description"
+                    id="metaDescription"
                     value={article.meta_description || ''}
                     onChange={(e) => handleInputChange('meta_description', e.target.value)}
-                    placeholder="Breve descrição do artigo (120-160 caracteres)"
+                    placeholder="Descrição que aparecerá nos resultados de busca..."
                     rows={3}
-                    maxLength={160}
-                    className={
-                      article.meta_description && article.meta_description.length > 160 
-                        ? 'border-red-500' 
-                        : article.meta_description && article.meta_description.length < 120
-                        ? 'border-yellow-500'
-                        : ''
-                    }
                   />
-                  <div className="absolute bottom-2 right-3 text-xs text-muted-foreground">
-                    <span className={
-                      (article.meta_description?.length || 0) > 160 ? 'text-red-500' :
-                      (article.meta_description?.length || 0) < 120 ? 'text-yellow-500' :
-                      'text-green-600'
-                    }>
-                      {article.meta_description?.length || 0}/160
-                    </span>
-                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {(article.meta_description || '').length}/160 caracteres
+                  </p>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Esta descrição aparecerá nos resultados de busca. Inclua palavras-chave relevantes.
-                </p>
-              </div>
 
-              <div className="space-y-2">
-                <Label>Tipo de Artigo</Label>
-                <Select 
-                  value={article.type || 'artigo'} 
-                  onValueChange={(value) => handleInputChange('type', value)}
-                >
-                  <SelectTrigger className="w-full md:w-48">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background border z-50">
-                    <SelectItem value="artigo">Artigo</SelectItem>
-                    <SelectItem value="tutorial">Tutorial</SelectItem>
-                    <SelectItem value="aviso">Aviso</SelectItem>
-                    <SelectItem value="atualização">Atualização</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="space-y-2">
+                  <Label htmlFor="type">Tipo de Artigo</Label>
+                  <Select
+                    value={article.type || 'artigo'}
+                    onValueChange={(value) => handleInputChange('type', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="artigo">Artigo</SelectItem>
+                      <SelectItem value="tutorial">Tutorial</SelectItem>
+                      <SelectItem value="aviso">Aviso</SelectItem>
+                      <SelectItem value="atualização">Atualização</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -573,146 +590,155 @@ export default function AdminArticleEdit() {
             </CardHeader>
             <CardContent>
               <RichTextEditor
+                key={editorKey}
                 value={article.content || ''}
                 onChange={(value) => handleInputChange('content', value || '')}
                 onImageUpload={handleImageUpload}
+                isVisible={activeTab === 'content'}
               />
             </CardContent>
           </Card>
-        </TabsContent>
+        </div>
 
-        <TabsContent value="seo" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Configurações SEO</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="slug">Slug *</Label>
-                    {getValidationIcon('slug')}
-                    {!slugValidation.isValid && !slugValidation.isChecking && (
-                      <AlertCircle className="w-4 h-4 text-red-500" />
+        {/* SEO Tab - só renderiza quando ativo para economizar recursos */}
+        {activeTab === 'seo' && (
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Configurações SEO</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="slug">Slug *</Label>
+                      {getValidationIcon('slug')}
+                      {!slugValidation.isValid && !slugValidation.isChecking && (
+                        <AlertCircle className="w-4 h-4 text-red-500" />
+                      )}
+                      {slugValidation.isChecking && (
+                        <Clock className="w-4 h-4 text-blue-500 animate-spin" />
+                      )}
+                      {slugValidation.isValid && !slugValidation.isChecking && article.slug && (
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                      )}
+                    </div>
+                    <Input
+                      id="slug"
+                      value={article.slug || ''}
+                      onChange={(e) => handleInputChange('slug', e.target.value)}
+                      placeholder="url-do-artigo"
+                      className={!slugValidation.isValid ? 'border-red-500' : ''}
+                      disabled
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Slug é gerado automaticamente baseado no título
+                    </p>
+                    {!slugValidation.isValid && slugValidation.error && (
+                      <p className="text-xs text-red-600">{slugValidation.error}</p>
                     )}
-                    {slugValidation.isChecking && (
-                      <Clock className="w-4 h-4 text-blue-500 animate-spin" />
-                    )}
-                    {slugValidation.isValid && !slugValidation.isChecking && article.slug && (
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                    {slugValidation.isValid && article.slug && (
+                      <p className="text-xs text-green-600">Slug disponível</p>
                     )}
                   </div>
-                  <Input
-                    id="slug"
-                    value={article.slug || ''}
-                    onChange={(e) => handleInputChange('slug', e.target.value)}
-                    placeholder="url-do-artigo"
-                    className={!slugValidation.isValid ? 'border-red-500' : ''}
-                  />
-                  {!slugValidation.isValid && slugValidation.error && (
-                    <p className="text-xs text-red-600">{slugValidation.error}</p>
-                  )}
-                  {slugValidation.isValid && article.slug && (
-                    <p className="text-xs text-green-600">Slug disponível</p>
-                  )}
+
+                  <div className="space-y-2">
+                    <Label htmlFor="canonical">URL Canônica</Label>
+                    <Input
+                      id="canonical"
+                      value={article.canonical_url || ''}
+                      onChange={(e) => handleInputChange('canonical_url', e.target.value)}
+                      placeholder="https://exemplo.com/artigo"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="canonical">URL Canônica</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="metaTitle">Meta Título</Label>
+                    {getValidationIcon('metaTitle')}
+                  </div>
                   <Input
-                    id="canonical"
-                    value={article.canonical_url || ''}
-                    onChange={(e) => handleInputChange('canonical_url', e.target.value)}
-                    placeholder="https://exemplo.com/artigo"
+                    id="metaTitle"
+                    value={article.meta_title || ''}
+                    onChange={(e) => handleInputChange('meta_title', e.target.value)}
+                    placeholder="Deixe vazio para usar o título do artigo"
                   />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="metaTitle">Meta Título</Label>
-                  {getValidationIcon('metaTitle')}
-                </div>
-                <Input
-                  id="metaTitle"
-                  value={article.meta_title || ''}
-                  onChange={(e) => handleInputChange('meta_title', e.target.value)}
-                  placeholder="Deixe vazio para usar o título do artigo"
-                />
-                <p className="text-xs text-muted-foreground">
-                  {(article.meta_title || article.title || '').length}/60 caracteres
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="metaDescription">Meta Descrição</Label>
-                  {getValidationIcon('metaDescription')}
-                </div>
-                <Textarea
-                  id="metaDescription"
-                  value={article.meta_description || ''}
-                  onChange={(e) => handleInputChange('meta_description', e.target.value)}
-                  placeholder="Descrição que aparecerá nos resultados de busca..."
-                  rows={3}
-                />
-                <p className="text-xs text-muted-foreground">
-                  {(article.meta_description || '').length}/160 caracteres
-                </p>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Open Graph</h3>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="ogTitle">OG Título</Label>
-                  <Input
-                    id="ogTitle"
-                    value={article.og_title || ''}
-                    onChange={(e) => handleInputChange('og_title', e.target.value)}
-                    placeholder="Título para redes sociais"
-                  />
+                  <p className="text-xs text-muted-foreground">
+                    {(article.meta_title || article.title || '').length}/60 caracteres
+                  </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="ogDescription">OG Descrição</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="metaDescription">Meta Descrição</Label>
+                    {getValidationIcon('metaDescription')}
+                  </div>
                   <Textarea
-                    id="ogDescription"
-                    value={article.og_description || ''}
-                    onChange={(e) => handleInputChange('og_description', e.target.value)}
-                    placeholder="Descrição para redes sociais"
-                    rows={2}
+                    id="metaDescription"
+                    value={article.meta_description || ''}
+                    onChange={(e) => handleInputChange('meta_description', e.target.value)}
+                    placeholder="Descrição que aparecerá nos resultados de busca..."
+                    rows={3}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {(article.meta_description || '').length}/160 caracteres
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Open Graph</h3>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="ogTitle">OG Título</Label>
+                    <Input
+                      id="ogTitle"
+                      value={article.og_title || ''}
+                      onChange={(e) => handleInputChange('og_title', e.target.value)}
+                      placeholder="Título para redes sociais"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="ogDescription">OG Descrição</Label>
+                    <Textarea
+                      id="ogDescription"
+                      value={article.og_description || ''}
+                      onChange={(e) => handleInputChange('og_description', e.target.value)}
+                      placeholder="Descrição para redes sociais"
+                      rows={2}
+                    />
+                  </div>
+
+                  <ImageUploader
+                    label="OG Image"
+                    currentImage={article.og_image}
+                    onUpload={async (file, altText) => {
+                      const url = await handleImageUpload(file, altText);
+                      handleInputChange('og_image', url);
+                      return url;
+                    }}
+                    onRemove={() => handleInputChange('og_image', '')}
                   />
                 </div>
 
-                <ImageUploader
-                  label="OG Image"
-                  currentImage={article.og_image}
-                  onUpload={async (file, altText) => {
-                    const url = await handleImageUpload(file, altText);
-                    handleInputChange('og_image', url);
-                    return url;
-                  }}
-                  onRemove={() => handleInputChange('og_image', '')}
-                />
-              </div>
+                <Separator />
 
-              <Separator />
-
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="noindex"
-                  checked={article.noindex || false}
-                  onCheckedChange={(checked) => handleInputChange('noindex', checked)}
-                />
-                <Label htmlFor="noindex">Não indexar (noindex)</Label>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="noindex"
+                    checked={article.noindex || false}
+                    onCheckedChange={(checked) => handleInputChange('noindex', checked)}
+                  />
+                  <Label htmlFor="noindex">Não indexar (noindex)</Label>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
