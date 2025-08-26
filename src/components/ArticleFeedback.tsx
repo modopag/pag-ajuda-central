@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ThumbsUp, ThumbsDown, MessageSquare } from "lucide-react";
 import { Button } from "./ui/button";
 import { toast } from "@/hooks/use-toast";
+import { monitoring } from '@/utils/monitoring';
 
 interface ArticleFeedbackProps {
   articleId: string;
@@ -18,6 +19,9 @@ const ArticleFeedback = ({ articleId }: ArticleFeedbackProps) => {
     import('@/utils/analytics').then(({ trackFAQFeedback }) => {
       trackFAQFeedback(articleId, type === 'helpful');
     });
+    
+    // Track for monitoring (especially low feedback)
+    monitoring.trackLowFeedback(articleId, type === 'helpful' ? 'helpful' : 'not_helpful');
     
     if (type === 'helpful') {
       toast({

@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { SEOHelmet } from '@/components/SEO/SEOHelmet';
 import { getDataAdapter } from '@/lib/data-adapter';
+import { monitoring } from '@/utils/monitoring';
 import type { Article, Category, Tag } from '@/types/admin';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

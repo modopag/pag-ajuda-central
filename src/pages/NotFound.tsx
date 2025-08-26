@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { SEOHelmet } from '@/components/SEO/SEOHelmet';
 import { getDataAdapter } from '@/lib/data-adapter';
+import { monitoring } from '@/utils/monitoring';
 import type { Category } from '@/types/admin';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,6 +19,13 @@ export default function NotFound() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Track 404 for monitoring and analytics
+    const currentPath = window.location.pathname;
+    const referrer = document.referrer;
+    
+    monitoring.track404Error(currentPath, referrer);
+    console.warn('404 Page accessed:', currentPath);
+    
     const loadCategories = async () => {
       try {
         const adapter = await getDataAdapter();
