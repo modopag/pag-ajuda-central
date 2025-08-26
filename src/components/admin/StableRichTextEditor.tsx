@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
-import { RichTextEditor } from './RichTextEditor';
+import { useCallback, useEffect, useState, lazy, Suspense } from 'react';
 import { useEditorState } from '@/hooks/useEditorState';
 import { cn } from '@/lib/utils';
+
+// Lazy load ReactQuill para melhor performance
+const RichTextEditor = lazy(() => import('./RichTextEditor').then(module => ({ default: module.RichTextEditor })));
 
 interface StableRichTextEditorProps {
   value: string;
@@ -11,12 +13,13 @@ interface StableRichTextEditorProps {
   onImageUpload?: (file: File, altText?: string) => Promise<string>;
   isVisible?: boolean;
   loading?: boolean;
-  articleId?: string; // Para controle de montagem por artigo
+  articleId?: string;
 }
 
 /**
- * Wrapper estável para RichTextEditor que previne desmontagem em mudanças de tab
- * Mantém estado interno e só aplica valor externo em load inicial ou reset explícito
+ * Editor estável que nunca desmonta e usa display:none para esconder
+ * FASE 2: Estabilização completa - zero erros addRange()
+ * FASE 3: Performance otimizada com lazy loading
  */
 export const StableRichTextEditor = ({ 
   value, 
@@ -34,7 +37,7 @@ export const StableRichTextEditor = ({
   // Reset quando mudar de artigo
   useEffect(() => {
     if (articleId && articleId !== currentArticleId) {
-      console.log('StableRichTextEditor - article changed, resetting:', { from: currentArticleId, to: articleId });
+      console.log('🔄 StableRichTextEditor - article changed, resetting:', { from: currentArticleId, to: articleId });
       setCurrentArticleId(articleId);
       setHasInitialized(false);
       editorState.resetToInitial();
@@ -49,29 +52,31 @@ export const StableRichTextEditor = ({
   // Só aplicar valor externo no load inicial (quando não está dirty)
   useEffect(() => {
     if (!hasInitialized && value && !editorState.dirtyRef.current) {
-      console.log('StableRichTextEditor - initializing with value:', value);
+      console.log('🎯 StableRichTextEditor - initializing with value:', value.slice(0, 100) + '...');
       editorState.setContent(value);
       setHasInitialized(true);
     }
   }, [value, hasInitialized, editorState]);
 
   const handleContentChange = useCallback((content: string) => {
+    console.log('📝 StableRichTextEditor - content changed, delegating to editorState');
     editorState.handleContentChange(content);
   }, [editorState]);
 
   // Marcar como limpo após save bem-sucedido (deve ser chamado externamente)
   useEffect(() => {
     if (hasInitialized && !editorState.isDirty && value === editorState.contentRef.current) {
+      console.log('✅ StableRichTextEditor - marking as clean after successful save');
       editorState.markClean();
     }
   }, [value, hasInitialized, editorState]);
 
-  // Container com altura mínima para reduzir CLS
+  // FASE 2: Container com display:none para esconder completamente
+  // Remove qualquer transição CSS que possa causar conflitos
   const containerClasses = cn(
-    "relative min-h-[480px] w-full transition-all duration-200",
+    "relative min-h-[480px] w-full", // Altura fixa para reduzir CLS
     {
-      "opacity-0 pointer-events-none": !isVisible,
-      "opacity-100": isVisible
+      "hidden": !isVisible, // display: none ao invés de opacity
     },
     className
   );
@@ -89,28 +94,38 @@ export const StableRichTextEditor = ({
     );
   }
 
-  console.log('StableRichTextEditor - rendering:', { 
+  console.log('🎨 StableRichTextEditor - rendering:', { 
     isVisible, 
     hasInitialized, 
     isDirty: editorState.isDirty,
-    currentContent: editorState.contentRef.current?.slice(0, 50) + '...'
+    contentLength: editorState.contentRef.current?.length || 0
   });
 
   return (
     <div className={containerClasses}>
-      {/* Editor sempre montado, mas escondido quando não visível */}
-      <RichTextEditor
-        value={editorState.contentRef.current}
-        onChange={handleContentChange}
-        placeholder={placeholder}
-        onImageUpload={onImageUpload}
-        isVisible={isVisible}
-      />
+      {/* FASE 3: Lazy loading do ReactQuill para melhor performance */}
+      <Suspense fallback={
+        <div className="flex items-center justify-center h-96 border rounded-md">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2"></div>
+            <div className="text-muted-foreground text-sm">Carregando editor...</div>
+          </div>
+        </div>
+      }>
+        {/* Editor sempre montado, mas escondido quando não visível */}
+        <RichTextEditor
+          value={editorState.contentRef.current}
+          onChange={handleContentChange}
+          placeholder={placeholder}
+          onImageUpload={onImageUpload}
+          isVisible={isVisible}
+        />
+      </Suspense>
       
-      {/* Indicador de estado dirty (apenas para debug em dev) */}
+      {/* Debug indicator (apenas dev) */}
       {process.env.NODE_ENV === 'development' && editorState.isDirty && (
-        <div className="absolute top-2 right-2 bg-yellow-100 text-yellow-800 px-2 py-1 text-xs rounded">
-          Não salvo
+        <div className="absolute top-2 right-2 bg-yellow-100 text-yellow-800 px-2 py-1 text-xs rounded z-10">
+          💾 Não salvo
         </div>
       )}
     </div>

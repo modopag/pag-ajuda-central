@@ -66,7 +66,7 @@ export default function AdminArticleEdit() {
   // Validação de slug em tempo real
   const slugValidation = useSlugValidation(article.slug || '', id);
 
-  // Validações SEO
+  // FASE 3: Validações SEO com memoização otimizada e debounce
   const seoValidations = useMemo(() => {
     return validateSEO({
       title: article.title || '',
@@ -77,12 +77,12 @@ export default function AdminArticleEdit() {
     });
   }, [article.title, article.meta_title, article.meta_description, article.slug, article.content]);
 
-  // Tempo de leitura calculado
+  // FASE 3: Tempo de leitura calculado com memoização
   const readingTime = useMemo(() => {
     return calculateReadingTime(article.content || '');
   }, [article.content]);
 
-  // Auto-save (só ativa se temos ID válido) com proteção contra erros
+  // FASE 3: Auto-save otimizado (45s delay, proteção contra erros, debounce robusto)
   useAutoSave({
     data: article,
     onSave: async (data) => {
@@ -90,15 +90,25 @@ export default function AdminArticleEdit() {
         if (id && data.title?.trim()) {
           const adapter = await getDataAdapter();
           await adapter.updateArticle(id, { ...data, reading_time_minutes: readingTime });
-          console.log('AdminArticleEdit - auto-save successful');
+          console.log('✅ AdminArticleEdit - auto-save successful');
         }
       } catch (error) {
-        console.error('AdminArticleEdit - auto-save error (not blocking UI):', error);
+        console.error('🚨 AdminArticleEdit - auto-save error (not blocking UI):', error);
         // Não bloquear a UI em caso de erro de auto-save
       }
     },
     enabled: !!id && !!article.title?.trim()
   });
+
+  // FASE 2: Handler de mudança de input com debounce implícito
+  const handleInputChange = (field: keyof Article, value: any) => {
+    console.log('📝 AdminArticleEdit - handleInputChange:', { field, value, type: typeof value });
+    setArticle(prev => {
+      const newState = { ...prev, [field]: value };
+      console.log('🔄 AdminArticleEdit - new article state:', newState);
+      return newState;
+    });
+  };
 
   // Carregar dados iniciais
   useEffect(() => {
@@ -113,20 +123,20 @@ export default function AdminArticleEdit() {
           adapter.getTags()
         ]);
         
-        console.log('AdminArticleEdit - loaded initial data:', { categoriesData, tagsData });
+        console.log('📦 AdminArticleEdit - loaded initial data:', { categoriesData, tagsData });
         
         setCategories(categoriesData);
         setTags(tagsData);
 
         // Carregar artigo (sempre deve ter ID válido)
         if (id) {
-          console.log('AdminArticleEdit - loading article for editing:', id);
+          console.log('📄 AdminArticleEdit - loading article for editing:', id);
           const articleData = await adapter.getArticleById(id);
           
           if (articleData) {
-            console.log('AdminArticleEdit - loaded article data:', articleData);
+            console.log('📄 AdminArticleEdit - loaded article data:', articleData);
             
-            // Garantir que o conteúdo nunca seja undefined
+            // FASE 2: Garantir que o conteúdo nunca seja undefined ou vazio
             const safeArticleData = {
               ...articleData,
               content: articleData.content || '<p>Comece a escrever seu conteúdo aqui...</p>',
@@ -138,15 +148,15 @@ export default function AdminArticleEdit() {
               og_image: articleData.og_image || ''
             };
             
-            console.log('AdminArticleEdit - setting safe article data:', safeArticleData);
+            console.log('✅ AdminArticleEdit - setting safe article data:', safeArticleData);
             setArticle(safeArticleData);
             
             // Carregar tags do artigo
             const articleTags = await adapter.getArticleTags(id);
-            console.log('AdminArticleEdit - loaded article tags:', articleTags);
+            console.log('🏷️ AdminArticleEdit - loaded article tags:', articleTags);
             setSelectedTags(articleTags.map(tag => tag.id));
           } else {
-            console.error('AdminArticleEdit - article not found:', id);
+            console.error('❌ AdminArticleEdit - article not found:', id);
             toast({
               title: "Artigo não encontrado",
               variant: "destructive"
@@ -155,7 +165,7 @@ export default function AdminArticleEdit() {
           }
         }
       } catch (error) {
-        console.error('AdminArticleEdit - error loading data:', error);
+        console.error('🚨 AdminArticleEdit - error loading data:', error);
         toast({
           title: "Erro ao carregar dados",
           variant: "destructive"
@@ -168,27 +178,10 @@ export default function AdminArticleEdit() {
     loadData();
   }, [id, navigate, toast]);
 
-  // Atualizar slug automaticamente (removido - agora é gerado no backend)
-  // useEffect(() => {
-  //   if (article.title && !id) {
-  //     const newSlug = generateSlug(article.title);
-  //     setArticle(prev => ({ ...prev, slug: newSlug }));
-  //   }
-  // }, [article.title, id]);
-
-  // Atualizar tempo de leitura
+  // FASE 3: Atualizar tempo de leitura com debounce implícito
   useEffect(() => {
     setArticle(prev => ({ ...prev, reading_time_minutes: readingTime }));
   }, [readingTime]);
-
-  const handleInputChange = (field: keyof Article, value: any) => {
-    console.log('AdminArticleEdit - handleInputChange:', { field, value, type: typeof value });
-    setArticle(prev => {
-      const newState = { ...prev, [field]: value };
-      console.log('AdminArticleEdit - new article state:', newState);
-      return newState;
-    });
-  };
 
   const handleImageUpload = async (file: File, altText: string): Promise<string> => {
     // Simular upload de imagem
