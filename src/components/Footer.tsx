@@ -1,6 +1,5 @@
 import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
 import { Link } from "react-router-dom";
-import logoYellow from "@/assets/modopag-logo-yellow.svg";
 
 const Footer = () => {
   return (
@@ -15,7 +14,7 @@ const Footer = () => {
               aria-label="modoPAG - Central de Ajuda"
             >
               <img 
-                src={logoYellow}
+                src="/lovable-uploads/f53c780b-8fc2-40b8-934d-758902a1bf9b.png"
                 alt="modoPAG - Central de Ajuda"
                 title="Ir para a página inicial"
                 className="h-8 w-auto"
