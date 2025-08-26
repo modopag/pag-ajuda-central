@@ -68,7 +68,7 @@ export default function AdminRedirects() {
       
       setIsDialogOpen(false);
       setEditingRedirect(null);
-      setFormData({ from_path: "", to_path: "", type: 301, is_active: true });
+      setFormData({ from_path: "", to_path: "", type: '301', is_active: true });
       loadRedirects();
     } catch (error) {
       toast({

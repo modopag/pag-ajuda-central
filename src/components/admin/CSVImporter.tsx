@@ -70,7 +70,7 @@ export function CSVImporter({ onImportComplete }: CSVImporterProps) {
       const row: CSVRow = {
         from_path: '',
         to_path: '',
-        type: 301,
+        type: '301' as RedirectType,
         is_active: true
       };
 
@@ -85,11 +85,10 @@ export function CSVImporter({ onImportComplete }: CSVImporterProps) {
             row.to_path = value;
             break;
           case 'type':
-            const typeValue = parseInt(value);
-            if (typeValue !== 301 && typeValue !== 302) {
-              row.error = `Tipo inválido: ${value}. Use 301 ou 302`;
+            if (value !== '301' && value !== '302' && value !== '410') {
+              row.error = `Tipo inválido: ${value}. Use 301, 302 ou 410`;
             } else {
-              row.type = typeValue as RedirectType;
+              row.type = value as RedirectType;
             }
             break;
           case 'is_active':
@@ -283,7 +282,7 @@ export function CSVImporter({ onImportComplete }: CSVImporterProps) {
                       <div className="flex items-center justify-between">
                         <div className="text-sm">
                           <span className="font-mono">{row.from_path}</span> → <span className="font-mono">{row.to_path}</span>
-                          <Badge variant={row.type === 301 ? 'default' : 'secondary'} className="ml-2">
+                          <Badge variant={row.type === '301' ? 'default' : 'secondary'} className="ml-2">
                             {row.type}
                           </Badge>
                         </div>

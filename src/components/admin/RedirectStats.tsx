@@ -36,8 +36,8 @@ export function RedirectStats({ refreshTrigger }: RedirectStatsProps) {
       setStats({
         total: redirects.length,
         active: redirects.filter(r => r.is_active).length,
-        permanent: redirects.filter(r => r.type === 301).length,
-        temporary: redirects.filter(r => r.type === 302).length,
+        permanent: redirects.filter(r => r.type === '301').length,
+        temporary: redirects.filter(r => r.type === '302').length,
         recent
       });
     } catch (error) {
@@ -148,7 +148,7 @@ export function RedirectStats({ refreshTrigger }: RedirectStatsProps) {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={redirect.type === 301 ? "default" : "secondary"} className="text-xs">
+                      <Badge variant={redirect.type === '301' ? "default" : "secondary"} className="text-xs">
                         {redirect.type}
                       </Badge>
                     </TableCell>
