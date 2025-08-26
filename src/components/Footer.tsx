@@ -18,7 +18,7 @@ const Footer = () => {
                 alt="modoPAG - Central de Ajuda"
                 title="modoPAG - Central de Ajuda"
                 aria-label="modoPAG - Central de Ajuda"
-                className="h-8 w-auto"
+                className="h-12 md:h-16 w-auto"
                 width="280"
                 height="60"
               />
