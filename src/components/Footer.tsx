@@ -6,7 +6,7 @@ const Footer = () => {
   const { showBanner } = useCookieConsent();
   
   return (
-    <footer className={`bg-modopag-black text-white mt-20 ${showBanner ? 'mb-32' : ''}`}>
+    <footer className={`bg-modopag-black text-white mt-20 relative ${showBanner ? 'mb-44 z-[60]' : ''}`}>
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo e Descrição */}
