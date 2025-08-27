@@ -11,18 +11,31 @@ export default function AdminLayout() {
 
   useEffect(() => {
     // Check authentication and approval status
+    console.log('🔐 AdminLayout - Auth state check:', { 
+      loading, 
+      hasUser: !!user, 
+      hasProfile: !!profile, 
+      profileStatus: profile?.status,
+      profileRole: profile?.role,
+      userEmail: user?.email 
+    });
+    
     if (!loading) {
       if (!user) {
-        // No user session - redirect to admin login
+        console.log('❌ AdminLayout - No user session, redirecting to login');
         navigate("/admin/login");
       } else if (user && profile) {
         // User exists, check approval status
+        console.log('✅ AdminLayout - User and profile found, checking permissions');
         if (profile.status !== 'approved' || !['admin', 'editor'].includes(profile.role)) {
-          // User not approved or wrong role - redirect to pending page
+          console.log('⚠️ AdminLayout - User not approved or wrong role, redirecting to pending');
           navigate("/admin/pending");
+        } else {
+          console.log('🎉 AdminLayout - User authorized for admin access');
         }
+      } else if (user && !profile) {
+        console.log('⏳ AdminLayout - User exists but profile still loading, waiting...');
       }
-      // If user exists but profile is still loading, wait
     }
   }, [user, profile, loading, navigate]);
 
@@ -37,7 +50,20 @@ export default function AdminLayout() {
 
   // Don't render if no user or user not approved
   if (!user || !profile || profile.status !== 'approved' || !['admin', 'editor'].includes(profile.role)) {
-    return null;
+    console.log('🚫 AdminLayout - Blocking render due to auth conditions:', {
+      hasUser: !!user,
+      hasProfile: !!profile, 
+      status: profile?.status,
+      role: profile?.role
+    });
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground">Verificando permissões...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -144,21 +144,32 @@ export const useTableOfContents = (options: UseTableOfContentsOptions = {}) => {
 
     // Set up MutationObserver to watch for content changes in the entire document
     const observer = new MutationObserver((mutations) => {
-      const hasContentChanges = mutations.some(mutation => {
-        // Check if article content changed
-        const target = mutation.target as Element;
-        return target.closest('article') || 
-               mutation.type === 'childList' && 
-               Array.from(mutation.addedNodes).some(node => 
-                 node.nodeType === Node.ELEMENT_NODE && 
-                 (node as Element).matches('h2') || 
-                 (node as Element).querySelector('h2')
-               );
-      });
-      
-      if (hasContentChanges) {
-        console.log('TOC: Content changed, re-collecting headings');
-        requestAnimationFrame(delayedCollection);
+      try {
+        const hasContentChanges = mutations.some(mutation => {
+          // Check if article content changed
+          const target = mutation.target;
+          
+          // Safety check: ensure target is an Element before calling DOM methods
+          if (!target || target.nodeType !== Node.ELEMENT_NODE) {
+            return false;
+          }
+          
+          const targetElement = target as Element;
+          return targetElement.closest('article') || 
+                 mutation.type === 'childList' && 
+                 Array.from(mutation.addedNodes).some(node => 
+                   node.nodeType === Node.ELEMENT_NODE && 
+                   (node as Element).matches('h2') || 
+                   (node as Element).querySelector('h2')
+                 );
+        });
+        
+        if (hasContentChanges) {
+          console.log('TOC: Content changed, re-collecting headings');
+          requestAnimationFrame(delayedCollection);
+        }
+      } catch (error) {
+        console.error('TOC: Error in MutationObserver:', error);
       }
     });
     

@@ -38,6 +38,7 @@ export default function AdminDashboard() {
   const [recentArticles, setRecentArticles] = useState<Article[]>([]);
   const [recentFeedback, setRecentFeedback] = useState<Feedback[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadDashboardData();
@@ -45,15 +46,22 @@ export default function AdminDashboard() {
 
   const loadDashboardData = async () => {
     try {
+      console.log('📊 AdminDashboard - Starting data load');
+      setIsLoading(true);
+      setError(null);
+      
       const adapter = await getDataAdapter();
+      console.log('📊 AdminDashboard - DataAdapter obtained:', !!adapter);
       
       // Load articles
+      console.log('📊 AdminDashboard - Loading articles');
       const articles = await adapter.getArticles();
       const published = articles.filter(a => a.status === 'published');
       const drafts = articles.filter(a => a.status === 'draft');
       const totalViews = articles.reduce((sum, article) => sum + article.view_count, 0);
       
       // Load feedback
+      console.log('📊 AdminDashboard - Loading feedback');
       const feedback = await adapter.getFeedback();
       const positive = feedback.filter(f => f.is_helpful).length;
       const negative = feedback.filter(f => !f.is_helpful).length;
@@ -65,6 +73,16 @@ export default function AdminDashboard() {
       
       // Recent feedback (last 5)  
       const recentFeedbackData = feedback.slice(0, 5);
+      
+      console.log('📊 AdminDashboard - Data loaded:', { 
+        articlesCount: articles.length, 
+        feedbackCount: feedback.length,
+        published: published.length,
+        drafts: drafts.length,
+        totalViews,
+        positive,
+        negative
+      });
       
       setStats({
         totalArticles: articles.length,
@@ -78,8 +96,11 @@ export default function AdminDashboard() {
       setRecentArticles(recent);
       setRecentFeedback(recentFeedbackData);
       
+      console.log('✅ AdminDashboard - Dashboard data loaded successfully');
+      
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
+      console.error('❌ AdminDashboard - Error loading dashboard data:', error);
+      setError('Erro ao carregar dados do dashboard. Verifique sua conexão e tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -104,6 +125,32 @@ export default function AdminDashboard() {
       default: return status;
     }
   };
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground">Visão geral da sua central de ajuda</p>
+        </div>
+        
+        <Card className="p-8 text-center">
+          <div className="space-y-4">
+            <div className="mx-auto w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center">
+              <span className="text-destructive text-xl">⚠️</span>
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">Erro ao carregar dashboard</h3>
+              <p className="text-muted-foreground">{error}</p>
+            </div>
+            <Button onClick={loadDashboardData} variant="outline">
+              Tentar novamente
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
