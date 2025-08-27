@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { getDataAdapter } from '@/lib/data-adapter';
-import { StableRichTextEditor } from '@/components/admin/StableRichTextEditor';
+import { EditorFactory } from '@/components/admin/EditorFactory';
 import { ImageUploader } from '@/components/admin/ImageUploader';
 import { EnhancedPreviewModal } from '@/components/admin/EnhancedPreviewModal';
 import { EditorTabs } from '@/components/admin/EditorTabs';
@@ -629,7 +629,7 @@ export default function AdminArticleEdit() {
               <CardTitle>Conteúdo do Artigo</CardTitle>
             </CardHeader>
             <CardContent>
-              <StableRichTextEditor
+              <EditorFactory
                 value={article.content || ''}
                 onChange={(value) => handleInputChange('content', value || '')}
                 onImageUpload={handleImageUpload}
