@@ -287,9 +287,10 @@ export default function ArticleSilo() {
             </Breadcrumb>
           </nav>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Desktop Layout - Flex for proper sidebar sticking */}
+          <div className="flex gap-8">
             {/* Main Content */}
-            <div className="lg:col-span-2">
+            <div className="flex-1 min-w-0 lg:max-w-none">
 
               {/* Article Header */}
               <header className="mb-8 space-y-6">
@@ -385,21 +386,24 @@ export default function ArticleSilo() {
               </div>
             </div>
 
-            {/* Sidebar - Desktop only */}
-            <div className="hidden lg:block lg:col-span-1">
-              <div className="sticky top-24 space-y-6 h-fit"
-                   style={{ maxHeight: 'calc(100vh - 8rem)' }}>
+            {/* Sticky Sidebar - Desktop only */}
+            <div className="hidden lg:block w-80 flex-shrink-0">
+              <div className="sticky top-24 space-y-6" style={{ maxHeight: 'calc(100vh - 6rem)' }}>
                 {/* Table of Contents */}
-                <TableOfContents />
+                <div className="max-h-64 overflow-y-auto">
+                  <TableOfContents />
+                </div>
                 
                 {/* Smart Related Articles */}
-                <SmartRelatedArticles 
-                  currentArticleId={article.id.toString()}
-                  categoryId={category.id.toString()}
-                  tags={tags}
-                  sidebarMode={true}
-                  maxArticles={4}
-                />
+                <div className="max-h-96 overflow-y-auto">
+                  <SmartRelatedArticles 
+                    currentArticleId={article.id.toString()}
+                    categoryId={category.id.toString()}
+                    tags={tags}
+                    sidebarMode={true}
+                    maxArticles={4}
+                  />
+                </div>
               </div>
             </div>
           </div>

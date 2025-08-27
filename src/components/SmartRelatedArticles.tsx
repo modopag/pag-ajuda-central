@@ -214,8 +214,7 @@ export function SmartRelatedArticles({
 
   if (sidebarMode) {
     return (
-      <Card className={cn("border-accent/20 bg-gradient-to-br from-accent/5 to-primary/5 overflow-y-auto", className)}
-            style={{ maxHeight: 'calc(50vh - 2rem)' }}>
+      <Card className={cn("border-accent/20 bg-gradient-to-br from-accent/5 to-primary/5", className)}>
         <div className="p-4">
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="w-4 h-4 text-accent" />
