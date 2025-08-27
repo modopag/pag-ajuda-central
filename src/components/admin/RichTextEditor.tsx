@@ -67,13 +67,23 @@ export const RichTextEditor = ({
     }
   }, [getQuillSafely]);
 
-  // SAFE SELECTION HELPER
+  // SAFE SELECTION HELPER - Implementação definitiva
   const safeSetSelection = useCallback((editor: any, range: any) => {
+    if (!editor || !range) return false;
+    
     try {
-      if (!editor?.root?.isConnected) {
-        console.warn('🚫 RichTextEditor - cannot set selection: editor not connected');
+      const root = editor?.root;
+      if (!editor || !root || !root.isConnected) {
+        console.warn('🚫 RichTextEditor - cannot set selection: editor not connected to DOM');
         return false;
       }
+      
+      // Verificar se o range é válido
+      if (typeof range.index !== 'number' || range.index < 0) {
+        console.warn('🚫 RichTextEditor - invalid range index:', range);
+        return false;
+      }
+      
       editor.setSelection(range);
       return true;
     } catch (error) {
@@ -135,7 +145,8 @@ export const RichTextEditor = ({
               safeQuill.insertEmbed(range.index, 'image', imageUrl);
               // Use safe selection with DOM guard
               requestAnimationFrame(() => {
-                safeSetSelection(safeQuill, { index: range.index + 1 });
+                const newRange = { index: range.index + 1, length: 0 };
+                safeSetSelection(safeQuill, newRange);
               });
             } else {
               console.log('📌 RichTextEditor - inserting image at end');
@@ -143,7 +154,8 @@ export const RichTextEditor = ({
               safeQuill.insertEmbed(length - 1, 'image', imageUrl);
               // Use safe selection with DOM guard
               requestAnimationFrame(() => {
-                safeSetSelection(safeQuill, { index: length });
+                const newRange = { index: length, length: 0 };
+                safeSetSelection(safeQuill, newRange);
               });
             }
           } catch (error) {
@@ -156,6 +168,7 @@ export const RichTextEditor = ({
     }
   }, [onImageUpload, getQuillSafely, isEditorFocused, safeSetSelection]);
 
+  // Memorizar modules para evitar remounts
   const modules = useMemo(() => ({
     toolbar: {
       container: [
@@ -177,11 +190,12 @@ export const RichTextEditor = ({
     }
   }), [imageHandler]);
 
-  const formats = [
+  // Memorizar formats para evitar remounts
+  const formats = useMemo(() => [
     'header', 'bold', 'italic', 'underline', 'strike',
     'list', 'bullet', 'indent',
     'link', 'image', 'blockquote', 'code-block', 'align'
-  ];
+  ], []);
 
   const handleFocus = useCallback(() => {
     console.log('👁️ RichTextEditor - focused');

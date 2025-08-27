@@ -181,12 +181,40 @@ export default function AdminArticleEdit() {
     };
   }, [isValid, isSaving, id, handleSave]);
 
-  // TEMPORARILY DISABLED - Auto-save causing editor issues
-  // useEffect(() => {
-  //   if (article.title && article.content && !isLoading && !isSaving) {
-  //     saveDebounced();
-  //   }
-  // }, [article, saveDebounced, isLoading, isSaving]);
+  // AUTO-SAVE DESABILITADO TEMPORARIAMENTE - REATIVADO COM DEBOUNCE ROBUSTO
+  // Autosave com debounce robusto
+  const debouncedSave = useMemo(
+    () => {
+      let timeoutId: NodeJS.Timeout;
+      return (draft: Partial<Article>) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(async () => {
+          if (draft?.id && draft.title?.trim() && !isSaving) {
+            try {
+              console.log('💾 AdminArticleEdit - Auto-saving draft');
+              const adapter = await getDataAdapter();
+              await adapter.updateArticle(draft.id, {
+                title: draft.title,
+                content: draft.content,
+                slug: draft.slug,
+                category_id: draft.category_id,
+                status: 'draft'
+              });
+            } catch (error) {
+              console.error('❌ AdminArticleEdit - Auto-save failed:', error);
+            }
+          }
+        }, 800);
+      };
+    },
+    [selectedTags, isSaving]
+  );
+
+  useEffect(() => {
+    if (article?.id && article.title?.trim() && isValid && !isLoading && !isSaving) {
+      debouncedSave(article);
+    }
+  }, [article, debouncedSave, isValid, isLoading, isSaving]);
 
   // Carregar dados iniciais
   useEffect(() => {
@@ -490,9 +518,11 @@ export default function AdminArticleEdit() {
 
         {/* Content Tab */}
         <div className={cn(
-          "space-y-6",
-          activeTab !== 'content' && "hidden"
-        )}>
+          "relative min-h-[520px] space-y-6",
+          activeTab !== 'content' && "opacity-0 pointer-events-none absolute inset-0"
+        )}
+        aria-hidden={activeTab !== 'content'}
+        >
           <Card>
             <CardHeader>
               <CardTitle>Informações Básicas</CardTitle>
@@ -612,9 +642,11 @@ export default function AdminArticleEdit() {
 
         {/* SEO Tab */}
         <div className={cn(
-          "space-y-6", 
+          "relative min-h-[520px] space-y-6", 
           activeTab !== 'seo' && "opacity-0 pointer-events-none absolute inset-0"
-        )}>
+        )}
+        aria-hidden={activeTab !== 'seo'}
+        >
           <div className="space-y-6">
             <Card>
               <CardHeader>

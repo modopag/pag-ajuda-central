@@ -25,7 +25,7 @@ export const StableRichTextEditor: React.FC<StableRichTextEditorProps> = ({
   articleId
 }) => {
   // STABLE KEY - never changes after initialization to prevent remounts
-  const editorKey = useMemo(() => `editor-stable-${Date.now()}`, []);
+  const editorKey = useMemo(() => 'stable-editor-key', []);
   const lastArticleIdRef = useRef<string | undefined>(articleId);
   
   // Estado interno do editor usando o hook personalizado
