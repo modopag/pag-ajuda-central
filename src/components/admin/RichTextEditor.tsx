@@ -38,20 +38,49 @@ export const RichTextEditor = ({
     if (!isReady || !quillRef.current || !containerRef.current) {
       return null;
     }
-    return quillRef.current?.getEditor();
+    
+    const editor = quillRef.current?.getEditor();
+    // DOM SAFETY GUARD - verificar se o editor está conectado ao DOM
+    if (!editor?.root?.isConnected) {
+      console.warn('🚫 RichTextEditor - editor not connected to DOM');
+      return null;
+    }
+    
+    return editor;
   }, [isReady]);
 
   const isEditorAvailable = useCallback(() => {
-    return !!(quillRef.current && containerRef.current && isReady);
-  }, [isReady]);
+    const editor = getQuillSafely();
+    return !!(editor && containerRef.current?.isConnected);
+  }, [getQuillSafely]);
 
-  // Verificação de foco
+  // Verificação de foco COM DOM SAFETY
   const isEditorFocused = useCallback((): boolean => {
     const quill = getQuillSafely();
-    if (!quill) return false;
+    if (!quill || !quill.root?.isConnected) return false;
     
-    return quill.hasFocus();
+    try {
+      return quill.hasFocus();
+    } catch (error) {
+      console.warn('🚫 RichTextEditor - error checking focus:', error);
+      return false;
+    }
   }, [getQuillSafely]);
+
+  // SAFE SELECTION HELPER
+  const safeSetSelection = useCallback((editor: any, range: any) => {
+    try {
+      if (!editor?.root?.isConnected) {
+        console.warn('🚫 RichTextEditor - cannot set selection: editor not connected');
+        return false;
+      }
+      editor.setSelection(range);
+      return true;
+    } catch (error) {
+      console.warn('🚫 RichTextEditor - error setting selection:', error);
+      return false;
+    }
+  }, []);
 
   useEffect(() => {
     setIsReady(true);
@@ -104,12 +133,18 @@ export const RichTextEditor = ({
               console.log('🎯 RichTextEditor - inserting image at cursor');
               const range = safeQuill.getSelection() || { index: 0 };
               safeQuill.insertEmbed(range.index, 'image', imageUrl);
-              safeQuill.setSelection(range.index + 1);
+              // Use safe selection with DOM guard
+              requestAnimationFrame(() => {
+                safeSetSelection(safeQuill, { index: range.index + 1 });
+              });
             } else {
               console.log('📌 RichTextEditor - inserting image at end');
               const length = safeQuill.getLength();
               safeQuill.insertEmbed(length - 1, 'image', imageUrl);
-              safeQuill.setSelection(length);
+              // Use safe selection with DOM guard
+              requestAnimationFrame(() => {
+                safeSetSelection(safeQuill, { index: length });
+              });
             }
           } catch (error) {
             console.error('🚨 RichTextEditor - error uploading image:', error);
@@ -119,7 +154,7 @@ export const RichTextEditor = ({
     } catch (error) {
       console.error('🚨 RichTextEditor - error in imageHandler:', error);
     }
-  }, [onImageUpload, getQuillSafely, isEditorFocused]);
+  }, [onImageUpload, getQuillSafely, isEditorFocused, safeSetSelection]);
 
   const modules = useMemo(() => ({
     toolbar: {

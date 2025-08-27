@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useEditorState } from '@/hooks/useEditorState';
 import { RichTextEditor } from './RichTextEditor';
 
@@ -24,17 +24,9 @@ export const StableRichTextEditor: React.FC<StableRichTextEditorProps> = ({
   loading = false,
   articleId
 }) => {
-  const [editorKey, setEditorKey] = useState<string>(`editor-${Date.now()}`);
+  // STABLE KEY - never changes after initialization to prevent remounts
+  const editorKey = useMemo(() => `editor-stable-${Date.now()}`, []);
   const lastArticleIdRef = useRef<string | undefined>(articleId);
-  
-  // Reset apenas quando o articleId muda drasticamente
-  useEffect(() => {
-    if (articleId && articleId !== lastArticleIdRef.current) {
-      console.log('🔄 StableRichTextEditor - articleId changed, resetting editor:', articleId);
-      lastArticleIdRef.current = articleId;
-      setEditorKey(`editor-${articleId}-${Date.now()}`);
-    }
-  }, [articleId]);
   
   // Estado interno do editor usando o hook personalizado
   const {
@@ -47,14 +39,18 @@ export const StableRichTextEditor: React.FC<StableRichTextEditorProps> = ({
     onContentChange: onChange
   });
   
-  // Sincronizar com mudanças externas com guard clause
+  // Sincronizar com mudanças externas - GUARD RIGOROSO para evitar loops
   useEffect(() => {
-    if (value && value !== contentRef.current && value.length > 0) {
+    if (
+      typeof value === 'string' && 
+      value !== contentRef.current && 
+      value.trim().length > 0 &&
+      !isDirty // Só sincroniza se não há mudanças locais
+    ) {
       console.log('📥 StableRichTextEditor - syncing external value change');
-      contentRef.current = value;
       setContent(value);
     }
-  }, [value, setContent, contentRef]);
+  }, [value, setContent, isDirty]);
   
   if (loading) {
     return (

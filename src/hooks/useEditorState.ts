@@ -16,27 +16,10 @@ interface UseEditorStateReturn {
 }
 
 /**
- * Cria hash UTF-8 seguro para comparação de conteúdo
+ * Comparação simples de conteúdo - removido hash complexo
  */
-const createContentHash = (content: string): string => {
-  try {
-    // Normalizar espaços em branco e criar hash simples
-    const normalized = content.replace(/\s+/g, ' ').trim();
-    
-    // Usar hash simples baseado em código de caractere
-    let hash = 0;
-    for (let i = 0; i < normalized.length; i++) {
-      const char = normalized.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Converter para 32bit integer
-    }
-    
-    return hash.toString(36);
-  } catch (error) {
-    console.warn('Erro ao criar hash de conteúdo:', error);
-    // Fallback para timestamp + comprimento
-    return `${Date.now()}_${content.length}`;
-  }
+const normalizeContent = (content: string): string => {
+  return content.replace(/\s+/g, ' ').trim();
 };
 
 /**
@@ -50,9 +33,9 @@ export const useEditorState = ({
   const dirtyRef = useRef<boolean>(false);
   const [isDirty, setIsDirty] = useState(false);
   
-  // Hash do conteúdo inicial para detecção mais precisa
-  const initialHashRef = useRef<string>(
-    createContentHash(initialContent || '')
+  // Conteúdo inicial normalizado para detecção simples
+  const initialContentRef = useRef<string>(
+    normalizeContent(initialContent || '')
   );
 
   const setContent = useCallback((content: string) => {
@@ -60,7 +43,7 @@ export const useEditorState = ({
     
     // Atualizar conteúdo e resetar estado dirty
     contentRef.current = content;
-    initialHashRef.current = createContentHash(content || '');
+    initialContentRef.current = normalizeContent(content || '');
     dirtyRef.current = false;
     setIsDirty(false);
   }, []);
@@ -69,9 +52,9 @@ export const useEditorState = ({
     // Sempre atualizar ref primeiro
     contentRef.current = content;
     
-    // Verificar se mudou em relação ao conteúdo inicial usando hash
-    const currentHash = createContentHash(content || '');
-    const reallyChanged = currentHash !== initialHashRef.current;
+    // Verificar se mudou em relação ao conteúdo inicial com comparação simples
+    const currentNormalized = normalizeContent(content || '');
+    const reallyChanged = currentNormalized !== initialContentRef.current;
     
     if (reallyChanged !== dirtyRef.current) {
       dirtyRef.current = reallyChanged;
@@ -83,11 +66,11 @@ export const useEditorState = ({
   }, [onContentChange]);
 
   const markClean = useCallback(() => {
-    console.log('🧹 useEditorState - marking as clean and updating initial hash');
+    console.log('🧹 useEditorState - marking as clean');
     
-    // Atualizar hash inicial para o conteúdo atual
+    // Atualizar conteúdo inicial normalizado
     const currentContent = contentRef.current || '';
-    initialHashRef.current = createContentHash(currentContent);
+    initialContentRef.current = normalizeContent(currentContent);
     
     dirtyRef.current = false;
     setIsDirty(false);
@@ -98,7 +81,7 @@ export const useEditorState = ({
     
     const safeInitialContent = initialContent || '';
     contentRef.current = safeInitialContent;
-    initialHashRef.current = createContentHash(safeInitialContent);
+    initialContentRef.current = normalizeContent(safeInitialContent);
     dirtyRef.current = false;
     setIsDirty(false);
     

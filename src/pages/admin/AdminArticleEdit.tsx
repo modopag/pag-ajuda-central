@@ -181,11 +181,12 @@ export default function AdminArticleEdit() {
     };
   }, [isValid, isSaving, id, handleSave]);
 
-  useEffect(() => {
-    if (article.title && article.content && !isLoading && !isSaving) {
-      saveDebounced();
-    }
-  }, [article, saveDebounced, isLoading, isSaving]);
+  // TEMPORARILY DISABLED - Auto-save causing editor issues
+  // useEffect(() => {
+  //   if (article.title && article.content && !isLoading && !isSaving) {
+  //     saveDebounced();
+  //   }
+  // }, [article, saveDebounced, isLoading, isSaving]);
 
   // Carregar dados iniciais
   useEffect(() => {
@@ -490,7 +491,7 @@ export default function AdminArticleEdit() {
         {/* Content Tab */}
         <div className={cn(
           "space-y-6",
-          activeTab !== 'content' && "opacity-0 pointer-events-none absolute inset-0"
+          activeTab !== 'content' && "hidden"
         )}>
           <Card>
             <CardHeader>
