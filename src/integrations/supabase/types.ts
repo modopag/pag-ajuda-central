@@ -246,6 +246,30 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          name: string | null
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          name?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       redirects: {
         Row: {
           created_at: string
@@ -393,6 +417,14 @@ export type Database = {
           title_text: string
         }
         Returns: string
+      }
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      is_current_user_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
       unaccent: {
         Args: { "": string }
