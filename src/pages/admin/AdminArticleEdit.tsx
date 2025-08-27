@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -15,7 +14,9 @@ import { useToast } from '@/hooks/use-toast';
 import { getDataAdapter } from '@/lib/data-adapter';
 import { StableRichTextEditor } from '@/components/admin/StableRichTextEditor';
 import { ImageUploader } from '@/components/admin/ImageUploader';
-import { PreviewModal } from '@/components/admin/PreviewModal';
+import { EnhancedPreviewModal } from '@/components/admin/EnhancedPreviewModal';
+import { EditorTabs } from '@/components/admin/EditorTabs';
+import { KeyboardShortcuts } from '@/components/admin/KeyboardShortcuts';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { useSlugValidation } from '@/hooks/useSlugValidation';
 import { validateSEO, calculateReadingTime, generateSlug, canPublish, extractFirstParagraph } from '@/utils/seoValidations';
@@ -62,7 +63,7 @@ export default function AdminArticleEdit() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
-  const [activeTab, setActiveTab] = useState('content');
+  const [activeTab, setActiveTab] = useState<'content' | 'seo'>('content');
   const [editorResetTrigger, setEditorResetTrigger] = useState(0); // Trigger para reset do editor se necessário
 
   // Validação de slug em tempo real
@@ -325,6 +326,12 @@ export default function AdminArticleEdit() {
 
   return (
     <div className="space-y-6">
+      {/* Keyboard Shortcuts Handler */}
+      <KeyboardShortcuts
+        onSave={() => handleSave()}
+        onSaveAndReview={() => handleSave('review')}
+        disabled={isSaving || !article.title?.trim()}
+      />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -384,8 +391,8 @@ export default function AdminArticleEdit() {
           Enviar para Revisão
         </Button>
         
-        {/* Preview & Publicar Modal */}
-        <PreviewModal
+        {/* Enhanced Preview & Publicar Modal */}
+        <EnhancedPreviewModal
           article={article}
           categories={categories}
           onPublish={async () => {
@@ -457,31 +464,18 @@ export default function AdminArticleEdit() {
         </Card>
       )}
 
-      {/* Editor com abas persistentes */}
+      {/* Enhanced Editor Tabs */}
+      <EditorTabs
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        seoValidations={seoValidations}
+        slugValidation={slugValidation}
+        hasContentErrors={!article.title?.trim() || !article.category_id}
+        hasUnsavedChanges={false} // You can implement this logic if needed
+      />
+
+      {/* Editor Content */}
       <div className="space-y-6">
-        {/* Tab Navigation - sempre visível */}
-        <div className="flex space-x-1 border-b">
-          <button
-            className={`px-4 py-2 font-medium text-sm rounded-t-lg transition-colors ${
-              activeTab === 'content'
-                ? 'bg-background text-foreground border-b-2 border-primary'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-            onClick={() => setActiveTab('content')}
-          >
-            Conteúdo
-          </button>
-          <button
-            className={`px-4 py-2 font-medium text-sm rounded-t-lg transition-colors ${
-              activeTab === 'seo'
-                ? 'bg-background text-foreground border-b-2 border-primary'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-            onClick={() => setActiveTab('seo')}
-          >
-            SEO
-          </button>
-        </div>
 
         {/* Content Tab - sempre renderizado, mas escondido quando não ativo */}
         <div className={activeTab === 'content' ? 'block space-y-6' : 'hidden'}>
