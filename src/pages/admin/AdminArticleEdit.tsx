@@ -119,6 +119,9 @@ export default function AdminArticleEdit() {
     }
 
     setIsSaving(true);
+    if (newStatus === 'published') {
+      setIsPublishing(true);
+    }
     try {
       const adapter = await getDataAdapter();
       const articleData = {
@@ -137,6 +140,11 @@ export default function AdminArticleEdit() {
       
       // Atualizar estado local com dados salvos
       setArticle(savedArticle);
+      
+      // Bloquear auto-save temporariamente após publicação
+      if (newStatus === 'published') {
+        setTimeout(() => setIsPublishing(false), 2000);
+      }
 
       // Atualizar tags
       // Remover todas as tags atuais
@@ -158,13 +166,15 @@ export default function AdminArticleEdit() {
         description: `Status: ${savedArticle.status}`
       });
     } catch (error) {
-      console.error('Erro ao salvar artigo:', error);
+      console.error('❌ AdminArticleEdit - Save failed:', error);
       toast({
         title: "Erro ao salvar",
-        variant: "destructive"
+        description: "Não foi possível salvar o artigo. Tente novamente.",
+        variant: "destructive",
       });
     } finally {
       setIsSaving(false);
+      setIsPublishing(false);
     }
   }, [article, id, readingTime, selectedTags, toast]);
 
@@ -193,7 +203,8 @@ export default function AdminArticleEdit() {
       return (draft: Partial<Article>) => {
         clearTimeout(timeoutId);
         timeoutId = setTimeout(async () => {
-          if (draft?.id && draft.title?.trim() && !isSaving) {
+          // Não fazer auto-save se estiver publicando ou se já está publicado
+          if (draft?.id && draft.title?.trim() && !isSaving && !isPublishing && draft.status !== 'published') {
             try {
               console.log('💾 AdminArticleEdit - Auto-saving draft');
               const adapter = await getDataAdapter();
@@ -202,7 +213,7 @@ export default function AdminArticleEdit() {
                 content: draft.content,
                 slug: draft.slug,
                 category_id: draft.category_id,
-                status: 'draft'
+                status: draft.status || 'draft' // Preservar status atual
               });
             } catch (error) {
               console.error('❌ AdminArticleEdit - Auto-save failed:', error);
@@ -211,7 +222,7 @@ export default function AdminArticleEdit() {
         }, 800);
       };
     },
-    [selectedTags, isSaving]
+    [selectedTags, isSaving, isPublishing]
   );
 
   useEffect(() => {
