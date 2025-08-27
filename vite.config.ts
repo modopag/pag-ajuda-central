@@ -23,37 +23,34 @@ export default defineConfig(({ mode }) => ({
     // Optimize bundle splitting for better performance
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          // Critical vendors - smallest chunks for public routes
-          if (id.includes('react/') || id.includes('react-dom/')) return 'react-core';
-          if (id.includes('react-router')) return 'router';
+        manualChunks: {
+          // Vendor chunks - optimized for public routes
+          'react-vendor': ['react', 'react-dom'],
+          'router-vendor': ['react-router-dom'],
+          'ui-vendor': ['@radix-ui/react-accordion', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
           
-          // UI components - medium priority
-          if (id.includes('@radix-ui') || id.includes('lucide-react')) return 'ui-lib';
+          // Separate heavy admin functionality - reduces public route bundle size
+          'admin-core': [
+            './src/pages/admin/AdminDashboard.tsx',
+            './src/pages/admin/AdminArticles.tsx',
+            './src/pages/admin/AdminCategories.tsx',
+            './src/pages/admin/AdminTags.tsx',
+            './src/pages/admin/AdminMedia.tsx',
+            './src/pages/admin/AdminSettings.tsx'
+          ],
           
-          // Admin routes - completely separate (not loaded on public)
-          if (id.includes('/admin/') || id.includes('AdminDashboard') || 
-              id.includes('AdminArticles') || id.includes('AdminCategories') || 
-              id.includes('AdminSettings') || id.includes('RichTextEditor')) {
-            return 'admin-bundle';
-          }
+          // Performance utilities - deferred loading
+          'performance-utils': [
+            './src/utils/performance.ts',
+            './src/utils/lighthouse.ts',
+            './src/utils/ga4Events.ts'
+          ],
           
-          // Performance monitoring - lazy loaded only when needed
-          if (id.includes('performance.ts') || id.includes('ga4Events') || 
-              id.includes('PerformanceMonitor')) return 'perf-monitor';
-              
-          // Form libraries - only when forms are used
-          if (id.includes('react-hook-form') || id.includes('zod') || 
-              id.includes('@hookform/resolvers')) return 'forms';
-              
-          // Query library - only when data fetching
-          if (id.includes('@tanstack/react-query')) return 'queries';
+          // Form libraries only when needed
+          'form-vendor': ['react-hook-form', '@hookform/resolvers', 'zod'],
           
-          // Supabase - separate chunk
-          if (id.includes('@supabase')) return 'supabase';
-          
-          // Node modules vendor
-          if (id.includes('node_modules')) return 'vendor';
+          // Query vendor only when needed  
+          'query-vendor': ['@tanstack/react-query']
         }
       }
     },

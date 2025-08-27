@@ -117,20 +117,15 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground font-sans;
-    /* Aggressive font-display: swap with immediate fallback for CLS prevention */
-    font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    /* Font-display: swap equivalent + system font fallback to prevent CLS */
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     font-display: swap;
-    /* Ensure consistent line-height to prevent CLS */
-    line-height: 1.6;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    /* Aggressive font-display: swap with system fallback */
-    font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    /* Font-display: swap + system font fallback to prevent CLS */
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     font-display: swap;
-    /* Consistent font metrics to prevent CLS */
-    font-feature-settings: 'kern' 1;
-    text-rendering: optimizeSpeed;
   }
 }
 

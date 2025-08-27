@@ -12,7 +12,7 @@ import { Link, useLocation } from "react-router-dom";
 import { SearchAutocomplete } from '@/components/SearchAutocomplete';
 import { SkipLink } from '@/components/SkipLink';
 import { useResilientCategories } from '@/hooks/useResilientCategories';
-import { ImageOptimizer } from '@/components/performance/ImageOptimizer';
+import logoBlack from "@/assets/modopag-logo-black.png";
 
 const Header = () => {
   const location = useLocation();
@@ -44,14 +44,16 @@ const Header = () => {
               className="flex items-center flex-shrink-0"
               aria-label="modoPAG - Central de Ajuda"
             >
-              <ImageOptimizer
-                src="/modopag-logo-black.webp"
+              <img 
+                src="/favicon.png"
                 alt="modoPAG - Central de Ajuda"
-                className="h-10 md:h-16 w-auto"
-                width={280}
-                height={60}
-                priority={true}
-                quality={90}
+                title="Ir para a página inicial"
+                className="h-12 md:h-14 w-auto"
+                width="56"
+                height="56"
+                loading="eager"
+                fetchPriority="high"
+                decoding="sync"
               />
             </Link>
             
