@@ -21,6 +21,7 @@ import { useAutoSave } from '@/hooks/useAutoSave';
 import { useSlugValidation } from '@/hooks/useSlugValidation';
 import { validateSEO, calculateReadingTime, generateSlug, canPublish, extractFirstParagraph } from '@/utils/seoValidations';
 import { SEOImageUploader } from '@/components/admin/SEOImageUploader';
+import { cn } from '@/lib/utils';
 import type { Article, Category, Tag, ArticleStatus, SEOImageData } from '@/types/admin';
 
 export default function AdminArticleEdit() {
@@ -477,14 +478,12 @@ export default function AdminArticleEdit() {
       {/* Editor Content */}
       <div className="space-y-6">
 
-        {/* Content Tab - sempre renderizado, usar opacity ao invés de hidden */}
+        {/* Content Tab */}
         <div 
-          className={`space-y-6 ${
-            activeTab === 'content' 
-              ? 'opacity-100 pointer-events-auto' 
-              : 'opacity-0 pointer-events-none absolute inset-0'
-          }`}
-          style={{ transition: 'opacity 0.2s ease-in-out' }}
+          className={cn(
+            "space-y-6",
+            activeTab !== 'content' && "hidden"
+          )}
         >
           <Card>
             <CardHeader>
@@ -596,7 +595,6 @@ export default function AdminArticleEdit() {
                 value={article.content || ''}
                 onChange={(value) => handleInputChange('content', value || '')}
                 onImageUpload={handleImageUpload}
-                isVisible={activeTab === 'content'}
                 loading={isLoading}
                 articleId={id}
               />
@@ -604,14 +602,12 @@ export default function AdminArticleEdit() {
           </Card>
         </div>
 
-        {/* SEO Tab - sempre renderizado, usar opacity ao invés de condicional */}
+        {/* SEO Tab */}
         <div 
-          className={`space-y-6 ${
-            activeTab === 'seo' 
-              ? 'opacity-100 pointer-events-auto' 
-              : 'opacity-0 pointer-events-none absolute inset-0'
-          }`}
-          style={{ transition: 'opacity 0.2s ease-in-out' }}
+          className={cn(
+            "space-y-6",
+            activeTab !== 'seo' && "hidden"
+          )}
         >
           <div className="space-y-6">
             <Card>

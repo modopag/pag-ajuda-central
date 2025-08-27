@@ -9,7 +9,6 @@ interface RichTextEditorProps {
   placeholder?: string;
   className?: string;
   onImageUpload?: (file: File, altText?: string) => Promise<string>;
-  isVisible?: boolean;
 }
 
 /**
@@ -21,8 +20,7 @@ export const RichTextEditor = ({
   onChange, 
   placeholder = "Escreva o conteúdo do artigo...",
   className,
-  onImageUpload,
-  isVisible = true
+  onImageUpload
 }: RichTextEditorProps) => {
   const quillRef = useRef<ReactQuill>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -38,71 +36,37 @@ export const RichTextEditor = ({
     return typeof value === 'string' ? value : String(value);
   }, [value]);
 
-  // FASE 3: Guard de visibilidade melhorado - considera opacity e pointer-events
-  const isEditorVisible = useCallback(() => {
-    try {
-      if (!containerRef.current) return false;
-      
-      // Verificar se está escondido via display:none ou visibility:hidden
-      const computedStyle = window.getComputedStyle(containerRef.current);
-      if (computedStyle.display === 'none' || computedStyle.visibility === 'hidden') {
-        return false;
-      }
-      
-      // NOVO: Verificar opacity e pointer-events para detectar escondido via CSS
-      const opacity = parseFloat(computedStyle.opacity || '1');
-      const pointerEvents = computedStyle.pointerEvents;
-      if (opacity <= 0.1 || pointerEvents === 'none') {
-        console.log('👁️ RichTextEditor - hidden via opacity/pointer-events:', { opacity, pointerEvents });
-        return false;
-      }
-      
-      // Verificar se tem dimensões
-      const rect = containerRef.current.getBoundingClientRect();
-      const hasSize = rect.width > 0 && rect.height > 0;
-      
-      console.log('👁️ RichTextEditor - visibility check:', { 
-        hasSize, 
-        opacity, 
-        pointerEvents, 
-        isVisible,
-        display: computedStyle.display
-      });
-      
-      return hasSize && isVisible;
-    } catch (error) {
-      console.warn('🚨 RichTextEditor - error checking visibility:', error);
+  // Verificação simples de disponibilidade do editor
+  const isEditorAvailable = useCallback((): boolean => {
+    if (!quillRef.current || !containerRef.current) return false;
+    
+    const container = containerRef.current;
+    
+    // Verificar se está oculto por display: none
+    const computedStyle = window.getComputedStyle(container);
+    if (computedStyle.display === 'none') {
+      console.log('🚫 RichTextEditor - hidden by display:none');
       return false;
     }
-  }, [isVisible]);
+    
+    return true;
+  }, []);
 
-  // FASE 2: Guard antes de qualquer operação do Quill
+  // Acesso seguro ao Quill
   const getQuillSafely = useCallback(() => {
-    try {
-      const quill = quillRef.current?.getEditor();
-      if (!quill || !isEditorVisible()) {
-        console.log('🚫 RichTextEditor - Quill operation blocked: editor not visible');
-        return null;
-      }
-      return quill;
-    } catch (error) {
-      console.warn('🚨 RichTextEditor - error getting Quill safely:', error);
+    if (!isEditorAvailable()) {
+      console.log('⚠️ RichTextEditor - attempted to access Quill while not available');
       return null;
     }
-  }, [isEditorVisible]);
+    return quillRef.current?.getEditor();
+  }, [isEditorAvailable]);
 
-  // Verificar se o editor está focado COM guard
-  const isEditorFocused = useCallback(() => {
-    try {
-      const quill = getQuillSafely();
-      if (!quill) return false;
-      
-      const selection = quill.getSelection();
-      return selection !== null && document.activeElement?.closest('.ql-editor') !== null;
-    } catch (error) {
-      console.warn('🚨 RichTextEditor - error checking focus:', error);
-      return false;
-    }
+  // Verificação de foco
+  const isEditorFocused = useCallback((): boolean => {
+    const quill = getQuillSafely();
+    if (!quill) return false;
+    
+    return quill.hasFocus();
   }, [getQuillSafely]);
 
   // Montagem controlada
@@ -122,26 +86,13 @@ export const RichTextEditor = ({
     };
   }, []);
 
-  // FASE 2: Handler para mudanças COM proteção
-  const handleChange = useCallback((content: string) => {
-    try {
-      // Só processar se o editor está visível
-      if (!isEditorVisible()) {
-        console.log('🚫 RichTextEditor - change blocked: editor not visible');
-        return;
-      }
-      
-      // Verificar se o conteúdo realmente mudou
-      if (content !== safeValue) {
-        console.log('📝 RichTextEditor - content changed, propagating');
-        onChange(content || '');
-        setHasError(false);
-      }
-    } catch (error) {
-      console.error('🚨 RichTextEditor - error in handleChange:', error);
-      setHasError(true);
-    }
-  }, [onChange, safeValue, isEditorVisible]);
+  // Manipulação de mudanças
+  const handleChange = useCallback((content: string, delta: any, source: string, editor: any) => {
+    if (source !== 'user') return;
+    
+    console.log('📝 RichTextEditor - handleChange from user:', content.slice(0, 100) + '...');
+    onChange(content);
+  }, [onChange]);
   
   // FASE 2: Image handler COM guards
   const imageHandler = useCallback(() => {
@@ -223,42 +174,26 @@ export const RichTextEditor = ({
     'link', 'image', 'blockquote', 'code-block', 'align'
   ];
 
-  // FASE 2: Focus/Blur handlers COM guards
+  // Focus/Blur handlers
   const handleFocus = useCallback(() => {
-    try {
-      if (isEditorVisible()) {
-        console.log('👁️ RichTextEditor - focused');
-        setHasError(false);
-      }
-    } catch (error) {
-      console.warn('🚨 RichTextEditor - error on focus:', error);
-    }
-  }, [isEditorVisible]);
-
-  const handleBlur = useCallback(() => {
-    try {
-      console.log('👋 RichTextEditor - blurred');
-    } catch (error) {
-      console.warn('🚨 RichTextEditor - error on blur:', error);
-    }
+    console.log('👁️ RichTextEditor - focused');
+    setHasError(false);
   }, []);
 
-  // FASE 3: Container com opacity ao invés de invisible/absolute
+  const handleBlur = useCallback(() => {
+    console.log('👋 RichTextEditor - blurred');
+  }, []);
+
+  // Container sempre visível
   const containerClass = cn(
     "prose-editor min-h-[400px]", // Altura mínima fixa para reduzir CLS
     className
   );
-  
-  const containerStyle = {
-    opacity: isVisible ? 1 : 0,
-    pointerEvents: isVisible ? 'auto' : 'none',
-    transition: 'opacity 0.2s ease-in-out'
-  } as React.CSSProperties;
 
   // Loading state
   if (!isMounted || !isReady) {
     return (
-      <div className={containerClass} style={containerStyle} ref={containerRef}>
+      <div className={containerClass} ref={containerRef}>
         <div className="flex items-center justify-center h-96 border rounded-md">
           <div className="text-center">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2"></div>
@@ -272,7 +207,7 @@ export const RichTextEditor = ({
   // Error state
   if (hasError) {
     return (
-      <div className={containerClass} style={containerStyle} ref={containerRef}>
+      <div className={containerClass} ref={containerRef}>
         <div className="flex items-center justify-center h-96 border rounded-md border-red-200 bg-red-50">
           <div className="text-center">
             <div className="text-red-600 mb-2">⚠️ Erro no editor</div>
@@ -294,9 +229,7 @@ export const RichTextEditor = ({
 
   console.log('🎨 RichTextEditor - rendering ReactQuill:', { 
     safeValueLength: safeValue.length, 
-    isReady, 
-    isVisible,
-    isEditorVisible: isEditorVisible()
+    isReady
   });
 
   return (
@@ -328,7 +261,7 @@ export const RichTextEditor = ({
           }
         `
       }} />
-      <div className={containerClass} style={containerStyle} ref={containerRef}>
+      <div className={containerClass} ref={containerRef}>
         <ReactQuill
           ref={quillRef}
           theme="snow"

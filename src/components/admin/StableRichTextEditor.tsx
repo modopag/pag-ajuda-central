@@ -11,7 +11,6 @@ interface StableRichTextEditorProps {
   placeholder?: string;
   className?: string;
   onImageUpload?: (file: File, altText?: string) => Promise<string>;
-  isVisible?: boolean;
   loading?: boolean;
   articleId?: string;
 }
@@ -27,7 +26,6 @@ export const StableRichTextEditor = ({
   placeholder,
   className,
   onImageUpload,
-  isVisible = true,
   loading = false,
   articleId
 }: StableRichTextEditorProps) => {
@@ -71,21 +69,15 @@ export const StableRichTextEditor = ({
     }
   }, [value, hasInitialized, editorState]);
 
-  // FASE 3: Container com opacity para manter no DOM mas esconder visualmente
-  // Remove qualquer transição CSS que possa causar conflitos
+  // Container estável que sempre permanece no DOM
   const containerClasses = cn(
-    "relative min-h-[480px] w-full transition-opacity duration-200", // Altura fixa para reduzir CLS
+    "relative min-h-[480px] w-full", // Altura fixa para reduzir CLS
     className
   );
 
-  const containerStyle = {
-    opacity: isVisible ? 1 : 0,
-    pointerEvents: isVisible ? 'auto' : 'none'
-  } as React.CSSProperties;
-
   if (loading) {
     return (
-      <div className={containerClasses} style={containerStyle}>
+      <div className={containerClasses}>
         <div className="flex items-center justify-center h-96 border rounded-md">
           <div className="text-center">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2"></div>
@@ -97,14 +89,13 @@ export const StableRichTextEditor = ({
   }
 
   console.log('🎨 StableRichTextEditor - rendering:', { 
-    isVisible, 
     hasInitialized, 
     isDirty: editorState.isDirty,
     contentLength: editorState.contentRef.current?.length || 0
   });
 
   return (
-    <div className={containerClasses} style={containerStyle}>
+    <div className={containerClasses}>
       {/* FASE 3: Lazy loading do ReactQuill para melhor performance */}
       <Suspense fallback={
         <div className="flex items-center justify-center h-96 border rounded-md">
@@ -114,13 +105,12 @@ export const StableRichTextEditor = ({
           </div>
         </div>
       }>
-        {/* Editor sempre montado, mas escondido quando não visível */}
+        {/* Editor sempre montado e visível */}
         <RichTextEditor
           value={editorState.contentRef.current}
           onChange={handleContentChange}
           placeholder={placeholder}
           onImageUpload={onImageUpload}
-          isVisible={isVisible}
         />
       </Suspense>
       
