@@ -49,8 +49,9 @@ const Header = () => {
                 alt="modoPAG - Central de Ajuda"
                 title="Ir para a página inicial"
                 className="h-12 md:h-14 w-auto"
-                width="56"
-                height="56"
+                width="48"
+                height="48"
+                style={{ width: '48px', height: '48px', maxWidth: '56px', maxHeight: '56px' }}
                 loading="eager"
                 fetchPriority="high"
                 decoding="sync"
