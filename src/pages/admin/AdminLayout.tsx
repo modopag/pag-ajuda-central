@@ -3,20 +3,21 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminHeader } from "@/components/admin/AdminHeader";
-import { AuthService } from "@/lib/auth";
+import { useAuth } from '@/hooks/useAuth';
 
 export default function AdminLayout() {
   const navigate = useNavigate();
+  const { user, loading, isAdmin } = useAuth();
 
   useEffect(() => {
     // Check authentication on mount and redirect if not authenticated
-    if (!AuthService.isAuthenticated()) {
-      navigate("/admin/login");
+    if (!loading && (!user || !isAdmin())) {
+      navigate("/auth");
     }
-  }, [navigate]);
+  }, [user, loading, isAdmin, navigate]);
 
-  // Don't render anything if not authenticated
-  if (!AuthService.isAuthenticated()) {
+  // Don't render anything if loading or not authenticated
+  if (loading || !user || !isAdmin()) {
     return null;
   }
 

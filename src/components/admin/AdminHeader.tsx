@@ -11,26 +11,24 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useToast } from "@/hooks/use-toast";
-import { AuthService } from "@/lib/auth";
+import { useAuth } from "@/hooks/useAuth";
 import { User, LogOut, Settings } from "lucide-react";
 
 export function AdminHeader() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  
-  const user = AuthService.getCurrentUser();
+  const { user, profile, signOut } = useAuth();
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
     
     try {
-      await AuthService.logout();
+      await signOut();
       toast({
         title: "Logout realizado com sucesso!",
         description: "Até logo!",
       });
-      navigate("/admin/login");
     } catch (error) {
       toast({
         title: "Erro ao fazer logout",
@@ -62,15 +60,15 @@ export function AdminHeader() {
                 <User className="w-4 h-4 text-primary-foreground" />
               </div>
               <div className="hidden md:block text-left">
-                <p className="text-sm font-medium">{user?.name}</p>
-                <p className="text-xs text-muted-foreground">{user?.role}</p>
+                <p className="text-sm font-medium">{profile?.name || user?.email}</p>
+                <p className="text-xs text-muted-foreground">{profile?.role}</p>
               </div>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 bg-popover border border-border">
             <DropdownMenuLabel>
               <div>
-                <p className="font-medium">{user?.name}</p>
+                <p className="font-medium">{profile?.name || user?.email || 'Admin'}</p>
                 <p className="text-xs text-muted-foreground">{user?.email}</p>
               </div>
             </DropdownMenuLabel>

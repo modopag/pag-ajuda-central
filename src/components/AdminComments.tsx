@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MessageSquare, Plus, User, MessageCircle, ThumbsDown } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { AuthService } from '@/lib/auth';
+import { useAuth } from '@/hooks/useAuth';
 import type { Feedback } from '@/types/admin';
 
 interface Comment {
@@ -21,6 +21,7 @@ interface AdminCommentsProps {
 }
 
 const AdminComments = ({ articleId }: AdminCommentsProps) => {
+  const { isAdmin, profile, user } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
   const [userFeedback, setUserFeedback] = useState<Feedback[]>([]);
   const [newComment, setNewComment] = useState('');
@@ -29,8 +30,7 @@ const AdminComments = ({ articleId }: AdminCommentsProps) => {
   const [activeTab, setActiveTab] = useState<'comments' | 'feedback'>('comments');
 
   // Only show for authenticated admin users
-  const currentUser = AuthService.getCurrentUser();
-  if (!currentUser || currentUser.role !== 'admin') {
+  if (!isAdmin()) {
     return null;
   }
 
@@ -61,7 +61,7 @@ const AdminComments = ({ articleId }: AdminCommentsProps) => {
       const comment: Comment = {
         id: Date.now().toString(),
         content: newComment,
-        author: 'Admin',
+        author: profile?.name || user?.email || 'Admin',
         createdAt: new Date().toISOString()
       };
 

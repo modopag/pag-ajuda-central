@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { sanitizeHtml } from '@/utils/htmlSanitizer';
 import NotFound from './NotFound';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -29,11 +30,12 @@ import {
 } from "@/components/ui/breadcrumb";
 import { handleArticleLike, handleArticleShare, isArticleLiked } from '@/utils/articleActions';
 import AdminComments from '@/components/AdminComments';
-import { AuthService } from '@/lib/auth';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function ArticleSilo() {
   const { categorySlug, articleSlug } = useParams<{ categorySlug: string; articleSlug: string }>();
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
   const [article, setArticle] = useState<Article | null>(null);
   const [category, setCategory] = useState<Category | null>(null);
   const [tags, setTags] = useState<Tag[]>([]);
@@ -408,7 +410,7 @@ export default function ArticleSilo() {
                 <CardContent className="p-4 sm:p-6 md:p-8 lg:p-12">
                   <div 
                     className="prose prose-sm sm:prose-base lg:prose-lg max-w-none article-content lazy-images"
-                    dangerouslySetInnerHTML={{ __html: article.content }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content) }}
                   />
                 </CardContent>
               </Card>
@@ -431,7 +433,7 @@ export default function ArticleSilo() {
                 <ArticleFeedback articleId={article.id.toString()} />
 
                 {/* Admin Comments - Only visible to authenticated admins */}
-                {AuthService.isAuthenticated() && AuthService.getCurrentUser()?.role === 'admin' && (
+                {isAdmin() && (
                   <AdminComments articleId={article.id.toString()} />
                 )}
               </div>

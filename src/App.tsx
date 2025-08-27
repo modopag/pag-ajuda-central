@@ -27,9 +27,9 @@ const Sitemap = lazy(() => import("./pages/Sitemap"));
 const RobotsTxt = lazy(() => import("./pages/RobotsTxt"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const PoliticasPrivacidade = lazy(() => import("./pages/PoliticasPrivacidade"));
+const AuthPage = lazy(() => import("./pages/auth/AuthPage"));
 
 // Lazy load admin pages
-const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminArticles = lazy(() => import("./pages/admin/AdminArticles"));
@@ -75,8 +75,10 @@ const AppContent = () => {
           <Route path="/politicas-de-privacidade" element={<PoliticasPrivacidade />} />
           <Route path="/gone" element={<Gone />} />
           
+          {/* Auth Route */}
+          <Route path="/auth" element={<AuthPage />} />
+          
           {/* Admin Routes */}
-          <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="articles" element={<AdminArticles />} />
