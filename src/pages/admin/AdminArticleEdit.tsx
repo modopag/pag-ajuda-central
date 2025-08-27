@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Send, Copy, AlertCircle, CheckCircle, AlertTriangle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,6 @@ import { ImageUploader } from '@/components/admin/ImageUploader';
 import { EnhancedPreviewModal } from '@/components/admin/EnhancedPreviewModal';
 import { EditorTabs } from '@/components/admin/EditorTabs';
 import { KeyboardShortcuts } from '@/components/admin/KeyboardShortcuts';
-import { useAutoSave } from '@/hooks/useAutoSave';
 import { useSlugValidation } from '@/hooks/useSlugValidation';
 import { validateSEO, calculateReadingTime, generateSlug, canPublish, extractFirstParagraph } from '@/utils/seoValidations';
 import { SEOImageUploader } from '@/components/admin/SEOImageUploader';
@@ -86,26 +85,10 @@ export default function AdminArticleEdit() {
     return calculateReadingTime(article.content || '');
   }, [article.content]);
 
-  // Auto-save temporarily disabled to fix editor issues
-  // Will be re-enabled after editor stability is confirmed
-  /*
-  useAutoSave({
-    data: article,
-    onSave: async (data) => {
-      try {
-        if (id && data.title?.trim()) {
-          const adapter = await getDataAdapter();
-          await adapter.updateArticle(id, { ...data, reading_time_minutes: readingTime });
-          console.log('✅ AdminArticleEdit - auto-save successful');
-        }
-      } catch (error) {
-        console.error('🚨 AdminArticleEdit - auto-save error (not blocking UI):', error);
-        // Não bloquear a UI em caso de erro de auto-save
-      }
-    },
-    enabled: !!id && !!article.title?.trim()
-  });
-  */
+  // Auto-save simplificado com debounce
+  const isValid = useMemo(() => {
+    return !!(article.title?.trim() && article.category_id && slugValidation.isValid);
+  }, [article.title, article.category_id, slugValidation.isValid]);
 
   // FASE 2: Handler de mudança de input com debounce implícito
   const handleInputChange = (field: keyof Article, value: any) => {
@@ -116,6 +99,93 @@ export default function AdminArticleEdit() {
       return newState;
     });
   };
+
+  const handleSave = useCallback(async (newStatus?: ArticleStatus) => {
+    if (!article.title?.trim()) {
+      toast({
+        title: "Título é obrigatório",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!article.category_id) {
+      toast({
+        title: "Categoria é obrigatória",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const adapter = await getDataAdapter();
+      const articleData = {
+        ...article,
+        status: newStatus || article.status || 'draft',
+        reading_time_minutes: readingTime,
+        published_at: newStatus === 'published' ? new Date().toISOString() : article.published_at
+      } as Article;
+
+      // Sempre fazer UPDATE (nunca INSERT)
+      if (!id) {
+        throw new Error('ID do artigo é obrigatório');
+      }
+      
+      const savedArticle = await adapter.updateArticle(id, articleData);
+
+      // Atualizar tags
+      // Remover todas as tags atuais
+      const currentTags = await adapter.getArticleTags(savedArticle.id);
+      for (const tag of currentTags) {
+        await adapter.removeTagFromArticle(savedArticle.id, tag.id);
+      }
+
+      // Adicionar novas tags
+      for (const tagId of selectedTags) {
+        await adapter.addTagToArticle(savedArticle.id, tagId);
+      }
+
+      // Marcar editor como limpo após save bem-sucedido
+      setEditorResetTrigger(prev => prev + 1);
+      
+      toast({
+        title: "Artigo atualizado",
+        description: `Status: ${savedArticle.status}`
+      });
+    } catch (error) {
+      console.error('Erro ao salvar artigo:', error);
+      toast({
+        title: "Erro ao salvar",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  }, [article, id, readingTime, selectedTags, toast]);
+
+  const saveDebounced = useMemo(() => {
+    let timeoutId: NodeJS.Timeout;
+    return () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(async () => {
+        if (isValid && !isSaving && id) {
+          try {
+            console.log('🔄 Auto-saving article...');
+            await handleSave();
+          } catch (error) {
+            console.error('Auto-save failed:', error);
+          }
+        }
+      }, 2000);
+    };
+  }, [isValid, isSaving, id, handleSave]);
+
+  useEffect(() => {
+    if (article.title && article.content && !isLoading && !isSaving) {
+      saveDebounced();
+    }
+  }, [article, saveDebounced, isLoading, isSaving]);
 
   // Carregar dados iniciais
   useEffect(() => {
@@ -200,70 +270,6 @@ export default function AdminArticleEdit() {
       };
       reader.readAsDataURL(file);
     });
-  };
-
-  const handleSave = async (newStatus?: ArticleStatus) => {
-    if (!article.title?.trim()) {
-      toast({
-        title: "Título é obrigatório",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!article.category_id) {
-      toast({
-        title: "Categoria é obrigatória",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const adapter = await getDataAdapter();
-      const articleData = {
-        ...article,
-        status: newStatus || article.status || 'draft',
-        reading_time_minutes: readingTime,
-        published_at: newStatus === 'published' ? new Date().toISOString() : article.published_at
-      } as Article;
-
-      // Sempre fazer UPDATE (nunca INSERT)
-      if (!id) {
-        throw new Error('ID do artigo é obrigatório');
-      }
-      
-      const savedArticle = await adapter.updateArticle(id, articleData);
-
-      // Atualizar tags
-      // Remover todas as tags atuais
-      const currentTags = await adapter.getArticleTags(savedArticle.id);
-      for (const tag of currentTags) {
-        await adapter.removeTagFromArticle(savedArticle.id, tag.id);
-      }
-
-      // Adicionar novas tags
-      for (const tagId of selectedTags) {
-        await adapter.addTagToArticle(savedArticle.id, tagId);
-      }
-
-      // Marcar editor como limpo após save bem-sucedido
-      setEditorResetTrigger(prev => prev + 1);
-      
-      toast({
-        title: "Artigo atualizado",
-        description: `Status: ${savedArticle.status}`
-      });
-    } catch (error) {
-      console.error('Erro ao salvar artigo:', error);
-      toast({
-        title: "Erro ao salvar",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSaving(false);
-    }
   };
 
   const handleDuplicate = async () => {
@@ -482,12 +488,10 @@ export default function AdminArticleEdit() {
       <div className="space-y-6">
 
         {/* Content Tab */}
-        <div 
-          className={cn(
-            "space-y-6",
-            activeTab !== 'content' && "hidden"
-          )}
-        >
+        <div className={cn(
+          "space-y-6",
+          activeTab !== 'content' && "opacity-0 pointer-events-none absolute inset-0"
+        )}>
           <Card>
             <CardHeader>
               <CardTitle>Informações Básicas</CardTitle>
@@ -606,12 +610,10 @@ export default function AdminArticleEdit() {
         </div>
 
         {/* SEO Tab */}
-        <div 
-          className={cn(
-            "space-y-6",
-            activeTab !== 'seo' && "hidden"
-          )}
-        >
+        <div className={cn(
+          "space-y-6", 
+          activeTab !== 'seo' && "opacity-0 pointer-events-none absolute inset-0"
+        )}>
           <div className="space-y-6">
             <Card>
               <CardHeader>

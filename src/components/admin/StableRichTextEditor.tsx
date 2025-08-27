@@ -47,10 +47,11 @@ export const StableRichTextEditor: React.FC<StableRichTextEditorProps> = ({
     onContentChange: onChange
   });
   
-  // Sincronizar com mudanças externas apenas se necessário
+  // Sincronizar com mudanças externas com guard clause
   useEffect(() => {
-    if (value !== contentRef.current) {
+    if (value && value !== contentRef.current && value.length > 0) {
       console.log('📥 StableRichTextEditor - syncing external value change');
+      contentRef.current = value;
       setContent(value);
     }
   }, [value, setContent, contentRef]);

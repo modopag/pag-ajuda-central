@@ -56,7 +56,7 @@ export const useEditorState = ({
   );
 
   const setContent = useCallback((content: string) => {
-    console.log('📝 useEditorState - setContent (external):', { content: content.slice(0, 50) + '...' });
+    console.log('📝 useEditorState - setContent (external)');
     
     // Atualizar conteúdo e resetar estado dirty
     contentRef.current = content;
@@ -66,11 +66,6 @@ export const useEditorState = ({
   }, []);
 
   const handleContentChange = useCallback((content: string) => {
-    console.log('🔄 useEditorState - handleContentChange (from editor):', { 
-      contentLength: content.length,
-      previousLength: contentRef.current.length
-    });
-    
     // Sempre atualizar ref primeiro
     contentRef.current = content;
     
@@ -81,7 +76,6 @@ export const useEditorState = ({
     if (reallyChanged !== dirtyRef.current) {
       dirtyRef.current = reallyChanged;
       setIsDirty(reallyChanged);
-      console.log(`${reallyChanged ? '✏️' : '✅'} useEditorState - marked as ${reallyChanged ? 'dirty' : 'clean'}`);
     }
     
     // Sempre propagar mudanças para o componente pai

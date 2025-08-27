@@ -25,8 +25,6 @@ export const RichTextEditor = ({
   const quillRef = useRef<ReactQuill>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isReady, setIsReady] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
-  const [hasError, setHasError] = useState(false);
   
   // Garantir que o valor nunca seja undefined
   const safeValue = useMemo(() => {
@@ -36,19 +34,16 @@ export const RichTextEditor = ({
     return typeof value === 'string' ? value : String(value);
   }, [value]);
 
-  // Acesso seguro ao Quill
   const getQuillSafely = useCallback(() => {
-    if (!isReady || !isMounted || !quillRef.current || !containerRef.current) {
-      console.log('⚠️ RichTextEditor - attempted to access Quill while not available');
+    if (!isReady || !quillRef.current || !containerRef.current) {
       return null;
     }
     return quillRef.current?.getEditor();
-  }, [isReady, isMounted]);
+  }, [isReady]);
 
-  // Verificações simplificadas de disponibilidade do editor
   const isEditorAvailable = useCallback(() => {
-    return !!(quillRef.current && containerRef.current && isReady && isMounted);
-  }, [isReady, isMounted]);
+    return !!(quillRef.current && containerRef.current && isReady);
+  }, [isReady]);
 
   // Verificação de foco
   const isEditorFocused = useCallback((): boolean => {
@@ -58,33 +53,14 @@ export const RichTextEditor = ({
     return quill.hasFocus();
   }, [getQuillSafely]);
 
-  // Montagem controlada
   useEffect(() => {
-    console.log('🚀 RichTextEditor - component mounted');
-    setIsMounted(true);
-    
-    // Delay para garantir DOM pronto
-    const timer = setTimeout(() => {
-      setIsReady(true);
-      console.log('✅ RichTextEditor - marked as ready');
-    }, 100); // Reduzido de 200ms para melhor performance
-
-    return () => {
-      console.log('💀 RichTextEditor - component unmounting');
-      clearTimeout(timer);
-      setIsMounted(false);
-    };
+    setIsReady(true);
   }, []);
 
-  // Debug do ciclo de vida do editor
+  // Debug simplificado
   useEffect(() => {
-    console.log('🔍 RichTextEditor - state change:', {
-      isMounted,
-      isReady,
-      hasError,
-      safeValueLength: safeValue.length
-    });
-  }, [isMounted, isReady, hasError, safeValue.length]);
+    console.log('🔍 RichTextEditor - ready:', { isReady, safeValueLength: safeValue.length });
+  }, [isReady, safeValue.length]);
 
   // Manipulação de mudanças
   const handleChange = useCallback((content: string, delta: any, source: string, editor: any) => {
@@ -137,13 +113,11 @@ export const RichTextEditor = ({
             }
           } catch (error) {
             console.error('🚨 RichTextEditor - error uploading image:', error);
-            setHasError(true);
           }
         }
       };
     } catch (error) {
       console.error('🚨 RichTextEditor - error in imageHandler:', error);
-      setHasError(true);
     }
   }, [onImageUpload, getQuillSafely, isEditorFocused]);
 
@@ -174,10 +148,8 @@ export const RichTextEditor = ({
     'link', 'image', 'blockquote', 'code-block', 'align'
   ];
 
-  // Focus/Blur handlers
   const handleFocus = useCallback(() => {
     console.log('👁️ RichTextEditor - focused');
-    setHasError(false);
   }, []);
 
   const handleBlur = useCallback(() => {
@@ -190,39 +162,10 @@ export const RichTextEditor = ({
     className
   );
 
-  // Loading state
-  if (!isMounted || !isReady) {
+  if (!isReady) {
     return (
-      <div className={containerClass} ref={containerRef}>
-        <div className="flex items-center justify-center h-96 border rounded-md">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2"></div>
-            <div className="text-muted-foreground text-sm">Carregando editor...</div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Error state
-  if (hasError) {
-    return (
-      <div className={containerClass} ref={containerRef}>
-        <div className="flex items-center justify-center h-96 border rounded-md border-red-200 bg-red-50">
-          <div className="text-center">
-            <div className="text-red-600 mb-2">⚠️ Erro no editor</div>
-            <button 
-              onClick={() => {
-                setHasError(false);
-                setIsReady(false);
-                setTimeout(() => setIsReady(true), 100);
-              }}
-              className="text-sm text-blue-600 hover:underline"
-            >
-              Tentar novamente
-            </button>
-          </div>
-        </div>
+      <div className="min-h-[520px] flex items-center justify-center border border-border rounded-md bg-muted/50">
+        <div className="text-sm text-muted-foreground">Carregando editor...</div>
       </div>
     );
   }
