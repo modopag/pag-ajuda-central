@@ -18,7 +18,7 @@ export const WebVitalsReporter = () => {
     if (!import.meta.env.PROD || !canTrack) return;
 
     // Dynamically import web-vitals to avoid bundling in development
-    import('web-vitals').then(({ getCLS, getFCP, getFID, getLCP, getTTFB }) => {
+    import('web-vitals').then(({ onCLS, onFCP, onINP, onLCP, onTTFB }) => {
       const sendMetric = (metric: any) => {
         const webVitalsData: WebVitalsMetric = {
           name: metric.name,
@@ -50,11 +50,11 @@ export const WebVitalsReporter = () => {
       };
 
       // Measure all Core Web Vitals
-      getCLS(sendMetric);
-      getFCP(sendMetric);
-      getFID(sendMetric);
-      getLCP(sendMetric);
-      getTTFB(sendMetric);
+      onCLS(sendMetric);
+      onFCP(sendMetric);
+      onINP(sendMetric); // INP replaced FID in web-vitals v4+
+      onLCP(sendMetric);
+      onTTFB(sendMetric);
 
     }).catch(() => {
       // Silent fail if web-vitals import fails
