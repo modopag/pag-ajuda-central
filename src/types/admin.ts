@@ -191,6 +191,17 @@ export interface FAQ {
   updated_at: string;
 }
 
+export interface ArticleFAQ {
+  id: string;
+  article_id: string;
+  question: string;
+  answer: string;
+  position: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface DataAdapter {
   // Categories
   getCategories(): Promise<Category[]>;
@@ -255,6 +266,12 @@ export interface DataAdapter {
   createFAQ(faq: Omit<FAQ, 'id' | 'created_at' | 'updated_at'>): Promise<FAQ>;
   updateFAQ(id: string, updates: Partial<FAQ>): Promise<FAQ>;
   deleteFAQ(id: string): Promise<void>;
+  
+  // Article FAQs
+  getArticleFAQs(articleId: string): Promise<ArticleFAQ[]>;
+  createArticleFAQ(faq: Omit<ArticleFAQ, 'id' | 'created_at' | 'updated_at'>): Promise<ArticleFAQ>;
+  updateArticleFAQ(id: string, faq: Partial<ArticleFAQ>): Promise<ArticleFAQ>;
+  deleteArticleFAQ(id: string): Promise<void>;
 
   // Data management
   exportData(): Promise<string>; // JSON export

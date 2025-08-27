@@ -1,6 +1,6 @@
 // Mock adapter for local data persistence using localStorage
 
-import type { DataAdapter, Category, Article, Tag, ArticleTag, Media, Redirect, Feedback, User, Setting, AnalyticsEvent, SlugHistoryEntry, FAQ } from '@/types/admin';
+import type { DataAdapter, Category, Article, Tag, ArticleTag, Media, Redirect, Feedback, User, Setting, AnalyticsEvent, SlugHistoryEntry, FAQ, ArticleFAQ } from '@/types/admin';
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -1166,5 +1166,45 @@ export class MockAdapter implements DataAdapter {
     const faqs = this.getStorageData<FAQ>('faqs', []);
     const filtered = faqs.filter(f => f.id !== id);
     localStorage.setItem('faqs', JSON.stringify(filtered));
+  }
+
+  // Article FAQs methods
+  async getArticleFAQs(articleId: string): Promise<ArticleFAQ[]> {
+    const articleFAQs = this.getStorageData<ArticleFAQ>('article_faqs', []);
+    return articleFAQs.filter(f => f.article_id === articleId && f.is_active);
+  }
+
+  async createArticleFAQ(faq: Omit<ArticleFAQ, 'id' | 'created_at' | 'updated_at'>): Promise<ArticleFAQ> {
+    const articleFAQs = this.getStorageData<ArticleFAQ>('article_faqs', []);
+    const newFAQ: ArticleFAQ = {
+      ...faq,
+      id: this.generateId(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    articleFAQs.push(newFAQ);
+    this.setStorageData('article_faqs', articleFAQs);
+    return newFAQ;
+  }
+
+  async updateArticleFAQ(id: string, faq: Partial<ArticleFAQ>): Promise<ArticleFAQ> {
+    const articleFAQs = this.getStorageData<ArticleFAQ>('article_faqs', []);
+    const index = articleFAQs.findIndex(f => f.id === id);
+    if (index === -1) throw new Error('Article FAQ not found');
+    
+    const updatedFAQ = {
+      ...articleFAQs[index],
+      ...faq,
+      updated_at: new Date().toISOString(),
+    };
+    articleFAQs[index] = updatedFAQ;
+    this.setStorageData('article_faqs', articleFAQs);
+    return updatedFAQ;
+  }
+
+  async deleteArticleFAQ(id: string): Promise<void> {
+    const articleFAQs = this.getStorageData<ArticleFAQ>('article_faqs', []);
+    const filteredFAQs = articleFAQs.filter(f => f.id !== id);
+    this.setStorageData('article_faqs', filteredFAQs);
   }
 }

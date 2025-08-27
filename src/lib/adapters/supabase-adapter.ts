@@ -15,6 +15,7 @@ import type {
   ArticleStatus,
   RedirectType,
   FAQ,
+  ArticleFAQ,
   SEOImageData
 } from '@/types/admin';
 
@@ -640,5 +641,65 @@ export class SupabaseAdapter implements DataAdapter {
       .eq('id', id);
 
     if (error) throw error;
+  }
+
+  // Article FAQs methods
+  async getArticleFAQs(articleId: string): Promise<ArticleFAQ[]> {
+    const { data, error } = await supabase
+      .from('article_faqs')
+      .select('*')
+      .eq('article_id', articleId)
+      .eq('is_active', true)
+      .order('position');
+
+    if (error) {
+      console.error('Error fetching article FAQs:', error);
+      throw new Error(`Failed to fetch article FAQs: ${error.message}`);
+    }
+
+    return data || [];
+  }
+
+  async createArticleFAQ(faq: Omit<ArticleFAQ, 'id' | 'created_at' | 'updated_at'>): Promise<ArticleFAQ> {
+    const { data, error } = await supabase
+      .from('article_faqs')
+      .insert(faq)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating article FAQ:', error);
+      throw new Error(`Failed to create article FAQ: ${error.message}`);
+    }
+
+    return data;
+  }
+
+  async updateArticleFAQ(id: string, faq: Partial<ArticleFAQ>): Promise<ArticleFAQ> {
+    const { data, error } = await supabase
+      .from('article_faqs')
+      .update(faq)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating article FAQ:', error);
+      throw new Error(`Failed to update article FAQ: ${error.message}`);
+    }
+
+    return data;
+  }
+
+  async deleteArticleFAQ(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('article_faqs')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting article FAQ:', error);
+      throw new Error(`Failed to delete article FAQ: ${error.message}`);
+    }
   }
 }

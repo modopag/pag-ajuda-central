@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { getDataAdapter } from '@/lib/data-adapter';
+import { ArticleFAQManager } from '@/components/admin/ArticleFAQManager';
 import { EditorFactory } from '@/components/admin/EditorFactory';
 import { ImageUploader } from '@/components/admin/ImageUploader';
 import { EnhancedPreviewModal } from '@/components/admin/EnhancedPreviewModal';
@@ -63,7 +64,7 @@ export default function AdminArticleEdit() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'content' | 'seo'>('content');
+  const [activeTab, setActiveTab] = useState<'content' | 'seo' | 'faqs'>('content');
   const [editorResetTrigger, setEditorResetTrigger] = useState(0); // Trigger para reset do editor se necessário
 
   // Validação de slug em tempo real
@@ -430,6 +431,13 @@ export default function AdminArticleEdit() {
           Enviar para Revisão
         </Button>
         
+        <Button
+          onClick={() => handleSave('published')}
+          disabled={isSaving || !article.title?.trim() || !article.category_id || !slugValidation.isValid}
+        >
+          Publicar
+        </Button>
+        
         {/* Enhanced Preview & Publicar Modal */}
         <EnhancedPreviewModal
           article={article}
@@ -783,6 +791,23 @@ export default function AdminArticleEdit() {
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* FAQs Tab */}
+        <div className={cn(
+          "relative min-h-[520px] space-y-6",
+          activeTab !== 'faqs' && "opacity-0 pointer-events-none absolute inset-0"
+        )}
+        aria-hidden={activeTab !== 'faqs'}
+        >
+          <Card>
+            <CardHeader>
+              <CardTitle>FAQs do Artigo</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ArticleFAQManager articleId={id!} />
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

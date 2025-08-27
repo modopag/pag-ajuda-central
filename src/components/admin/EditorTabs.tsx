@@ -17,8 +17,8 @@ interface SlugValidationResult {
 }
 
 interface EditorTabsProps {
-  activeTab: 'content' | 'seo';
-  onTabChange: (tab: 'content' | 'seo') => void;
+  activeTab: 'content' | 'seo' | 'faqs';
+  onTabChange: (tab: 'content' | 'seo' | 'faqs') => void;
   seoValidations: ValidationResult[];
   slugValidation: SlugValidationResult;
   hasContentErrors?: boolean;
@@ -109,6 +109,19 @@ export function EditorTabs({
             </Badge>
           )}
         </button>
+
+        {/* FAQs Tab */}
+        <button
+          className={cn(
+            "relative px-6 py-4 font-medium text-sm transition-all duration-200 border-b-2 flex items-center gap-2",
+            activeTab === 'faqs'
+              ? "text-foreground border-primary bg-background"
+              : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/50"
+          )}
+          onClick={() => onTabChange('faqs')}
+        >
+          <span>FAQs do Artigo</span>
+        </button>
       </div>
       
       {/* Tab content indicator */}
@@ -136,6 +149,11 @@ export function EditorTabs({
             {seoErrors === 0 && seoWarnings === 0 && (
               <span className="text-emerald-600">Configuração válida</span>
             )}
+          </div>
+        )}
+        {activeTab === 'faqs' && (
+          <div className="flex items-center gap-4">
+            <span>Gerencie as perguntas frequentes específicas deste artigo</span>
           </div>
         )}
       </div>

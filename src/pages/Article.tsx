@@ -4,6 +4,7 @@ import { sanitizeHtml } from '@/utils/htmlSanitizer';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleFeedback from '@/components/ArticleFeedback';
+import { ArticleFAQSection } from '@/components/ArticleFAQSection';
 import RelatedArticles from '@/components/RelatedArticles';
 import { SEOHelmet } from '@/components/SEO/SEOHelmet';
 import { generateArticleJsonLd, generateBreadcrumbJsonLd } from '@/utils/jsonLd';
@@ -223,6 +224,9 @@ const Article = () => {
                 className="article-content lazy-images"
               />
             </article>
+
+          {/* Article FAQs */}
+          <ArticleFAQSection articleId={article.id} />
 
           {/* Article Feedback */}
           <ArticleFeedback 
