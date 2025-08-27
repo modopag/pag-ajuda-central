@@ -48,20 +48,25 @@ export default function AdminLayout() {
     );
   }
 
-  // Don't render if no user or user not approved
-  if (!user || !profile || profile.status !== 'approved' || !['admin', 'editor'].includes(profile.role)) {
-    console.log('🚫 AdminLayout - Blocking render due to auth conditions:', {
-      hasUser: !!user,
-      hasProfile: !!profile, 
-      status: profile?.status,
-      role: profile?.role
-    });
+  // Only show loading if user exists but profile is still loading
+  if (user && !profile) {
+    console.log('⏳ AdminLayout - User exists but profile loading, showing loading screen');
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="text-muted-foreground">Verificando permissões...</p>
+          <p className="text-muted-foreground">Carregando perfil...</p>
         </div>
+      </div>
+    );
+  }
+
+  // If no user or user not approved, let useEffect handle redirects - don't block render
+  if (!user || !profile || profile.status !== 'approved' || !['admin', 'editor'].includes(profile.role)) {
+    console.log('🚫 AdminLayout - Invalid auth state, letting useEffect handle redirect');
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
