@@ -129,3 +129,23 @@ export const generateCategoryJsonLd = (category: Category, articles: Article[]) 
     }
   };
 };
+
+// Generate JSON-LD for Article FAQs
+export const generateArticleFAQJsonLd = (faqs: Array<{ question: string; answer: string }>) => {
+  if (faqs.length === 0) return '';
+  
+  const faqPage = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(faq => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer
+      }
+    }))
+  };
+  
+  return `<script type="application/ld+json">${JSON.stringify(faqPage, null, 2)}</script>`;
+};

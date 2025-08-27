@@ -7,7 +7,7 @@ import ArticleFeedback from '@/components/ArticleFeedback';
 import { ArticleFAQSection } from '@/components/ArticleFAQSection';
 import RelatedArticles from '@/components/RelatedArticles';
 import { SEOHelmet } from '@/components/SEO/SEOHelmet';
-import { generateArticleJsonLd, generateBreadcrumbJsonLd } from '@/utils/jsonLd';
+import { generateArticleJsonLd, generateBreadcrumbJsonLd, generateFAQJsonLd } from '@/utils/jsonLd';
 import { getDataAdapter } from '@/lib/data-adapter';
 import type { Article as ArticleType, Category } from '@/types/admin';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +18,7 @@ const Article = () => {
   const { articleId } = useParams();
   const [article, setArticle] = useState<ArticleType | null>(null);
   const [category, setCategory] = useState<Category | null>(null);
+  const [articleFAQs, setArticleFAQs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -40,6 +41,15 @@ const Article = () => {
           // Carregar categoria
           const categoryData = await adapter.getCategoryById(articleData.category_id);
           setCategory(categoryData);
+          
+          // Load article FAQs
+          try {
+            const faqs = await adapter.getArticleFAQs(articleData.id);
+            setArticleFAQs(faqs);
+          } catch (error) {
+            console.error('Failed to load article FAQs:', error);
+            setArticleFAQs([]);
+          }
         }
       } catch (error) {
         console.error('Erro ao carregar artigo:', error);
@@ -120,10 +130,9 @@ const Article = () => {
 
   const articleJsonLd = category ? generateArticleJsonLd(article, category) : null;
   const breadcrumbJsonLd = category ? generateBreadcrumbJsonLd(article, category) : null;
+  const faqJsonLd = articleFAQs.length > 0 ? generateFAQJsonLd(articleFAQs) : null;
   
-  const combinedJsonLd = articleJsonLd && breadcrumbJsonLd 
-    ? [articleJsonLd, breadcrumbJsonLd] 
-    : articleJsonLd || breadcrumbJsonLd;
+  const combinedJsonLd = [articleJsonLd, breadcrumbJsonLd, faqJsonLd].filter(Boolean);
 
   return (
     <>
