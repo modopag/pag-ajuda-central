@@ -77,6 +77,11 @@ const AppContent = () => {
       <HashFragmentHandler />
       <GoogleAnalytics measurementId={seo.google_analytics_id} />
       
+      {/* Components that use router hooks must be inside Router */}
+      <CookieBanner />
+      <CookiePreferencesModal />
+      <GA4Debug />
+      
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Reserved routes - highest priority */}
@@ -138,10 +143,8 @@ const App = () => (
             <Sonner />
 
             <AppContent />
-
-            <CookieBanner />
-            <CookiePreferencesModal />
-            <GA4Debug />
+            
+            {/* Performance components don't use router hooks */}
             <PerformanceMonitor />
             <PerformanceTracker />
           </ErrorBoundary>

@@ -122,8 +122,8 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(cacheFirst(request));
   } else if (CACHE_STRATEGIES.api.test(url.pathname)) {
     event.respondWith(networkFirst(request));
-  } else if (CACHE_STRATEGIES.html.test(url.pathname) || url.pathname === '/') {
-    event.respondWith(networkFirst(request));
+  } else if (CACHE_STRATEGIES.html.test(url.pathname) || url.pathname === '/' || request.mode === 'navigate') {
+    event.respondWith(networkFirstForHTML(request));
   } else {
     event.respondWith(staleWhileRevalidate(request));
   }
@@ -174,7 +174,74 @@ async function cacheFirst(request) {
   }
 }
 
-// Network First Strategy (for API calls and HTML) - IMPROVED
+// Network First Strategy for HTML - HARDENED AGAINST STALE CONTENT
+async function networkFirstForHTML(request) {
+  try {
+    // Always try network first for navigation requests
+    const networkResponse = await Promise.race([
+      fetch(request),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Network timeout')), 3000)
+      )
+    ]);
+    
+    // For HTML, never cache error responses or broken content
+    if (networkResponse.ok && networkResponse.status === 200) {
+      const responseClone = safeClone(networkResponse, 'networkFirstForHTML');
+      if (responseClone) {
+        try {
+          const text = await responseClone.text();
+          // Don't cache error pages, broken HTML, or content with errors
+          if (!text.includes('Oops! Algo deu errado') && 
+              !text.includes('TypeError') &&
+              !text.includes('Error') && 
+              text.length > 500) {
+            
+            const cache = await caches.open(DYNAMIC_CACHE);
+            await cache.put(request, new Response(text, {
+              status: networkResponse.status,
+              statusText: networkResponse.statusText,
+              headers: networkResponse.headers
+            }));
+          } else {
+            console.warn('[SW] Not caching potentially broken HTML content');
+          }
+        } catch (cacheError) {
+          console.warn('[SW] Failed to process HTML response:', cacheError);
+        }
+      }
+    }
+    
+    return networkResponse;
+  } catch (error) {
+    console.log('[SW] Network failed for HTML, trying cache fallback:', error.message);
+    
+    // Only serve cached HTML as absolute last resort and validate it
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+      try {
+        const text = await cachedResponse.text();
+        // Don't serve cached error content
+        if (text.includes('Oops! Algo deu errado') || text.includes('TypeError')) {
+          console.warn('[SW] Cached HTML contains errors, serving basic fallback');
+          return createBasicFallbackResponse();
+        }
+        return new Response(text, {
+          status: cachedResponse.status,
+          statusText: cachedResponse.statusText,
+          headers: cachedResponse.headers
+        });
+      } catch (err) {
+        console.warn('[SW] Error reading cached HTML:', err);
+      }
+    }
+
+    // Return basic fallback for HTML requests
+    return createBasicFallbackResponse();
+  }
+}
+
+// Network First Strategy (for API calls) - IMPROVED
 async function networkFirst(request) {
   try {
     // Add timeout for network requests

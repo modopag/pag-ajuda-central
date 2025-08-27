@@ -12,19 +12,13 @@ interface PreloadResource {
 
 // Critical resources that must be preloaded above the fold
 const CRITICAL_RESOURCES: PreloadResource[] = [
-  // Critical fonts
+  // Critical fonts only - removed images that aren't used above fold
   {
     href: 'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap',
     as: 'style'
-  },
-  
-  // Critical images (only above-the-fold)
-  {
-    href: '/modopag-logo-yellow.webp',
-    as: 'image',
-    type: 'image/webp'
   }
-  // Removed logo-black.webp as it's not used above the fold
+  // Removed all image preloads - they were causing "unused preload" warnings
+  // Images will load naturally when needed with proper lazy loading
 ];
 
 // Track preloaded resources to prevent duplicates

@@ -32,6 +32,11 @@ const Index = () => {
 
   const websiteJsonLd = generateWebsiteJsonLd();
 
+  // Add console marker for debugging router context
+  if (import.meta.env.DEV) {
+    console.log('[Homepage] Router mounted successfully - crash should be resolved');
+  }
+
   return (
     <>
       <SEOHelmet
