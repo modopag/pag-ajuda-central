@@ -25,6 +25,16 @@ export const HashFragmentHandler = () => {
           return;
         }
         
+        // If hash contains errors, redirect to error page
+        if (hash.includes('error=') || hash.includes('error_description=')) {
+          console.log('❌ Auth error found in hash:', hash);
+          // Preserve error parameters for the error page
+          const errorParams = new URLSearchParams(hash.substring(1));
+          const errorPageUrl = `/auth/error?${errorParams.toString()}`;
+          window.location.href = errorPageUrl;
+          return;
+        }
+        
         try {
           // Get the current session after the token is processed
           const { data: { session }, error } = await supabase.auth.getSession();
@@ -32,7 +42,7 @@ export const HashFragmentHandler = () => {
           if (error) {
             console.error('❌ Error processing auth token:', error);
             toast.error('Erro ao processar confirmação de email');
-            navigate('/auth');
+            navigate('/auth/error?error=session_error&error_description=' + encodeURIComponent(error.message));
             return;
           }
           
@@ -42,19 +52,17 @@ export const HashFragmentHandler = () => {
             
             // Clear the hash from URL
             window.history.replaceState(null, '', window.location.pathname);
-        
-        // Clear hash and redirect based on current path
-        window.history.replaceState(null, '', window.location.pathname);
+            
             // Redirect to confirmation success page
             navigate('/auth/confirm');
           } else {
             console.log('⚠️ No session found after processing token');
-            navigate('/auth');
+            navigate('/auth/error?error=no_session&error_description=Nenhuma sessão encontrada após processar o token');
           }
         } catch (err) {
           console.error('💥 Unexpected error processing auth token:', err);
           toast.error('Erro inesperado ao processar confirmação');
-          navigate('/auth');
+          navigate('/auth/error?error=unexpected_error&error_description=Erro inesperado ao processar token');
         }
       }
     };
