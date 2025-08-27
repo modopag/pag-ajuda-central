@@ -50,10 +50,10 @@ const Index = () => {
       <Header />
       <SkipLink />
       <main id="main-content" className="min-h-screen">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-br from-primary/5 via-primary/3 to-background py-16 px-4">
+        {/* Hero Section - LCP optimized */}
+        <section className="hero-section bg-gradient-to-br from-primary/5 via-primary/3 to-background py-16 px-4">
           <div className="container mx-auto text-center max-w-4xl">
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+            <h1 className="hero-title text-4xl md:text-5xl font-bold text-foreground mb-6">
               Central de Ajuda modoPAG
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">

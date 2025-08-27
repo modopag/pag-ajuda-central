@@ -15,11 +15,21 @@ export const CookieBanner = () => {
 
   const bannerRef = useRef<HTMLDivElement>(null);
 
-  // Auto-focus on banner when it appears for accessibility
+  // Auto-focus on banner when it appears for accessibility + CLS fix
   useEffect(() => {
     if (showBanner && bannerRef.current) {
       bannerRef.current.focus();
+      // Add class to body to reserve space and prevent CLS
+      document.body.classList.add('cookie-banner-visible');
+    } else {
+      // Remove class when banner is hidden
+      document.body.classList.remove('cookie-banner-visible');
     }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('cookie-banner-visible');
+    };
   }, [showBanner]);
 
   // Handle keyboard navigation
