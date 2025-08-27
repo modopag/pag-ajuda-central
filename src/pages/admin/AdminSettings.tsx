@@ -14,6 +14,7 @@ import { getDataAdapter } from "@/lib/data-adapter";
 import { AssetUploader } from "@/components/admin/AssetUploader";
 import { DataManager } from "@/components/admin/DataManager";
 import EmailTestPanel from '@/components/admin/EmailTestPanel';
+import EmailDeliverabilityAudit from '@/components/admin/EmailDeliverabilityAudit';
 import type { Setting, GlobalSEOSettings, HelpQuickSettings, ReclameAquiSettings, BrandSettings } from "@/types/admin";
 
 export default function AdminSettings() {
@@ -520,6 +521,7 @@ export default function AdminSettings() {
 
         <TabsContent value="email" className="space-y-4">
           <EmailTestPanel />
+          <EmailDeliverabilityAudit />
         </TabsContent>
       </Tabs>
     </div>
