@@ -93,7 +93,7 @@ export function TableOfContents({
 
   // Desktop sticky sidebar version
   return (
-    <div className={cn("max-h-[calc(100vh-8rem)]", className)}>
+    <div className={cn("overflow-y-auto", className)} style={{ maxHeight: 'calc(50vh - 2rem)' }}>
       <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5 backdrop-blur-sm">
         <div className="p-4">
           <div className="flex items-center gap-2 mb-4">

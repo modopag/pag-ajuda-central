@@ -387,8 +387,8 @@ export default function ArticleSilo() {
 
             {/* Sidebar - Desktop only */}
             <div className="hidden lg:block lg:col-span-1">
-              <div className="sticky top-20 z-20 space-y-6 max-h-[calc(100vh-5rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent"
-                   style={{ scrollbarWidth: 'thin' }}>
+              <div className="sticky top-24 space-y-6 h-fit"
+                   style={{ maxHeight: 'calc(100vh - 8rem)' }}>
                 {/* Table of Contents */}
                 <TableOfContents />
                 
