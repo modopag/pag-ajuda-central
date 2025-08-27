@@ -26,6 +26,8 @@ const Footer = () => {
                 width="280"
                 height="60"
                 loading="lazy"
+                decoding="async"
+                fetchPriority="low"
               />
             </Link>
             <p className="text-gray-300 text-sm leading-relaxed mb-4">

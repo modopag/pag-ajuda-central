@@ -11,9 +11,17 @@ declare global {
 export const useGoogleAnalytics = (measurementId?: string) => {
   const { preferences, hasConsented } = useCookieConsent();
 
-  // Initialize Google Analytics
+  // Initialize Google Analytics - CONSENT-GATED THIRD PARTIES
   const initGA = useCallback((id: string) => {
     if (typeof window === 'undefined' || !id) return;
+
+    // Only load if consent is granted - consent-gated third parties
+    if (!hasConsented || !preferences.analytics) {
+      console.log('[GA4] Skipping GA4 load - no consent granted');
+      return;
+    }
+
+    console.log('[GA4] Loading GA4 after consent granted');
 
     // Initialize dataLayer
     window.dataLayer = window.dataLayer || [];
@@ -23,16 +31,16 @@ export const useGoogleAnalytics = (measurementId?: string) => {
       window.dataLayer.push(args);
     };
 
-    // Set initial consent state (denied by default)
+    // Set consent state to granted since user already consented
     window.gtag('consent', 'default', {
-      analytics_storage: 'denied',
-      ad_storage: 'denied',
-      ad_user_data: 'denied',
-      ad_personalization: 'denied',
+      analytics_storage: 'granted',
+      ad_storage: preferences.marketing ? 'granted' : 'denied',
+      ad_user_data: preferences.marketing ? 'granted' : 'denied',
+      ad_personalization: preferences.marketing ? 'granted' : 'denied',
       wait_for_update: 500,
     });
 
-    // Load GA script
+    // Load GA script only after consent - deferred loading
     const script = document.createElement('script');
     script.async = true;
     script.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
@@ -43,9 +51,10 @@ export const useGoogleAnalytics = (measurementId?: string) => {
       window.gtag('js', new Date());
       window.gtag('config', id, {
         anonymize_ip: true,
-        allow_google_signals: false,
-        allow_ad_personalization_signals: false,
+        allow_google_signals: preferences.marketing,
+        allow_ad_personalization_signals: preferences.marketing,
       });
+      console.log('[GA4] Successfully initialized');
     };
 
     return () => {
@@ -54,7 +63,7 @@ export const useGoogleAnalytics = (measurementId?: string) => {
         script.parentNode.removeChild(script);
       }
     };
-  }, []);
+  }, [hasConsented, preferences.analytics, preferences.marketing]);
 
   // Update consent based on user preferences
   useEffect(() => {
@@ -70,13 +79,24 @@ export const useGoogleAnalytics = (measurementId?: string) => {
     }
   }, [preferences, hasConsented, measurementId]);
 
-  // Initialize GA when measurement ID is available
+  // Initialize GA when measurement ID is available and consent is granted
   useEffect(() => {
-    if (!measurementId) return;
+    if (!measurementId || !hasConsented || !preferences.analytics) return;
 
-    const cleanup = initGA(measurementId);
-    return cleanup;
-  }, [measurementId, initGA]);
+    // Only load GA4 after user consents - performance optimization
+    const loadGA4AfterConsent = () => {
+      const cleanup = initGA(measurementId);
+      return cleanup;
+    };
+
+    // Use requestIdleCallback to defer GA4 loading - consent-gated third parties
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      requestIdleCallback(loadGA4AfterConsent, { timeout: 3000 });
+    } else {
+      // Fallback for browsers without requestIdleCallback
+      setTimeout(loadGA4AfterConsent, 100);
+    }
+  }, [measurementId, hasConsented, preferences.analytics, initGA]);
 
   // Track events (only if analytics consent is granted)
   const trackEvent = useCallback((eventName: string, parameters?: Record<string, any>) => {

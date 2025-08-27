@@ -51,6 +51,9 @@ const Header = () => {
                 className="h-12 md:h-14 w-auto"
                 width="56"
                 height="56"
+                loading="eager"
+                fetchPriority="high"
+                decoding="sync"
               />
             </Link>
             

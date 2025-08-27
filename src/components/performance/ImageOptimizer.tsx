@@ -40,7 +40,15 @@ export const ImageOptimizer = ({
   }, []);
 
   return (
-    <div className={cn("relative overflow-hidden", className)}>
+    <div 
+      className={cn("relative overflow-hidden", className)}
+      // Reserve layout space to prevent CLS - critical performance improvement
+      style={width && height ? { 
+        aspectRatio: `${width}/${height}`,
+        minHeight: height,
+        minWidth: width 
+      } : undefined}
+    >
       {/* Loading placeholder */}
       {!isLoaded && (
         <div className="absolute inset-0 bg-gradient-to-br from-muted/50 to-muted animate-pulse flex items-center justify-center">
@@ -59,15 +67,6 @@ export const ImageOptimizer = ({
         loading={priority ? 'eager' : 'lazy'}
         onLoad={handleLoad}
       />
-      
-      {/* Aspect ratio container for layout stability */}
-      {width && height && (
-        <div
-          className="absolute inset-0 -z-10"
-          style={{ aspectRatio: `${width}/${height}` }}
-          aria-hidden="true"
-        />
-      )}
     </div>
   );
 };

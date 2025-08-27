@@ -23,7 +23,7 @@ const CategoryCard = ({ title, description, icon: Icon, iconUrl, onClick, articl
       className="category-card group"
       onClick={onClick}
     >
-      <div className="category-icon group-hover:text-accent">
+      <div className="category-icon group-hover:text-accent" style={{ aspectRatio: '1/1', width: '64px', height: '64px' }}>
         {iconUrl ? (
           hasIntersected ? (
             <ImageOptimizer

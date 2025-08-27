@@ -48,6 +48,8 @@ export const LazyImage = ({
         loading={loading}
         onLoad={handleLoad}
         onError={handleError}
+        // Force dimensions to prevent CLS - critical performance improvement
+        style={{ width: '100%', height: 'auto' }}
         className={cn(
           "transition-opacity duration-300",
           isLoading ? "opacity-0" : "opacity-100",
