@@ -85,48 +85,46 @@ export function TableOfContents({
 
   // Desktop sticky sidebar version
   return (
-    <div className={cn("h-full", className)}>
-      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5 backdrop-blur-sm h-full flex flex-col">
-        <div className="p-4 flex flex-col h-full">
-          <div className="flex items-center gap-2 mb-4 flex-shrink-0">
+    <div className={cn("w-full", className)}>
+      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5 backdrop-blur-sm">
+        <div className="p-3">
+          <div className="flex items-center gap-2 mb-3">
             <List className="w-4 h-4 text-primary" />
             <h3 className="font-semibold text-sm text-foreground">
               Índice
             </h3>
             <div className="flex-1 h-px bg-gradient-to-r from-primary/30 to-transparent" />
           </div>
-          {/* FIXED: Scrollable content area with proper flex behavior */}
-          <ScrollArea className="flex-1 min-h-0">
-            <nav className="space-y-1 pr-2">
-              {headings.map((heading) => (
-                <button
-                  key={heading.id}
-                  onClick={() => scrollToHeading(heading.id)}
-                  className={cn(
-                    "group flex items-start w-full text-left p-2 rounded-md transition-all duration-300",
-                    getIndentLevel(heading.level),
-                    getTextSize(heading.level),
-                    activeHeading === heading.id
-                      ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg scale-[1.02] border border-primary/30"
-                      : "hover:bg-primary/10 text-foreground/70 hover:text-foreground hover:scale-[1.01]"
-                  )}
-                >
-                  <div className={cn(
-                    "w-2 h-2 rounded-full mt-2 mr-3 transition-all duration-300",
-                    activeHeading === heading.id
-                      ? "bg-primary-foreground shadow-sm"
-                      : "bg-primary/40 group-hover:bg-primary/60"
-                  )} />
-                  <span className="line-clamp-3 leading-relaxed">
-                    {heading.text}
-                  </span>
-                </button>
-              ))}
-            </nav>
-          </ScrollArea>
+          {/* Natural height - no forced scrolling */}
+          <nav className="space-y-1">
+            {headings.map((heading) => (
+              <button
+                key={heading.id}
+                onClick={() => scrollToHeading(heading.id)}
+                className={cn(
+                  "group flex items-start w-full text-left py-1.5 px-2 rounded-md transition-all duration-300",
+                  getIndentLevel(heading.level),
+                  getTextSize(heading.level),
+                  activeHeading === heading.id
+                    ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg scale-[1.01] border border-primary/30"
+                    : "hover:bg-primary/10 text-foreground/70 hover:text-foreground hover:scale-[1.005]"
+                )}
+              >
+                <div className={cn(
+                  "w-2 h-2 rounded-full mt-1.5 mr-2 transition-all duration-300 flex-shrink-0",
+                  activeHeading === heading.id
+                    ? "bg-primary-foreground shadow-sm"
+                    : "bg-primary/40 group-hover:bg-primary/60"
+                )} />
+                <span className="line-clamp-2 leading-snug text-xs">
+                  {heading.text}
+                </span>
+              </button>
+            ))}
+          </nav>
           
-          {/* Progress indicator - Fixed at bottom */}
-          <div className="mt-4 pt-4 border-t border-border/50 flex-shrink-0">
+          {/* Progress indicator - Compact version */}
+          <div className="mt-3 pt-3 border-t border-border/50">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
                 <div 

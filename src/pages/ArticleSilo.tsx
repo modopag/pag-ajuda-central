@@ -441,14 +441,14 @@ export default function ArticleSilo() {
 
             {/* Sticky Sidebar - Desktop only - Responsive width */}
             <div className="hidden lg:block w-72 xl:w-80 flex-shrink-0">
-              <div className="sticky top-20 xl:top-24 space-y-4 xl:space-y-6" style={{ maxHeight: 'calc(100vh - 5rem)' }}>
-                {/* Table of Contents - FIXED: Proper height container for scrolling */}
-                <div className="h-64 xl:h-72">
+              <div className="sticky top-20 xl:top-24 flex flex-col gap-4 xl:gap-6" style={{ maxHeight: 'calc(100vh - 6rem)' }}>
+                {/* Table of Contents - Natural height, no scrollbar */}
+                <div className="flex-shrink-0">
                   <TableOfContents />
                 </div>
                 
-                {/* Smart Related Articles - FIXED: Flexible height for remaining space */}
-                <div className="flex-1 min-h-0">
+                {/* Smart Related Articles - Takes remaining space */}
+                <div className="flex-1 min-h-0 overflow-hidden">
                   <SmartRelatedArticles
                     currentArticleId={article.id.toString()}
                     categoryId={category.id.toString()}
