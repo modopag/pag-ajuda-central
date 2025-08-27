@@ -1,9 +1,9 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { HelmetProvider } from 'react-helmet-async';
 import { CookieBanner } from '@/components/CookieBanner';
 import { CookiePreferencesModal } from '@/components/CookiePreferencesModal';
@@ -58,12 +58,37 @@ const AdminPendingPage = lazy(() => import("./pages/admin/AdminPendingPage"));
 const AuthPendingPage = lazy(() => import("./pages/auth/AuthPendingPage"));
 const AuthErrorPage = lazy(() => import("./pages/auth/AuthErrorPage"));
 
-// Loading component for suspense fallback
+// Enhanced loading component with smooth transitions
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-screen">
     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
   </div>
 );
+
+// Smooth page transitions component
+const PageTransition = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
+  
+  useEffect(() => {
+    // Smooth scroll behavior for new pages
+    document.documentElement.style.scrollBehavior = 'smooth';
+    
+    // Ensure page starts at top for new navigations (not back button)
+    if (!window.history.state?.scroll) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    return () => {
+      document.documentElement.style.scrollBehavior = 'auto';
+    };
+  }, [location.pathname]);
+  
+  return (
+    <div className="animate-fade-in">
+      {children}
+    </div>
+  );
+};
 
 const queryClient = new QueryClient();
 
@@ -89,51 +114,53 @@ const AppContent = () => {
       <GA4Debug />
       
       <Suspense fallback={<PageLoader />}>
-        <Routes>
-          {/* Reserved routes - highest priority */}
-          <Route path="/" element={<Index />} />
-          <Route path="/buscar" element={<Search />} />
-          <Route path="/sitemap.xml" element={<Sitemap />} />
-          <Route path="/robots.txt" element={<RobotsTxt />} />
-          <Route path="/politicas-de-privacidade" element={<RedirectToExternalPrivacy />} />
-          <Route path="/gone" element={<Gone />} />
-          
-          {/* Auth Routes */}
-          <Route path="/auth" element={<AuthPage />} />
-          <Route path="/auth/email-confirmation" element={<EmailConfirmationPage />} />
-          <Route path="/auth/confirm" element={<AuthConfirmPage />} />
-          <Route path="/auth/confirm-success" element={<EmailConfirmSuccessPage />} />
-          <Route path="/auth/reset-password" element={<PasswordResetPage />} />
-          <Route path="/auth/reauth" element={<ReauthPage />} />
-          <Route path="/auth/pending" element={<AuthPendingPage />} />
-          <Route path="/auth/error" element={<AuthErrorPage />} />
-          
-          {/* Admin Routes */}
-          <Route path="/admin/login" element={<AdminLoginPage />} />
-          <Route path="/admin/pending" element={<AdminPendingPage />} />
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminDashboard />} />
-            <Route path="articles" element={<AdminArticles />} />
-            <Route path="articles/new" element={<AdminArticleNew />} />
-            <Route path="articles/:id/edit" element={<AdminArticleEdit />} />
-            <Route path="categories" element={<AdminCategories />} />
-            <Route path="tags" element={<AdminTags />} />
-            <Route path="media" element={<AdminMedia />} />
-            <Route path="redirects" element={<AdminRedirects />} />  
-            <Route path="monitoring" element={<AdminMonitoring />} />
-            <Route path="settings" element={<AdminSettings />} />
-            <Route path="feedback" element={<AdminFeedback />} />
-            <Route path="faqs" element={<AdminFAQs />} />
-            <Route path="users" element={<AdminUsers />} />
-          </Route>
-          
-          {/* NEW SILO URLs */}
-          <Route path="/:categorySlug/" element={<CategorySilo />} />
-          <Route path="/:categorySlug/:articleSlug" element={<ArticleSilo />} />
-          
-          {/* Catch-all 404 - MUST be last */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <PageTransition>
+          <Routes>
+            {/* Reserved routes - highest priority */}
+            <Route path="/" element={<Index />} />
+            <Route path="/buscar" element={<Search />} />
+            <Route path="/sitemap.xml" element={<Sitemap />} />
+            <Route path="/robots.txt" element={<RobotsTxt />} />
+            <Route path="/politicas-de-privacidade" element={<RedirectToExternalPrivacy />} />
+            <Route path="/gone" element={<Gone />} />
+            
+            {/* Auth Routes */}
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/auth/email-confirmation" element={<EmailConfirmationPage />} />
+            <Route path="/auth/confirm" element={<AuthConfirmPage />} />
+            <Route path="/auth/confirm-success" element={<EmailConfirmSuccessPage />} />
+            <Route path="/auth/reset-password" element={<PasswordResetPage />} />
+            <Route path="/auth/reauth" element={<ReauthPage />} />
+            <Route path="/auth/pending" element={<AuthPendingPage />} />
+            <Route path="/auth/error" element={<AuthErrorPage />} />
+            
+            {/* Admin Routes */}
+            <Route path="/admin/login" element={<AdminLoginPage />} />
+            <Route path="/admin/pending" element={<AdminPendingPage />} />
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="articles" element={<AdminArticles />} />
+              <Route path="articles/new" element={<AdminArticleNew />} />
+              <Route path="articles/:id/edit" element={<AdminArticleEdit />} />
+              <Route path="categories" element={<AdminCategories />} />
+              <Route path="tags" element={<AdminTags />} />
+              <Route path="media" element={<AdminMedia />} />
+              <Route path="redirects" element={<AdminRedirects />} />  
+              <Route path="monitoring" element={<AdminMonitoring />} />
+              <Route path="settings" element={<AdminSettings />} />
+              <Route path="feedback" element={<AdminFeedback />} />
+              <Route path="faqs" element={<AdminFAQs />} />
+              <Route path="users" element={<AdminUsers />} />
+            </Route>
+            
+            {/* NEW SILO URLs */}
+            <Route path="/:categorySlug/" element={<CategorySilo />} />
+            <Route path="/:categorySlug/:articleSlug" element={<ArticleSilo />} />
+            
+            {/* Catch-all 404 - MUST be last */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </PageTransition>
       </Suspense>
     </BrowserRouter>
   );
