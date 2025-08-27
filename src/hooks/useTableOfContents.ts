@@ -46,30 +46,29 @@ export const useTableOfContents = (options: UseTableOfContentsOptions = {}) => {
 
   // Extract headings from content with reliable article-focused collection
   useEffect(() => {
-    const article = document.querySelector('article');
-    if (!article) {
-      setHeadings([]);
-      return;
-    }
-
-    const slugify = (text: string) => {
-      return text
-        .toLowerCase()
-        .trim()
-        .replace(/[^\w\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .substring(0, 50);
-    };
-
     const collectHeadings = () => {
+      const article = document.querySelector('article');
+      if (!article) {
+        console.log('TOC: Article element not found');
+        setHeadings([]);
+        return;
+      }
+
       // Find all H2 elements within the article
       const h2Elements = Array.from(article.querySelectorAll<HTMLHeadingElement>('h2'));
+      console.log(`TOC: Found ${h2Elements.length} H2 elements in article`);
       
-      // Filter out headings from navigation, header, footer areas
+      // Less restrictive filtering - only exclude obvious navigation elements
       const validHeadings = h2Elements.filter(el => {
-        const parent = el.closest('nav, header, footer, .header, .footer, .navigation');
-        return !parent;
+        const parent = el.closest('nav, header, .navigation, .header-nav');
+        const isValid = !parent;
+        if (!isValid) {
+          console.log('TOC: Filtered out heading:', el.textContent);
+        }
+        return isValid;
       });
+
+      console.log(`TOC: ${validHeadings.length} valid headings after filtering`);
 
       if (validHeadings.length === 0) {
         setHeadings([]);
@@ -80,7 +79,11 @@ export const useTableOfContents = (options: UseTableOfContentsOptions = {}) => {
       
       const extractedHeadings: Heading[] = validHeadings.map((element) => {
         const text = element.textContent?.trim() || '';
-        if (!text || text.length < 2) return null;
+        // More lenient text validation - only require non-empty text
+        if (!text) {
+          console.log('TOC: Skipping heading with no text');
+          return null;
+        }
         
         let id = element.id;
         
@@ -92,6 +95,8 @@ export const useTableOfContents = (options: UseTableOfContentsOptions = {}) => {
         
         existingIds.add(id);
         
+        console.log(`TOC: Processing heading: "${text}" with id: "${id}"`);
+        
         return {
           id,
           text,
@@ -100,25 +105,65 @@ export const useTableOfContents = (options: UseTableOfContentsOptions = {}) => {
         };
       }).filter(Boolean) as Heading[];
       
+      console.log(`TOC: Final extracted headings count: ${extractedHeadings.length}`);
+      
       // Update headings state
       setHeadings(prev => {
-        if (prev.length !== extractedHeadings.length) return extractedHeadings;
+        if (prev.length !== extractedHeadings.length) {
+          console.log(`TOC: Updating headings - count changed from ${prev.length} to ${extractedHeadings.length}`);
+          return extractedHeadings;
+        }
         const hasChanges = extractedHeadings.some((heading, i) => 
           !prev[i] || prev[i].id !== heading.id || prev[i].text !== heading.text
         );
+        if (hasChanges) {
+          console.log('TOC: Updating headings - content changed');
+        }
         return hasChanges ? extractedHeadings : prev;
       });
     };
 
-    // Initial collection using requestAnimationFrame for better timing
-    requestAnimationFrame(collectHeadings);
+    // Multiple timing strategies to ensure we catch the content
+    const delayedCollection = () => {
+      // Try immediate collection
+      collectHeadings();
+      
+      // Try again after a short delay for content to render
+      setTimeout(() => {
+        collectHeadings();
+      }, 100);
+      
+      // Try once more after DOM is fully updated
+      setTimeout(() => {
+        collectHeadings();
+      }, 500);
+    };
 
-    // Set up MutationObserver to watch for content changes in the article
-    const observer = new MutationObserver(() => {
-      requestAnimationFrame(collectHeadings);
+    // Initial collection with improved timing
+    requestAnimationFrame(delayedCollection);
+
+    // Set up MutationObserver to watch for content changes in the entire document
+    const observer = new MutationObserver((mutations) => {
+      const hasContentChanges = mutations.some(mutation => {
+        // Check if article content changed
+        const target = mutation.target as Element;
+        return target.closest('article') || 
+               mutation.type === 'childList' && 
+               Array.from(mutation.addedNodes).some(node => 
+                 node.nodeType === Node.ELEMENT_NODE && 
+                 (node as Element).matches('h2') || 
+                 (node as Element).querySelector('h2')
+               );
+      });
+      
+      if (hasContentChanges) {
+        console.log('TOC: Content changed, re-collecting headings');
+        requestAnimationFrame(delayedCollection);
+      }
     });
     
-    observer.observe(article, {
+    // Observe the entire document for better coverage
+    observer.observe(document.body, {
       childList: true,
       subtree: true,
       characterData: true
