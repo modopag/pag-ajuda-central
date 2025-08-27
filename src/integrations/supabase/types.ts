@@ -470,6 +470,10 @@ export type Database = {
         Args: { user_id: string }
         Returns: boolean
       }
+      check_rate_limit: {
+        Args: { max_per_hour?: number; operation_type: string }
+        Returns: boolean
+      }
       ensure_root_admin: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -493,6 +497,14 @@ export type Database = {
       is_current_user_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      is_root_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      log_sensitive_access: {
+        Args: { operation: string; record_id?: string; table_name: string }
+        Returns: undefined
       }
       reject_user: {
         Args: { user_id: string }
