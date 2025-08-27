@@ -14,6 +14,7 @@ import { PerformanceTracker } from '@/components/performance/PerformanceTracker'
 import { QAChecklist } from '@/components/qa/QAChecklist';
 import { QASummary } from '@/components/qa/QASummary';
 import { RedirectHandler } from '@/components/RedirectHandler';
+import { HashFragmentHandler } from '@/components/HashFragmentHandler';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useSettings } from '@/hooks/useSettings';
 import { AuthProvider } from '@/components/AuthProvider';
@@ -32,6 +33,7 @@ const AuthPage = lazy(() => import("./pages/auth/AuthPage"));
 const PasswordResetPage = lazy(() => import("./pages/auth/PasswordResetPage"));
 const EmailConfirmationPage = lazy(() => import("./pages/auth/EmailConfirmationPage"));
 const EmailConfirmSuccessPage = lazy(() => import("./pages/auth/EmailConfirmSuccessPage"));
+const AuthConfirmPage = lazy(() => import("./pages/auth/AuthConfirmPage"));
 
 // Lazy load admin pages
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -68,6 +70,7 @@ const AppContent = () => {
       }}
     >
       <RedirectHandler />
+      <HashFragmentHandler />
       <GoogleAnalytics measurementId={seo.google_analytics_id} />
       
       <Suspense fallback={<PageLoader />}>
@@ -83,7 +86,8 @@ const AppContent = () => {
           {/* Auth Routes */}
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/auth/email-confirmation" element={<EmailConfirmationPage />} />
-          <Route path="/auth/confirm" element={<EmailConfirmSuccessPage />} />
+          <Route path="/auth/confirm" element={<AuthConfirmPage />} />
+          <Route path="/auth/confirm-success" element={<EmailConfirmSuccessPage />} />
           <Route path="/auth/reset-password" element={<PasswordResetPage />} />
           
           {/* Admin Routes */}
