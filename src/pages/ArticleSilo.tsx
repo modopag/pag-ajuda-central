@@ -21,6 +21,7 @@ import { useSettings } from '@/hooks/useSettings';
 import { useSSRSafeQuery } from '@/hooks/useSSRSafeData';
 import type { Article, Category, Tag } from '@/types/admin';
 import { Clock, Eye, Tag as TagIcon, ChevronRight, User, Heart, Share2, BookOpen, Home, Menu, List } from 'lucide-react';
+import { ArticleFAQSection } from '@/components/ArticleFAQSection';
 
 interface ArticleSiloProps {
   ssrData?: {
@@ -451,6 +452,9 @@ export default function ArticleSilo({ ssrData }: ArticleSiloProps) {
                   />
                 </CardContent>
               </Card>
+
+              {/* Article FAQs Section */}
+              <ArticleFAQSection articleId={article.id.toString()} />
 
               {/* Article Footer */}
               <div className="space-y-6 md:space-y-8 lg:space-y-12">
