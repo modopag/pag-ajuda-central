@@ -241,7 +241,8 @@ export default function ArticleSilo() {
   const seoDescription = article.meta_description || `${article.title} - Saiba mais na Central de Ajuda da modoPAG.`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-background/80 relative overflow-hidden">
+    // FIXED: Removed overflow-hidden which was preventing sticky positioning
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-background/80 relative">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
       
       <SEOHelmet
