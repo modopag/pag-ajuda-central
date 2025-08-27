@@ -40,7 +40,10 @@ export const useAuthState = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  
+  // Quick check for existing session to optimize loading state
+  const hasStoredSession = localStorage.getItem('sb-sqroxesqxyzyxzywkybc-auth-token') !== null;
+  const [loading, setLoading] = useState(hasStoredSession);
 
   useEffect(() => {
     // Set up auth state listener

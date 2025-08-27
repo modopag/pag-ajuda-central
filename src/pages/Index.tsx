@@ -9,7 +9,6 @@ import FAQSection from "@/components/FAQSection";
 import { SkipLink } from "@/components/SkipLink";
 import { SEOHelmet } from "@/components/SEO/SEOHelmet";
 import { generateWebsiteJsonLd } from '@/utils/jsonLd';
-import { useSettings } from '@/hooks/useSettings';
 import { Button } from "@/components/ui/button";
 import { LazySection } from "@/components/performance/LazySection";
 import { CategoryGridSkeleton } from '@/components/skeletons/CategoryGridSkeleton';
@@ -19,7 +18,6 @@ import { ResilientErrorBoundary } from "@/components/ResilientErrorBoundary";
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
-  const { seo } = useSettings();
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -42,7 +40,7 @@ const Index = () => {
       <SEOHelmet
         title="Central de Ajuda modoPAG - Soluções de Pagamento"
         description="Encontre respostas rápidas sobre maquininhas, conta digital, pagamentos e muito mais na Central de Ajuda da modoPAG. Tire suas dúvidas aqui!"
-        canonicalUrl={seo.site_url}
+        canonicalUrl="https://ajuda.modopag.com.br/"
         jsonLd={websiteJsonLd}
         ogTitle="Central de Ajuda modoPAG - Tire suas dúvidas sobre pagamentos"
         ogDescription="Central de suporte completa da modoPAG. Artigos, tutoriais e guias sobre maquininhas, conta digital e soluções de pagamento."

@@ -16,12 +16,13 @@ import { HashFragmentHandler } from '@/components/HashFragmentHandler';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ScrollToTop } from '@/components/ScrollToTop';
 import { UXFixesDebugMarker } from '@/components/UXFixesDebugMarker';
-import { useSettings } from '@/hooks/useSettings';
 import { AuthProvider } from '@/components/AuthProvider';
 import Gone from "@/pages/Gone";
 
+// Import Index directly to eliminate lazy loading delay on homepage
+import Index from "./pages/Index";
+
 // Lazy load main pages for code splitting
-const Index = lazy(() => import("./pages/Index"));
 const RedirectToExternalPrivacy = lazy(() => import("./components/RedirectToExternalPrivacy"));
 const CategorySilo = lazy(() => import("./pages/CategorySilo"));
 const ArticleSilo = lazy(() => import("./pages/ArticleSilo"));
@@ -66,8 +67,6 @@ const PageLoader = () => (
 const queryClient = new QueryClient();
 
 const AppContent = () => {
-  const { seo } = useSettings();
-  
   return (
     <BrowserRouter
       future={{
@@ -79,7 +78,7 @@ const AppContent = () => {
       <HashFragmentHandler />
       <ScrollToTop />
       <UXFixesDebugMarker />
-      <GoogleAnalytics measurementId={seo.google_analytics_id} />
+      <GoogleAnalytics measurementId="" />
       
       {/* Components that use router hooks must be inside Router */}
       <CookieBanner />
