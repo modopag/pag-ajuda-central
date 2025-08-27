@@ -40,6 +40,25 @@ export class SupabaseAdapter implements DataAdapter {
     return data || [];
   }
 
+  async getCategoriesWithCounts(): Promise<Category[]> {
+    const { data, error } = await supabase
+      .from('categories')
+      .select(`
+        *,
+        article_count:articles(count)
+      `)
+      .eq('articles.status', 'published')
+      .order('position', { ascending: true });
+
+    if (error) throw error;
+    
+    // Transform the data to include article_count as a number
+    return (data || []).map(category => ({
+      ...category,
+      article_count: category.article_count?.[0]?.count || 0
+    }));
+  }
+
   async getCategoryById(id: string): Promise<Category | null> {
     const { data, error } = await supabase
       .from('categories')

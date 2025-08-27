@@ -29,7 +29,7 @@ const CategoryGrid = ({ onCategoryClick }: CategoryGridProps) => {
           title={category.name}
           description={category.description}
           iconUrl={category.icon_url || undefined}
-          articleCount={0}
+          articleCount={category.article_count || 0}
           onClick={() => onCategoryClick?.(category.slug)}
         />
       ))}

@@ -748,6 +748,18 @@ export class MockAdapter implements DataAdapter {
     return this.getStorageData<Category>(STORAGE_KEYS.categories, DEMO_CATEGORIES);
   }
 
+  async getCategoriesWithCounts(): Promise<Category[]> {
+    const categories = await this.getCategories();
+    const articles = await this.getArticles();
+    
+    return categories.map(category => ({
+      ...category,
+      article_count: articles.filter(article => 
+        article.category_id === category.id && article.status === 'published'
+      ).length
+    }));
+  }
+
   async getCategoryById(id: string): Promise<Category | null> {
     const categories = await this.getCategories();
     return categories.find(c => c.id === id) || null;

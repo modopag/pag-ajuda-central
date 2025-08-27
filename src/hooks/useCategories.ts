@@ -12,7 +12,7 @@ export function useCategories() {
       try {
         setLoading(true);
         const adapter = await getDataAdapter();
-        const data = await adapter.getCategories();
+        const data = await adapter.getCategoriesWithCounts();
         setCategories(data.filter(category => category.is_active));
         setError(null);
       } catch (err) {

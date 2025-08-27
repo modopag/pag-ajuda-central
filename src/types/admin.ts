@@ -17,6 +17,7 @@ export interface Category {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  article_count?: number;
 }
 
 export interface Article {
@@ -164,6 +165,7 @@ export interface SlugHistoryEntry {
 export interface DataAdapter {
   // Categories
   getCategories(): Promise<Category[]>;
+  getCategoriesWithCounts(): Promise<Category[]>;
   getCategoryById(id: string): Promise<Category | null>;
   createCategory(category: Omit<Category, 'id' | 'created_at' | 'updated_at'>): Promise<Category>;
   updateCategory(id: string, updates: Partial<Category>): Promise<Category>;
