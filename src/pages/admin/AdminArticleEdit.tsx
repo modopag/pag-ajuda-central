@@ -477,8 +477,14 @@ export default function AdminArticleEdit() {
       {/* Editor Content */}
       <div className="space-y-6">
 
-        {/* Content Tab - sempre renderizado, mas escondido quando não ativo */}
-        <div className={activeTab === 'content' ? 'block space-y-6' : 'hidden'}>
+        {/* Content Tab - sempre renderizado, usar opacity ao invés de hidden */}
+        <div 
+          className={`space-y-6 transition-opacity duration-200 ${
+            activeTab === 'content' 
+              ? 'opacity-100 pointer-events-auto' 
+              : 'opacity-0 pointer-events-none absolute inset-0'
+          }`}
+        >
           <Card>
             <CardHeader>
               <CardTitle>Informações Básicas</CardTitle>
@@ -597,8 +603,14 @@ export default function AdminArticleEdit() {
           </Card>
         </div>
 
-        {/* SEO Tab - só renderiza quando ativo para economizar recursos */}
-        {activeTab === 'seo' && (
+        {/* SEO Tab - sempre renderizado, usar opacity ao invés de condicional */}
+        <div 
+          className={`space-y-6 transition-opacity duration-200 ${
+            activeTab === 'seo' 
+              ? 'opacity-100 pointer-events-auto' 
+              : 'opacity-0 pointer-events-none absolute inset-0'
+          }`}
+        >
           <div className="space-y-6">
             <Card>
               <CardHeader>
@@ -735,7 +747,7 @@ export default function AdminArticleEdit() {
               </CardContent>
             </Card>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
