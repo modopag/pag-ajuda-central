@@ -38,15 +38,27 @@ export default function AuthPage() {
     setIsLoading(true);
 
     try {
-      const { error } = await signIn(email, password);
+      const { error, data } = await signIn(email, password);
       
       if (error) {
-        setError(error.message || 'Erro ao fazer login');
+        console.error('❌ Login failed:', error);
+        
+        // Handle specific error cases
+        if (error.message === 'Email not confirmed') {
+          setError('Email não confirmado. Clique no link enviado para seu email.');
+          toast.error('Email não confirmado', {
+            description: 'Verifique sua caixa de entrada e spam.',
+          });
+        } else {
+          setError(error.message || 'Erro ao fazer login');
+        }
       } else {
+        console.log('✅ Login successful');
         toast.success('Login realizado com sucesso!');
         navigate('/admin');
       }
     } catch (err) {
+      console.error('💥 Unexpected login error:', err);
       setError('Erro inesperado ao fazer login');
     } finally {
       setIsLoading(false);
@@ -70,15 +82,22 @@ export default function AuthPage() {
     setIsLoading(true);
 
     try {
-      const { error } = await signUp(email, password, name);
+      const { error, needsConfirmation } = await signUp(email, password, name);
       
       if (error) {
+        console.error('❌ Registration failed:', error);
         setError(error.message || 'Erro ao criar conta');
+      } else if (needsConfirmation) {
+        console.log('✅ Registration successful - redirecting to confirmation');
+        toast.success('Conta criada! Verifique seu email para confirmar.');
+        navigate('/auth/email-confirmation');
       } else {
-        toast.success('Conta criada com sucesso! Verifique seu email para confirmar.');
-        setActiveTab('login');
+        // Direct login (if email confirmation is disabled)
+        toast.success('Conta criada com sucesso!');
+        navigate('/admin');
       }
     } catch (err) {
+      console.error('💥 Unexpected registration error:', err);
       setError('Erro inesperado ao criar conta');
     } finally {
       setIsLoading(false);
@@ -94,13 +113,18 @@ export default function AuthPage() {
       const { error } = await resetPassword(resetEmail);
       
       if (error) {
+        console.error('❌ Password reset failed:', error);
         setError(error.message || 'Erro ao enviar email de redefinição');
       } else {
-        toast.success('Email de redefinição enviado com sucesso!');
+        console.log('✅ Password reset email sent');
+        toast.success('Email de redefinição enviado!', {
+          description: 'Verifique sua caixa de entrada e spam.',
+        });
         setIsResetMode(false);
         setResetEmail('');
       }
     } catch (err) {
+      console.error('💥 Unexpected password reset error:', err);
       setError('Erro inesperado ao redefinir senha');
     } finally {
       setIsLoading(false);

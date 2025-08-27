@@ -8,11 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Save, Settings, Globe, Phone, MessageSquare, Database, AlertTriangle } from "lucide-react";
+import { Save, Settings, Globe, Phone, MessageSquare, Database, AlertTriangle, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getDataAdapter } from "@/lib/data-adapter";
 import { AssetUploader } from "@/components/admin/AssetUploader";
 import { DataManager } from "@/components/admin/DataManager";
+import EmailTestPanel from '@/components/admin/EmailTestPanel';
 import type { Setting, GlobalSEOSettings, HelpQuickSettings, ReclameAquiSettings, BrandSettings } from "@/types/admin";
 
 export default function AdminSettings() {
@@ -181,7 +182,7 @@ export default function AdminSettings() {
       </div>
 
       <Tabs defaultValue="seo" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="seo" className="flex items-center gap-2">
             <Globe className="w-4 h-4" />
             SEO
@@ -201,6 +202,10 @@ export default function AdminSettings() {
           <TabsTrigger value="data" className="flex items-center gap-2">
             <Database className="w-4 h-4" />
             Dados
+          </TabsTrigger>
+          <TabsTrigger value="email" className="flex items-center gap-2">
+            <Mail className="w-4 h-4" />
+            Email
           </TabsTrigger>
         </TabsList>
 
@@ -511,6 +516,10 @@ export default function AdminSettings() {
               });
             }}
           />
+        </TabsContent>
+
+        <TabsContent value="email" className="space-y-4">
+          <EmailTestPanel />
         </TabsContent>
       </Tabs>
     </div>

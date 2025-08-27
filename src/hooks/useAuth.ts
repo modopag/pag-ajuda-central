@@ -5,7 +5,9 @@ import { supabase } from '@/lib/supabaseClient';
 export interface Profile {
   id: string;
   name: string | null;
-  role: string;
+  email?: string | null;
+  role: 'admin' | 'editor' | 'pending';
+  status: string;
   created_at: string;
   updated_at: string;
 }
@@ -15,10 +17,12 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string, name?: string) => Promise<{ error: Error | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: Error | null; data?: any }>;
+  signUp: (email: string, password: string, name?: string) => Promise<{ error: Error | null; data?: any; needsConfirmation?: boolean }>;
   signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<{ error: Error | null }>;
+  resetPassword: (email: string) => Promise<{ error: Error | null; data?: any }>;
+  updatePassword: (newPassword: string) => Promise<{ error: Error | null; data?: any }>;
+  resendConfirmation: (email: string) => Promise<{ error: Error | null; data?: any }>;
   isAdmin: () => boolean;
 }
 
@@ -101,12 +105,37 @@ export const useAuthState = () => {
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log('🔐 Attempting sign in for:', email);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      return { error };
+      
+      if (error) {
+        console.error('❌ Sign in error:', {
+          message: error.message,
+          status: error.status,
+          name: error.name
+        });
+        
+        // Enhanced error messages
+        let userFriendlyMessage = error.message;
+        if (error.message === 'Invalid login credentials') {
+          userFriendlyMessage = 'Email ou senha incorretos. Verifique suas credenciais.';
+        } else if (error.message === 'Email not confirmed') {
+          userFriendlyMessage = 'Email não confirmado. Verifique sua caixa de entrada.';
+        } else if (error.message === 'Too many requests') {
+          userFriendlyMessage = 'Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.';
+        }
+        
+        return { error: { ...error, message: userFriendlyMessage } };
+      }
+      
+      console.log('✅ Sign in successful for:', data.user?.email);
+      return { error: null, data };
     } catch (error) {
+      console.error('💥 Unexpected sign in error:', error);
       return { error: error as Error };
     } finally {
       setLoading(false);
@@ -116,9 +145,11 @@ export const useAuthState = () => {
   const signUp = async (email: string, password: string, name?: string) => {
     try {
       setLoading(true);
-      const redirectUrl = `${window.location.origin}/`;
+      console.log('📝 Attempting sign up for:', email);
       
-      const { error } = await supabase.auth.signUp({
+      const redirectUrl = `${window.location.origin}/auth/confirm`;
+      
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -126,8 +157,31 @@ export const useAuthState = () => {
           data: name ? { name } : undefined,
         },
       });
-      return { error };
+      
+      if (error) {
+        console.error('❌ Sign up error:', {
+          message: error.message,
+          status: error.status,
+          name: error.name
+        });
+        
+        // Enhanced error messages
+        let userFriendlyMessage = error.message;
+        if (error.message === 'User already registered') {
+          userFriendlyMessage = 'Este email já está cadastrado. Tente fazer login ou redefinir a senha.';
+        } else if (error.message.includes('Password')) {
+          userFriendlyMessage = 'A senha deve ter pelo menos 6 caracteres.';
+        } else if (error.message.includes('email')) {
+          userFriendlyMessage = 'Email inválido. Verifique o formato do email.';
+        }
+        
+        return { error: { ...error, message: userFriendlyMessage } };
+      }
+      
+      console.log('✅ Sign up successful - confirmation email sent to:', email);
+      return { error: null, data, needsConfirmation: !data.session };
     } catch (error) {
+      console.error('💥 Unexpected sign up error:', error);
       return { error: error as Error };
     } finally {
       setLoading(false);
@@ -160,18 +214,87 @@ export const useAuthState = () => {
 
   const resetPassword = async (email: string) => {
     try {
-      const redirectUrl = `${window.location.origin}/auth`;
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      console.log('🔄 Attempting password reset for:', email);
+      
+      const redirectUrl = `${window.location.origin}/auth/reset-password`;
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: redirectUrl,
       });
-      return { error };
+      
+      if (error) {
+        console.error('❌ Password reset error:', {
+          message: error.message,
+          status: error.status,
+          name: error.name
+        });
+        
+        // Enhanced error messages
+        let userFriendlyMessage = error.message;
+        if (error.message === 'User not found') {
+          userFriendlyMessage = 'Email não encontrado. Verifique o endereço digitado.';
+        } else if (error.message.includes('rate limit')) {
+          userFriendlyMessage = 'Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.';
+        }
+        
+        return { error: { ...error, message: userFriendlyMessage } };
+      }
+      
+      console.log('✅ Password reset email sent to:', email);
+      return { error: null, data };
     } catch (error) {
+      console.error('💥 Unexpected password reset error:', error);
+      return { error: error as Error };
+    }
+  };
+
+  const updatePassword = async (newPassword: string) => {
+    try {
+      console.log('🔄 Attempting password update');
+      
+      const { data, error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      
+      if (error) {
+        console.error('❌ Password update error:', error);
+        return { error };
+      }
+      
+      console.log('✅ Password updated successfully');
+      return { error: null, data };
+    } catch (error) {
+      console.error('💥 Unexpected password update error:', error);
+      return { error: error as Error };
+    }
+  };
+
+  const resendConfirmation = async (email: string) => {
+    try {
+      console.log('📧 Resending confirmation email to:', email);
+      
+      const { data, error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/confirm`
+        }
+      });
+      
+      if (error) {
+        console.error('❌ Resend confirmation error:', error);
+        return { error };
+      }
+      
+      console.log('✅ Confirmation email resent');
+      return { error: null, data };
+    } catch (error) {
+      console.error('💥 Unexpected resend error:', error);
       return { error: error as Error };
     }
   };
 
   const isAdmin = () => {
-    return profile?.role === 'admin';
+    return profile?.role === 'admin' && profile?.status === 'approved';
   };
 
   return {
@@ -183,6 +306,8 @@ export const useAuthState = () => {
     signUp,
     signOut,
     resetPassword,
+    updatePassword,
+    resendConfirmation,
     isAdmin,
   };
 };

@@ -16,6 +16,7 @@ import { QASummary } from '@/components/qa/QASummary';
 import { RedirectHandler } from '@/components/RedirectHandler';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useSettings } from '@/hooks/useSettings';
+import { AuthProvider } from '@/components/AuthProvider';
 import Gone from "@/pages/Gone";
 
 // Lazy load main pages for code splitting
@@ -28,6 +29,9 @@ const RobotsTxt = lazy(() => import("./pages/RobotsTxt"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const PoliticasPrivacidade = lazy(() => import("./pages/PoliticasPrivacidade"));
 const AuthPage = lazy(() => import("./pages/auth/AuthPage"));
+const PasswordResetPage = lazy(() => import("./pages/auth/PasswordResetPage"));
+const EmailConfirmationPage = lazy(() => import("./pages/auth/EmailConfirmationPage"));
+const EmailConfirmSuccessPage = lazy(() => import("./pages/auth/EmailConfirmSuccessPage"));
 
 // Lazy load admin pages
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -76,8 +80,11 @@ const AppContent = () => {
           <Route path="/politicas-de-privacidade" element={<PoliticasPrivacidade />} />
           <Route path="/gone" element={<Gone />} />
           
-          {/* Auth Route */}
+          {/* Auth Routes */}
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/auth/email-confirmation" element={<EmailConfirmationPage />} />
+          <Route path="/auth/confirm" element={<EmailConfirmSuccessPage />} />
+          <Route path="/auth/reset-password" element={<PasswordResetPage />} />
           
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLayout />}>
@@ -110,22 +117,24 @@ const AppContent = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <HelmetProvider>
-      <TooltipProvider>
-        <ErrorBoundary>
-          <Toaster />
-          <Sonner />
+      <AuthProvider>
+        <TooltipProvider>
+          <ErrorBoundary>
+            <Toaster />
+            <Sonner />
 
-          <AppContent />
+            <AppContent />
 
-          <CookieBanner />
-          <CookiePreferencesModal />
-          <GA4Debug />
-          <PerformanceMonitor />
-          <PerformanceTracker />
-          <QAChecklist />
-          <QASummary />
-        </ErrorBoundary>
-      </TooltipProvider>
+            <CookieBanner />
+            <CookiePreferencesModal />
+            <GA4Debug />
+            <PerformanceMonitor />
+            <PerformanceTracker />
+            <QAChecklist />
+            <QASummary />
+          </ErrorBoundary>
+        </TooltipProvider>
+      </AuthProvider>
     </HelmetProvider>
   </QueryClientProvider>
 );
