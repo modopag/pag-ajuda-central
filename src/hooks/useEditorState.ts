@@ -58,46 +58,48 @@ export const useEditorState = ({
   );
 
   const setContent = useCallback((content: string) => {
+    // FASE 3: Simplificar write lock - só usar durante reset
     if (writeLockRef.current) {
-      console.log('🔒 useEditorState - write locked, ignoring setContent');
+      console.log('🔒 useEditorState - write locked during reset, ignoring setContent');
       return;
     }
     
-    console.log('📝 useEditorState - setContent:', { content: content.slice(0, 100) + '...' });
+    console.log('📝 useEditorState - setContent (external):', { content: content.slice(0, 100) + '...' });
+    
+    // Atualizar conteúdo mas não marcar como dirty (conteúdo externo)
     contentRef.current = content;
-    onContentChange(content);
-  }, [onContentChange]);
+    // NÃO chamar onContentChange aqui para evitar loops
+  }, []);
 
   const handleContentChange = useCallback((content: string) => {
+    // FASE 3: Simplificar write lock check
     if (writeLockRef.current) {
-      console.log('🔒 useEditorState - write locked, ignoring handleContentChange');
+      console.log('🔒 useEditorState - ignoring change during reset');
       return;
     }
     
-    console.log('🔄 useEditorState - handleContentChange:', { 
+    console.log('🔄 useEditorState - handleContentChange (from editor):', { 
       contentLength: content.length,
-      previousLength: contentRef.current.length,
-      isDirty: dirtyRef.current 
+      previousLength: contentRef.current.length
     });
     
+    // Sempre atualizar ref primeiro
+    const previousContent = contentRef.current;
+    contentRef.current = content;
+    
     // Só marcar como dirty se realmente mudou (comparação robusta)
-    if (content !== contentRef.current) {
-      contentRef.current = content;
-      
+    if (content !== previousContent) {
       // Verificar se mudou em relação ao conteúdo inicial usando hash
       const currentHash = createContentHash(content || '');
       const reallyChanged = currentHash !== initialHashRef.current;
       
-      if (reallyChanged && !dirtyRef.current) {
-        dirtyRef.current = true;
-        setIsDirty(true);
-        console.log('✏️ useEditorState - marked as dirty (content really changed)');
-      } else if (!reallyChanged && dirtyRef.current) {
-        dirtyRef.current = false;
-        setIsDirty(false);
-        console.log('✅ useEditorState - marked as clean (reverted to initial)');
+      if (reallyChanged !== dirtyRef.current) {
+        dirtyRef.current = reallyChanged;
+        setIsDirty(reallyChanged);
+        console.log(`${reallyChanged ? '✏️' : '✅'} useEditorState - marked as ${reallyChanged ? 'dirty' : 'clean'}`);
       }
       
+      // Sempre propagar mudanças para o componente pai
       onContentChange(content);
     }
   }, [onContentChange]);
@@ -114,22 +116,23 @@ export const useEditorState = ({
   }, []);
 
   const resetToInitial = useCallback(() => {
-    console.log('🔄 useEditorState - resetting to initial content:', initialContent);
+    console.log('🔄 useEditorState - resetting to initial content');
     
-    // Ativar write lock durante reset
+    // FASE 3: Write lock mais curto e direto
     writeLockRef.current = true;
     
-    contentRef.current = initialContent || '';
-    initialHashRef.current = createContentHash(initialContent || '');
+    const safeInitialContent = initialContent || '';
+    contentRef.current = safeInitialContent;
+    initialHashRef.current = createContentHash(safeInitialContent);
     dirtyRef.current = false;
     setIsDirty(false);
-    onContentChange(initialContent || '');
     
-    // Remover write lock após um tick
-    setTimeout(() => {
-      writeLockRef.current = false;
-      console.log('🔓 useEditorState - write lock released after reset');
-    }, 0);
+    // Propagar mudança para componente pai
+    onContentChange(safeInitialContent);
+    
+    // Release lock imediatamente após operações síncronas
+    writeLockRef.current = false;
+    console.log('🔓 useEditorState - reset completed, lock released');
   }, [initialContent, onContentChange]);
 
   return {

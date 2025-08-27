@@ -71,19 +71,21 @@ export const StableRichTextEditor = ({
     }
   }, [value, hasInitialized, editorState]);
 
-  // FASE 2: Container com display:none para esconder completamente
+  // FASE 3: Container com opacity para manter no DOM mas esconder visualmente
   // Remove qualquer transição CSS que possa causar conflitos
   const containerClasses = cn(
-    "relative min-h-[480px] w-full", // Altura fixa para reduzir CLS
-    {
-      "hidden": !isVisible, // display: none ao invés de opacity
-    },
+    "relative min-h-[480px] w-full transition-opacity duration-200", // Altura fixa para reduzir CLS
     className
   );
 
+  const containerStyle = {
+    opacity: isVisible ? 1 : 0,
+    pointerEvents: isVisible ? 'auto' : 'none'
+  } as React.CSSProperties;
+
   if (loading) {
     return (
-      <div className={containerClasses}>
+      <div className={containerClasses} style={containerStyle}>
         <div className="flex items-center justify-center h-96 border rounded-md">
           <div className="text-center">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2"></div>
@@ -102,7 +104,7 @@ export const StableRichTextEditor = ({
   });
 
   return (
-    <div className={containerClasses}>
+    <div className={containerClasses} style={containerStyle}>
       {/* FASE 3: Lazy loading do ReactQuill para melhor performance */}
       <Suspense fallback={
         <div className="flex items-center justify-center h-96 border rounded-md">

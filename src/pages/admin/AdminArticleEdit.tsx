@@ -479,11 +479,12 @@ export default function AdminArticleEdit() {
 
         {/* Content Tab - sempre renderizado, usar opacity ao invés de hidden */}
         <div 
-          className={`space-y-6 transition-opacity duration-200 ${
+          className={`space-y-6 ${
             activeTab === 'content' 
               ? 'opacity-100 pointer-events-auto' 
               : 'opacity-0 pointer-events-none absolute inset-0'
           }`}
+          style={{ transition: 'opacity 0.2s ease-in-out' }}
         >
           <Card>
             <CardHeader>
@@ -605,11 +606,12 @@ export default function AdminArticleEdit() {
 
         {/* SEO Tab - sempre renderizado, usar opacity ao invés de condicional */}
         <div 
-          className={`space-y-6 transition-opacity duration-200 ${
+          className={`space-y-6 ${
             activeTab === 'seo' 
               ? 'opacity-100 pointer-events-auto' 
               : 'opacity-0 pointer-events-none absolute inset-0'
           }`}
+          style={{ transition: 'opacity 0.2s ease-in-out' }}
         >
           <div className="space-y-6">
             <Card>

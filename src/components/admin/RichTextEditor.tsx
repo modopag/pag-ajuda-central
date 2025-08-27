@@ -38,7 +38,7 @@ export const RichTextEditor = ({
     return typeof value === 'string' ? value : String(value);
   }, [value]);
 
-  // FASE 2: Guard de visibilidade - verificar se elemento está visível no DOM
+  // FASE 3: Guard de visibilidade melhorado - considera opacity e pointer-events
   const isEditorVisible = useCallback(() => {
     try {
       if (!containerRef.current) return false;
@@ -49,14 +49,32 @@ export const RichTextEditor = ({
         return false;
       }
       
+      // NOVO: Verificar opacity e pointer-events para detectar escondido via CSS
+      const opacity = parseFloat(computedStyle.opacity || '1');
+      const pointerEvents = computedStyle.pointerEvents;
+      if (opacity <= 0.1 || pointerEvents === 'none') {
+        console.log('👁️ RichTextEditor - hidden via opacity/pointer-events:', { opacity, pointerEvents });
+        return false;
+      }
+      
       // Verificar se tem dimensões
       const rect = containerRef.current.getBoundingClientRect();
-      return rect.width > 0 && rect.height > 0;
+      const hasSize = rect.width > 0 && rect.height > 0;
+      
+      console.log('👁️ RichTextEditor - visibility check:', { 
+        hasSize, 
+        opacity, 
+        pointerEvents, 
+        isVisible,
+        display: computedStyle.display
+      });
+      
+      return hasSize && isVisible;
     } catch (error) {
       console.warn('🚨 RichTextEditor - error checking visibility:', error);
       return false;
     }
-  }, []);
+  }, [isVisible]);
 
   // FASE 2: Guard antes de qualquer operação do Quill
   const getQuillSafely = useCallback(() => {
@@ -225,20 +243,22 @@ export const RichTextEditor = ({
     }
   }, []);
 
-  // FASE 2: Nunca desmontar completamente - sempre manter no DOM
-  // FASE 3: Container com altura fixa para melhor CLS
+  // FASE 3: Container com opacity ao invés de invisible/absolute
   const containerClass = cn(
     "prose-editor min-h-[400px]", // Altura mínima fixa para reduzir CLS
-    {
-      "invisible absolute": !isVisible, // Esconder mas manter no DOM
-    },
     className
   );
+  
+  const containerStyle = {
+    opacity: isVisible ? 1 : 0,
+    pointerEvents: isVisible ? 'auto' : 'none',
+    transition: 'opacity 0.2s ease-in-out'
+  } as React.CSSProperties;
 
   // Loading state
   if (!isMounted || !isReady) {
     return (
-      <div className={containerClass} ref={containerRef}>
+      <div className={containerClass} style={containerStyle} ref={containerRef}>
         <div className="flex items-center justify-center h-96 border rounded-md">
           <div className="text-center">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2"></div>
@@ -252,7 +272,7 @@ export const RichTextEditor = ({
   // Error state
   if (hasError) {
     return (
-      <div className={containerClass} ref={containerRef}>
+      <div className={containerClass} style={containerStyle} ref={containerRef}>
         <div className="flex items-center justify-center h-96 border rounded-md border-red-200 bg-red-50">
           <div className="text-center">
             <div className="text-red-600 mb-2">⚠️ Erro no editor</div>
@@ -308,7 +328,7 @@ export const RichTextEditor = ({
           }
         `
       }} />
-      <div className={containerClass} ref={containerRef}>
+      <div className={containerClass} style={containerStyle} ref={containerRef}>
         <ReactQuill
           ref={quillRef}
           theme="snow"
