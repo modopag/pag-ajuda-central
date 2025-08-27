@@ -271,98 +271,58 @@ async function cacheFirst(request) {
   }
 }
 
-// Network First Strategy for HTML - INSTANT LOADING OPTIMIZATION
+// Network First Strategy for HTML - ULTRA-FAST LOADING
 async function networkFirstForHTML(request) {
   try {
-    // Extremely fast timeout for instant loading perception
+    // Ultra-fast timeout for instant perception
     const networkResponse = await Promise.race([
       fetch(request),
       new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Network timeout for instant loading')), 1000) // Ultra-fast timeout
+        setTimeout(() => reject(new Error('Ultra-fast timeout')), 800) // Reduced from 1000ms
       )
     ]);
     
-    // For HTML, NEVER cache responses to prevent stale content
+    // Never cache HTML - always serve fresh content
     if (networkResponse.ok && networkResponse.status === 200) {
-      console.log('[SW] Serving fresh HTML for instant loading');
       return networkResponse;
     }
     
     return networkResponse;
   } catch (error) {
-    console.log('[SW] Instant loading fallback:', error.message);
-    
-    // For instant loading, show immediate basic response
+    console.log('[SW] Ultra-fast fallback activated:', error.message);
     return createBasicFallbackResponse();
   }
 }
 
-// Network First Strategy (for API calls) - IMPROVED
+// Network First Strategy (for API calls) - SIMPLIFIED
 async function networkFirst(request) {
   try {
-    // Add timeout for network requests
+    // Shorter timeout for better perceived performance
     const networkResponse = await Promise.race([
       fetch(request),
       new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Network timeout')), 5000)
+        setTimeout(() => reject(new Error('Network timeout')), 3000) // Reduced from 5000ms
       )
     ]);
     
-    // Only cache successful responses with optimized cache headers
-    if (shouldCacheResponse(networkResponse)) {
-      // For HTML responses, don't cache at all - let server handle HTML caching
-      if (request.headers.get('accept')?.includes('text/html')) {
-        console.log('[SW] Not caching HTML - server-side caching only');
-        return networkResponse;
-      } else {
-        // Cache non-HTML successful responses with optimized headers
-        const responseClone = safeClone(networkResponse, 'networkFirst');
-        if (responseClone) {
-          try {
-            const cachedResponse = addOptimizedCacheHeaders(responseClone, false);
-            const cache = await caches.open(DYNAMIC_CACHE);
-            await cache.put(request, cachedResponse);
-          } catch (cacheError) {
-            console.warn('[SW] Failed to cache response:', cacheError);
-          }
+    // Simplified caching: only cache successful non-HTML responses
+    if (shouldCacheResponse(networkResponse) && !request.headers.get('accept')?.includes('text/html')) {
+      const responseClone = safeClone(networkResponse, 'networkFirst');
+      if (responseClone) {
+        try {
+          const cache = await caches.open(DYNAMIC_CACHE);
+          await cache.put(request, responseClone);
+        } catch (cacheError) {
+          // Silent fail - performance over complexity
         }
       }
     }
     
     return networkResponse;
   } catch (error) {
-    console.log('[SW] Network failed, trying cache:', error.message);
-    
-    // Fallback to cache
+    // Fast fallback to cache
     const cachedResponse = await caches.match(request);
-    if (cachedResponse) {
-      // Check if cached HTML is still valid
-      if (request.headers.get('accept')?.includes('text/html')) {
-        try {
-          const text = await cachedResponse.text();
-          if (text.includes('Oops! Algo deu errado')) {
-            console.warn('[SW] Cached response contains error, serving basic fallback');
-            return createBasicFallbackResponse();
-          }
-          // Return valid cached HTML
-          return new Response(text, {
-            status: cachedResponse.status,
-            statusText: cachedResponse.statusText,
-            headers: cachedResponse.headers
-          });
-        } catch (err) {
-          console.warn('[SW] Error reading cached HTML:', err);
-        }
-      }
-      return cachedResponse;
-    }
-
-    // Return basic fallback for HTML requests
-    if (request.headers.get('accept')?.includes('text/html')) {
-      return createBasicFallbackResponse();
-    }
-
-    return new Response('Offline', { 
+    return cachedResponse || new Response('Offline', { 
       status: 503,
       headers: { 'Content-Type': 'text/plain' }
     });
