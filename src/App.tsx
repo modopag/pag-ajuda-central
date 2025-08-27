@@ -178,8 +178,7 @@ const App = () => (
 
             <AppContent />
             
-            {/* Performance components don't use router hooks */}
-            <PerformanceMonitor />
+            {/* Performance components - silent tracking only */}
             <PerformanceTracker />
             <WebVitalsReporter />
           </ErrorBoundary>
