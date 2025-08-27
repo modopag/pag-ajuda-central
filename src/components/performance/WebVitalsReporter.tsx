@@ -29,15 +29,25 @@ export const WebVitalsReporter = () => {
         };
 
         // Send to analytics endpoint (use beacon for reliability)
-        if (navigator.sendBeacon) {
-          navigator.sendBeacon('/api/vitals', JSON.stringify(webVitalsData));
-        } else {
-          // Fallback for older browsers
-          fetch('/api/vitals', {
-            method: 'POST',
-            body: JSON.stringify(webVitalsData),
-            headers: { 'Content-Type': 'application/json' },
-            keepalive: true
+        const sendToEndpoint = () => {
+          if (navigator.sendBeacon) {
+            return navigator.sendBeacon('/api/vitals', JSON.stringify(webVitalsData));
+          } else {
+            // Fallback for older browsers
+            return fetch('/api/vitals', {
+              method: 'POST',
+              body: JSON.stringify(webVitalsData),
+              headers: { 'Content-Type': 'application/json' },
+              keepalive: true
+            }).catch(() => false);
+          }
+        };
+
+        // Try real endpoint first, fallback to mock for development
+        if (!sendToEndpoint()) {
+          // Import mock endpoint dynamically to avoid bundling in production
+          import('@/utils/webVitalsMock').then(({ mockWebVitalsEndpoint }) => {
+            mockWebVitalsEndpoint(webVitalsData);
           }).catch(() => {
             // Silent fail - don't break user experience
           });

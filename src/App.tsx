@@ -11,6 +11,7 @@ import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 import { GA4Debug } from '@/components/GA4Debug';
 import { PerformanceMonitor } from '@/components/performance/PerformanceMonitor';
 import { PerformanceTracker } from '@/components/performance/PerformanceTracker';
+import { WebVitalsReporter } from '@/components/performance/WebVitalsReporter';
 import { RedirectHandler } from '@/components/RedirectHandler';
 import { HashFragmentHandler } from '@/components/HashFragmentHandler';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -180,6 +181,7 @@ const App = () => (
             {/* Performance components don't use router hooks */}
             <PerformanceMonitor />
             <PerformanceTracker />
+            <WebVitalsReporter />
           </ErrorBoundary>
         </TooltipProvider>
       </AuthProvider>
