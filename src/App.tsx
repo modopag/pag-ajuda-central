@@ -67,7 +67,11 @@ const PageLoader = () => (
 
 const queryClient = new QueryClient();
 
-const AppContent = () => {
+interface AppProps {
+  ssrData?: any;
+}
+
+const AppContent = ({ ssrData }: { ssrData?: any }) => {
   const { seo } = useCachedSettings();
   
   return (
@@ -139,7 +143,7 @@ const AppContent = () => {
   );
 };
 
-const App = () => (
+const App = ({ ssrData }: AppProps = {}) => (
   <QueryClientProvider client={queryClient}>
     <HelmetProvider>
       <AuthProvider>
@@ -148,7 +152,7 @@ const App = () => (
             <Toaster />
             <Sonner />
 
-            <AppContent />
+            <AppContent ssrData={ssrData} />
             
             {/* Performance components don't use router hooks */}
             <PerformanceMonitor />

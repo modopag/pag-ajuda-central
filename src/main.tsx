@@ -1,54 +1,59 @@
-import React from 'react'
-import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
+import { StrictMode } from "react";
+import { createRoot, hydrateRoot } from "react-dom/client";
+import App from "./App.tsx";
+import "./index.css";
 
-// Defer non-critical performance utilities until after initial render
-const loadPerformanceUtilities = () => {
-  // Import consolidated critical resources
-  import('./utils/criticalResources').then(({ initializeCriticalResources, setupResourceOptimization }) => {
-    initializeCriticalResources();
-    setupResourceOptimization();
-  });
+// Check if we're hydrating SSR content
+const isSSR = document.getElementById("root")?.innerHTML.trim() !== '';
+
+// Deferred performance utilities loading to optimize initial JS budget
+const loadPerformanceUtilities = async () => {
+  // Load critical resources first
+  const { initializeCriticalResources, setupResourceOptimization } = await import('./utils/criticalResources');
+  initializeCriticalResources();
+  setupResourceOptimization();
   
-  // Import performance monitoring - deferred for JS budget optimization
-  import('./utils/performance').then(({ initializePerformanceMonitoring }) => {
-    initializePerformanceMonitoring();
-  });
+  // Initialize performance monitoring
+  const { initializePerformanceMonitoring } = await import('./utils/performance');
+  initializePerformanceMonitoring();
   
-  // Import hydration fixes - deferred
-  import('./utils/hydrationFix').then(({ initializeHydrationFixes }) => {
-    initializeHydrationFixes();
-  });
+  // Initialize hydration fixes
+  const { initializeHydrationFixes } = await import('./utils/hydrationFix');  
+  initializeHydrationFixes();
   
-  // Import GA4 tracking - consent-gated and deferred
-  import('./utils/ga4Events').then(({ initEnhancedTracking }) => {
-    initEnhancedTracking();
-  });
+  // Initialize GA4 tracking (deferred)
+  const { initEnhancedTracking } = await import('./utils/ga4Events');
+  initEnhancedTracking();
 };
 
-// Import bundle analyzer for development performance monitoring (deferred)
+// Load development utilities
 if (import.meta.env.DEV) {
-  requestIdleCallback(() => {
-    import('./utils/bundleAnalyzer');
-    import('./utils/qaRunner'); // Auto-runs QA tests in development
+  requestIdleCallback(async () => {
+    await import('./utils/bundleAnalyzer');
+    await import('./utils/qaRunner');
   });
 }
 
-// Initialize critical path rendering first
-createRoot(document.getElementById("root")!).render(
-  <App />
+// Render or hydrate the app
+const rootElement = document.getElementById("root")!;
+const appElement = (
+  <StrictMode>
+    <App />
+  </StrictMode>
 );
 
-// Defer all performance utilities until after initial render - JS budget optimization
-if (typeof window !== 'undefined') {
-  // Use requestIdleCallback to defer non-critical scripts
-  if ('requestIdleCallback' in window) {
-    requestIdleCallback(loadPerformanceUtilities, { timeout: 2000 });
-  } else {
-    setTimeout(loadPerformanceUtilities, 100);
-  }
+if (isSSR) {
+  // Hydrate SSR content
+  hydrateRoot(rootElement, appElement);
+} else {
+  // Client-side render
+  createRoot(rootElement).render(appElement);
 }
+
+// Load performance utilities after initial render (deferred to optimize JS budget)
+requestIdleCallback(() => {
+  loadPerformanceUtilities();
+});
 
 // Service Worker registration - deferred for JS budget optimization
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
