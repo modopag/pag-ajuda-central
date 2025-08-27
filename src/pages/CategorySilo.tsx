@@ -13,17 +13,63 @@ import { getDataAdapter } from '@/lib/data-adapter';
 import { generateArticleUrl, generateCategoryUrl, generateCanonicalUrl, generateBreadcrumbItems, isReservedPath } from '@/utils/urlGenerator';
 import { useSimpleSearch } from '@/hooks/useSimpleSearch';
 import { useSettings } from '@/hooks/useSettings';
+import { useSSRSafeQuery } from '@/hooks/useSSRSafeData';
 import type { Category, Article } from '@/types/admin';
 import { Clock, FileText, ChevronRight, Search, MessageCircle, Mail, ExternalLink, TrendingUp, Users, Calendar } from 'lucide-react';
 
-export default function CategorySilo() {
+interface CategorySiloProps {
+  ssrData?: {
+    category: Category;
+    articles: Article[];
+  };
+}
+
+export default function CategorySilo({ ssrData }: CategorySiloProps) {
   const { categorySlug } = useParams<{ categorySlug: string }>();
   const navigate = useNavigate();
-  const [category, setCategory] = useState<Category | null>(null);
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const { seo } = useSettings();
+
+  // SSR-safe data fetching for category data
+  const { data: categoryData, isLoading: loading } = useSSRSafeQuery(
+    ['category', categorySlug],
+    async () => {
+      if (!categorySlug) return null;
+      
+      // Check if category slug is reserved
+      if (isReservedPath(categorySlug)) {
+        throw new Error('Reserved path');
+      }
+
+      const adapter = await getDataAdapter();
+      
+      // Load category
+      const categories = await adapter.getCategories();
+      const foundCategory = categories.find(c => c.slug === categorySlug && c.is_active);
+      
+      if (!foundCategory) {
+        throw new Error('Category not found');
+      }
+
+      // Load articles for this category
+      const allArticles = await adapter.getArticles();
+      const categoryArticles = allArticles.filter(
+        a => a.category_id === foundCategory.id && a.status === 'published'
+      );
+
+      return {
+        category: foundCategory,
+        articles: categoryArticles
+      };
+    },
+    ssrData,
+    {
+      enabled: !!categorySlug,
+    }
+  );
+
+  const category = categoryData?.category || null;
+  const articles = categoryData?.articles || [];
 
   const {
     filteredArticles,
@@ -41,50 +87,14 @@ export default function CategorySilo() {
       navigate('/', { replace: true });
       return;
     }
-
-    // Check if category slug is reserved
-    if (isReservedPath(categorySlug)) {
-      setNotFound(true);
-      setLoading(false);
-      return;
-    }
-
-    loadCategoryData();
   }, [categorySlug, navigate]);
 
-  const loadCategoryData = async () => {
-    if (!categorySlug) return;
-
-    try {
-      setLoading(true);
-      const adapter = await getDataAdapter();
-
-      // Load category
-      const categories = await adapter.getCategories();
-      const foundCategory = categories.find(c => c.slug === categorySlug && c.is_active);
-
-      if (!foundCategory) {
-        setNotFound(true);
-        setLoading(false);
-        return;
-      }
-
-      setCategory(foundCategory);
-
-      // Load articles for this category
-      const allArticles = await adapter.getArticles();
-      const categoryArticles = allArticles.filter(
-        a => a.category_id === foundCategory.id && a.status === 'published'
-      );
-
-      setArticles(categoryArticles);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error loading category:', error);
+  // Handle loading states and errors
+  useEffect(() => {
+    if (categoryData === null && !loading) {
       setNotFound(true);
-      setLoading(false);
     }
-  };
+  }, [categoryData, loading]);
 
   if (loading) {
     return (

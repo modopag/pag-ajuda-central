@@ -10,6 +10,8 @@ import { SkipLink } from "@/components/SkipLink";
 import { SEOHelmet } from "@/components/SEO/SEOHelmet";
 import { generateWebsiteJsonLd } from '@/utils/jsonLd';
 import { useCachedSettings } from '@/hooks/useCachedSettings';
+import { useSSRSafeQuery } from '@/hooks/useSSRSafeData';
+import { getDataAdapter } from '@/lib/data-adapter';
 import { Button } from "@/components/ui/button";
 import { LazySection } from "@/components/performance/LazySection";
 import { CategoryGridSkeleton } from '@/components/skeletons/CategoryGridSkeleton';
@@ -18,10 +20,36 @@ import { ProgressiveSection } from '@/components/SmartLoadingStates';
 import { MessageSquare, Mail } from "lucide-react";
 import { ResilientErrorBoundary } from "@/components/ResilientErrorBoundary";
 
-const Index = () => {
+interface IndexProps {
+  ssrData?: {
+    categories: any[];
+    faqs: any[];
+  };
+}
+
+const Index = ({ ssrData }: IndexProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const { seo } = useCachedSettings();
+
+  // SSR-safe data fetching for categories and FAQs
+  const { data: categories, isLoading: categoriesLoading } = useSSRSafeQuery(
+    ['categories'],
+    async () => {
+      const adapter = await getDataAdapter();
+      return adapter.getCategories();
+    },
+    ssrData?.categories
+  );
+
+  const { data: faqs, isLoading: faqsLoading } = useSSRSafeQuery(
+    ['faqs'],
+    async () => {
+      const adapter = await getDataAdapter();
+      return adapter.getFAQs();
+    },
+    ssrData?.faqs
+  );
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);

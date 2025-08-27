@@ -18,8 +18,17 @@ import { getDataAdapter } from '@/lib/data-adapter';
 import { generateArticleUrl, generateCategoryUrl, generateCanonicalUrl, generateBreadcrumbItems, isReservedPath } from '@/utils/urlGenerator';
 import { initializeLazyImages } from '@/utils/lazyImages';
 import { useSettings } from '@/hooks/useSettings';
+import { useSSRSafeQuery } from '@/hooks/useSSRSafeData';
 import type { Article, Category, Tag } from '@/types/admin';
 import { Clock, Eye, Tag as TagIcon, ChevronRight, User, Heart, Share2, BookOpen, Home, Menu, List } from 'lucide-react';
+
+interface ArticleSiloProps {
+  ssrData?: {
+    article: Article;
+    category: Category;
+    tags: Tag[];
+  };
+}
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -32,34 +41,71 @@ import { handleArticleLike, handleArticleShare, isArticleLiked } from '@/utils/a
 import AdminComments from '@/components/AdminComments';
 import { useAuth } from '@/hooks/useAuth';
 
-export default function ArticleSilo() {
+export default function ArticleSilo({ ssrData }: ArticleSiloProps) {
   const { categorySlug, articleSlug } = useParams<{ categorySlug: string; articleSlug: string }>();
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
-  const [article, setArticle] = useState<Article | null>(null);
-  const [category, setCategory] = useState<Category | null>(null);
-  const [tags, setTags] = useState<Tag[]>([]);
-  const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [liked, setLiked] = useState(false);
   const { seo } = useSettings();
+
+  // SSR-safe data fetching for article data
+  const { data: articleData, isLoading: loading } = useSSRSafeQuery(
+    ['article', categorySlug, articleSlug],
+    async () => {
+      if (!categorySlug || !articleSlug) return null;
+      
+      // Check if category slug is reserved
+      if (isReservedPath(categorySlug)) {
+        throw new Error('Reserved path');
+      }
+
+      const adapter = await getDataAdapter();
+      
+      // Load category first
+      const categories = await adapter.getCategories();
+      const foundCategory = categories.find(c => c.slug === categorySlug && c.is_active);
+      
+      if (!foundCategory) {
+        throw new Error('Category not found');
+      }
+
+      // Load article within this category
+      const articles = await adapter.getArticles();
+      const foundArticle = articles.find(
+        a => a.slug === articleSlug && 
+             a.category_id === foundCategory.id && 
+             a.status === 'published'
+      );
+
+      if (!foundArticle) {
+        throw new Error('Article not found');
+      }
+
+      return {
+        article: foundArticle,
+        category: foundCategory,
+        tags: [] // Simplified for now
+      };
+    },
+    ssrData,
+    {
+      enabled: !!(categorySlug && articleSlug),
+    }
+  );
+
+  const article = articleData?.article || null;
+  const category = articleData?.category || null;
+  const tags = articleData?.tags || [];
 
   useEffect(() => {
     if (!categorySlug || !articleSlug) {
       navigate('/', { replace: true });
       return;
     }
-
-    // Check if category slug is reserved
-    if (isReservedPath(categorySlug)) {
-      setNotFound(true);
-      setLoading(false);
-      return;
-    }
-
-    loadArticleData();
   }, [categorySlug, articleSlug, navigate]);
 
+  // Initialize effects for article interactions
   useEffect(() => {
     if (article && !loading) {
       // Initialize lazy loading for article images
@@ -74,53 +120,6 @@ export default function ArticleSilo() {
       return cleanup;
     }
   }, [article, loading]);
-
-  const loadArticleData = async () => {
-    if (!categorySlug || !articleSlug) return;
-
-    try {
-      setLoading(true);
-      const adapter = await getDataAdapter();
-
-      // Load category first
-      const categories = await adapter.getCategories();
-      const foundCategory = categories.find(c => c.slug === categorySlug && c.is_active);
-
-      if (!foundCategory) {
-        setNotFound(true);
-        setLoading(false);
-        return;
-      }
-
-      setCategory(foundCategory);
-
-      // Load article within this category
-      const articles = await adapter.getArticles();
-      const foundArticle = articles.find(
-        a => a.slug === articleSlug && 
-             a.category_id === foundCategory.id && 
-             a.status === 'published'
-      );
-
-      if (!foundArticle) {
-        setNotFound(true);
-        setLoading(false);
-        return;
-      }
-
-      setArticle(foundArticle);
-
-      // Load article tags - using a simplified approach for now
-      // In a real implementation, you'd have a proper tags relationship
-      setTags([]);
-
-      setLoading(false);
-    } catch (error) {
-      console.error('Error loading article:', error);
-      setNotFound(true);
-      setLoading(false);
-    }
-  };
 
   const incrementViewCount = async () => {
     if (!article) return;
@@ -150,11 +149,8 @@ export default function ArticleSilo() {
       // Mark as viewed in this session
       sessionStorage.setItem(sessionKey, 'true');
       
-      // Update local state
-      setArticle(prev => prev ? { 
-        ...prev, 
-        view_count: (prev.view_count || 0) + 1 
-      } : null);
+      // Note: In SSR mode, we don't update local state as data is managed by React Query
+      console.log(`View count incremented for article ${article.id}`);
     } catch (error) {
       console.error('Error incrementing view count:', error);
     }

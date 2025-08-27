@@ -95,7 +95,7 @@ const AppContent = ({ ssrData }: { ssrData?: any }) => {
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Reserved routes - highest priority */}
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<Index ssrData={ssrData?.home} />} />
           <Route path="/buscar" element={<Search />} />
           <Route path="/sitemap.xml" element={<Sitemap />} />
           <Route path="/robots.txt" element={<RobotsTxt />} />
@@ -132,8 +132,8 @@ const AppContent = ({ ssrData }: { ssrData?: any }) => {
           </Route>
           
           {/* NEW SILO URLs */}
-          <Route path="/:categorySlug/" element={<CategorySilo />} />
-          <Route path="/:categorySlug/:articleSlug" element={<ArticleSilo />} />
+          <Route path="/:categorySlug/" element={<CategorySilo ssrData={ssrData?.category} />} />
+          <Route path="/:categorySlug/:articleSlug" element={<ArticleSilo ssrData={ssrData?.article} />} />
           
           {/* Catch-all 404 - MUST be last */}
           <Route path="*" element={<NotFound />} />
