@@ -44,59 +44,50 @@ export const useTableOfContents = (options: UseTableOfContentsOptions = {}) => {
     return id;
   }, []);
 
-  // Extract headings from content with improved DOM monitoring
+  // Extract headings from content with reliable article-focused collection
   useEffect(() => {
-    const extractHeadings = () => {
-      // Wait for content to be fully rendered - prioritize article content
-      const contentSelectors = [
-        'article .article-content',  // Most specific - article content area
-        '.article-content',          // Article content class
-        'article',                   // Article element
-        '.prose',                    // Prose content
-        'main',                      // Main content area
-        '[role="main"]'              // ARIA main role
-      ];
+    const article = document.querySelector('article');
+    if (!article) {
+      setHeadings([]);
+      return;
+    }
+
+    const slugify = (text: string) => {
+      return text
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .substring(0, 50);
+    };
+
+    const collectHeadings = () => {
+      // Find all H2 elements within the article
+      const h2Elements = Array.from(article.querySelectorAll<HTMLHeadingElement>('h2'));
       
-      let contentArea = null;
-      for (const sel of contentSelectors) {
-        contentArea = document.querySelector(sel);
-        if (contentArea) break;
-      }
-      
-      // Ensure we have article content before proceeding
-      if (!contentArea) {
-        setHeadings([]);
-        return;
-      }
-      
-      // Only search within the article content area
-      const headingElements = contentArea.querySelectorAll(selector);
-      
-      // Filter out headings from navigation, header, footer
-      const validHeadings = Array.from(headingElements).filter(el => {
-        const element = el as Element;
-        const parent = element.closest('nav, header, footer, .header, .footer, .navigation');
+      // Filter out headings from navigation, header, footer areas
+      const validHeadings = h2Elements.filter(el => {
+        const parent = el.closest('nav, header, footer, .header, .footer, .navigation');
         return !parent;
       });
-      
+
       if (validHeadings.length === 0) {
         setHeadings([]);
         return;
       }
-      
+
       const existingIds = new Set<string>();
       
       const extractedHeadings: Heading[] = validHeadings.map((element) => {
-        const htmlElement = element as HTMLElement;
-        const text = htmlElement.textContent?.trim() || '';
+        const text = element.textContent?.trim() || '';
         if (!text || text.length < 2) return null;
         
-        let id = htmlElement.id;
+        let id = element.id;
         
         // Generate ID if not exists
         if (!id) {
           id = generateId(text, existingIds);
-          htmlElement.id = id;
+          element.id = id;
         }
         
         existingIds.add(id);
@@ -104,12 +95,12 @@ export const useTableOfContents = (options: UseTableOfContentsOptions = {}) => {
         return {
           id,
           text,
-          level: parseInt(htmlElement.tagName.charAt(1), 10),
-          element: htmlElement
+          level: 2, // Only H2 elements
+          element
         };
       }).filter(Boolean) as Heading[];
       
-      // Only update if we have meaningful changes
+      // Update headings state
       setHeadings(prev => {
         if (prev.length !== extractedHeadings.length) return extractedHeadings;
         const hasChanges = extractedHeadings.some((heading, i) => 
@@ -119,55 +110,24 @@ export const useTableOfContents = (options: UseTableOfContentsOptions = {}) => {
       });
     };
 
-    // Debounced extraction to avoid excessive re-renders
-    let extractionTimeout: NodeJS.Timeout;
-    const debouncedExtraction = () => {
-      clearTimeout(extractionTimeout);
-      extractionTimeout = setTimeout(extractHeadings, 150);
-    };
+    // Initial collection using requestAnimationFrame for better timing
+    requestAnimationFrame(collectHeadings);
 
-    // Multiple extraction attempts to ensure content is ready
-    const initialTimer = setTimeout(extractHeadings, 100);
-    const secondTimer = setTimeout(extractHeadings, 500);
-    const finalTimer = setTimeout(extractHeadings, 1000);
-    
-    // Listen for content changes
-    const observer = new MutationObserver((mutations) => {
-      const hasRelevantChanges = mutations.some(mutation => {
-        if (mutation.type === 'childList') {
-          // Check if added nodes contain headings
-          const addedNodes = Array.from(mutation.addedNodes);
-          return addedNodes.some(node => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              const element = node as Element;
-              return element.matches?.(selector) || element.querySelector?.(selector);
-            }
-            return false;
-          });
-        }
-        return false;
-      });
-      
-      if (hasRelevantChanges) {
-        debouncedExtraction();
-      }
+    // Set up MutationObserver to watch for content changes in the article
+    const observer = new MutationObserver(() => {
+      requestAnimationFrame(collectHeadings);
     });
     
-    // Observe changes in content areas - focus on article content
-    const contentArea = document.querySelector('article .article-content, .article-content, article, .prose, main') || document.body;
-    observer.observe(contentArea, {
+    observer.observe(article, {
       childList: true,
-      subtree: true
+      subtree: true,
+      characterData: true
     });
     
     return () => {
-      clearTimeout(initialTimer);
-      clearTimeout(secondTimer);
-      clearTimeout(finalTimer);
-      clearTimeout(extractionTimeout);
       observer.disconnect();
     };
-  }, [selector, generateId]);
+  }, [generateId]);
 
   // Set up intersection observer for active heading tracking
   useEffect(() => {
