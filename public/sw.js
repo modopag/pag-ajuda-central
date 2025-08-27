@@ -149,17 +149,20 @@ async function networkFirst(request) {
     
     if (response.ok) {
       const cache = await caches.open(CACHE_NAME);
-      // Cache for 5 minutes only
-      const headers = new Headers(response.headers);
+      // Clone response before consuming it
+      const responseToCache = response.clone();
+      
+      // Add cache timestamp to headers
+      const headers = new Headers(responseToCache.headers);
       headers.set('sw-cached-at', Date.now().toString());
       
-      const cachedResponse = new Response(response.body, {
-        status: response.status,
-        statusText: response.statusText,
+      const cachedResponse = new Response(responseToCache.body, {
+        status: responseToCache.status,
+        statusText: responseToCache.statusText,
         headers: headers,
       });
       
-      cache.put(request, cachedResponse.clone());
+      cache.put(request, cachedResponse);
     }
     
     return response;
