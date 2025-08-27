@@ -21,9 +21,21 @@ async function runSSG() {
     console.log('⚡ Executando pré-renderização...');
     execSync('npx tsx scripts/prerender.ts', { stdio: 'inherit', cwd: process.cwd() });
     
-    // 3. Test results
-    console.log('🔍 Verificando resultados...');
+    // 3. Copy rendered HTML to dist
+    console.log('📋 Copiando HTML renderizado para dist...');
     const distPath = path.resolve(process.cwd(), 'dist');
+    const renderedHtmlPath = path.resolve(process.cwd(), 'ssg-rendered.html');
+    const distIndexPath = path.join(distPath, 'index.html');
+    
+    if (existsSync(renderedHtmlPath)) {
+      await fs.copyFile(renderedHtmlPath, distIndexPath);
+      console.log('✅ HTML renderizado copiado para dist/index.html');
+    } else {
+      console.log('⚠️  ssg-rendered.html não encontrado, usando index.html padrão');
+    }
+    
+    // 4. Test results
+    console.log('🔍 Verificando resultados...');
     
     // Check if index.html has content
     const indexPath = path.join(distPath, 'index.html');
