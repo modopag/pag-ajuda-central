@@ -11,8 +11,6 @@ import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 import { GA4Debug } from '@/components/GA4Debug';
 import { PerformanceMonitor } from '@/components/performance/PerformanceMonitor';
 import { PerformanceTracker } from '@/components/performance/PerformanceTracker';
-import { QAChecklist } from '@/components/qa/QAChecklist';
-import { QASummary } from '@/components/qa/QASummary';
 import { RedirectHandler } from '@/components/RedirectHandler';
 import { HashFragmentHandler } from '@/components/HashFragmentHandler';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -138,8 +136,6 @@ const App = () => (
             <GA4Debug />
             <PerformanceMonitor />
             <PerformanceTracker />
-            <QAChecklist />
-            <QASummary />
           </ErrorBoundary>
         </TooltipProvider>
       </AuthProvider>
