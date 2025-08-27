@@ -281,6 +281,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           created_at: string
           email: string | null
           id: string
@@ -290,6 +292,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string
           email?: string | null
           id: string
@@ -299,6 +303,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string
           email?: string | null
           id?: string
@@ -307,7 +313,15 @@ export type Database = {
           status?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       redirects: {
         Row: {
@@ -445,6 +459,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_user: {
+        Args: { user_id: string }
+        Returns: undefined
+      }
+      can_user_login: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
+      ensure_root_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       generate_base_slug: {
         Args: { title_text: string }
         Returns: string
@@ -464,6 +490,10 @@ export type Database = {
       is_current_user_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      reject_user: {
+        Args: { user_id: string }
+        Returns: undefined
       }
       unaccent: {
         Args: { "": string }

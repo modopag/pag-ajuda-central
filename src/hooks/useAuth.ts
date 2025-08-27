@@ -132,6 +132,30 @@ export const useAuthState = () => {
         return { error: { ...error, message: userFriendlyMessage } };
       }
       
+      // Check if user is approved to login
+      if (data.user) {
+        try {
+          const { data: canLogin } = await supabase.rpc('can_user_login', { 
+            user_id: data.user.id 
+          });
+          
+          if (!canLogin) {
+            // Sign out the user immediately
+            await supabase.auth.signOut();
+            return { 
+              error: { 
+                message: 'Sua conta está aguardando aprovação do administrador. Você receberá um email quando sua conta for aprovada.',
+                name: 'ACCOUNT_PENDING_APPROVAL',
+                status: 403
+              } as Error 
+            };
+          }
+        } catch (approvalError) {
+          console.error('Error checking approval status:', approvalError);
+          // If we can't check approval, allow login for now but log the issue
+        }
+      }
+      
       console.log('✅ Sign in successful for:', data.user?.email);
       return { error: null, data };
     } catch (error) {

@@ -22,6 +22,7 @@ import {
   Lock,
   Activity,
   HelpCircle,
+  Users,
 } from "lucide-react";
 
 const menuItems = [
@@ -29,6 +30,11 @@ const menuItems = [
     title: "Dashboard",
     url: "/admin",
     icon: LayoutDashboard,
+  },
+  {
+    title: "Usuários",
+    url: "/admin/users",
+    icon: Users,
   },
   {
     title: "Artigos",

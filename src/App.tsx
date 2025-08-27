@@ -34,6 +34,7 @@ const PasswordResetPage = lazy(() => import("./pages/auth/PasswordResetPage"));
 const EmailConfirmationPage = lazy(() => import("./pages/auth/EmailConfirmationPage"));
 const EmailConfirmSuccessPage = lazy(() => import("./pages/auth/EmailConfirmSuccessPage"));
 const AuthConfirmPage = lazy(() => import("./pages/auth/AuthConfirmPage"));
+const ReauthPage = lazy(() => import("./pages/auth/ReauthPage"));
 
 // Lazy load admin pages
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
@@ -49,6 +50,7 @@ const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminFeedback = lazy(() => import("./pages/admin/AdminFeedback"));
 const AdminMonitoring = lazy(() => import("./pages/admin/AdminMonitoring"));
 const AdminFAQs = lazy(() => import("./pages/admin/AdminFAQs"));
+const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
 
 // Loading component for suspense fallback
 const PageLoader = () => (
@@ -89,6 +91,7 @@ const AppContent = () => {
           <Route path="/auth/confirm" element={<AuthConfirmPage />} />
           <Route path="/auth/confirm-success" element={<EmailConfirmSuccessPage />} />
           <Route path="/auth/reset-password" element={<PasswordResetPage />} />
+          <Route path="/auth/reauth" element={<ReauthPage />} />
           
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLayout />}>
@@ -104,6 +107,7 @@ const AppContent = () => {
             <Route path="settings" element={<AdminSettings />} />
             <Route path="feedback" element={<AdminFeedback />} />
             <Route path="faqs" element={<AdminFAQs />} />
+            <Route path="users" element={<AdminUsers />} />
           </Route>
           
           {/* NEW SILO URLs */}

@@ -49,41 +49,90 @@ export default function EmailConfirmSuccessPage() {
           </CardHeader>
           
           <CardContent className="space-y-4">
-            <Alert className="border-green-200 bg-green-50">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-800">
-                Seu email foi confirmado com sucesso. Sua conta está ativa!
-              </AlertDescription>
-            </Alert>
+            {user && profile ? (
+              <>
+                {profile.status === 'approved' ? (
+                  <Alert className="border-green-200 bg-green-50">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <AlertDescription className="text-green-800">
+                      Seu email foi confirmado e sua conta está aprovada! Você pode fazer login agora.
+                    </AlertDescription>
+                  </Alert>
+                ) : (
+                  <Alert className="border-amber-200 bg-amber-50">
+                    <CheckCircle className="h-4 w-4 text-amber-600" />
+                    <AlertDescription className="text-amber-800">
+                      Sua conta foi criada com sucesso, aguarde a aprovação do administrador.
+                    </AlertDescription>
+                  </Alert>
+                )}
 
-            {user && (
-              <div className="text-center space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Bem-vindo, <span className="font-medium">{user.email}</span>!
-                </p>
+                <div className="text-center space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Bem-vindo, <span className="font-medium">{user.email}</span>!
+                  </p>
+                  
+                  {profile.status === 'approved' && (
+                    <div className="space-y-2">
+                      <Button 
+                        asChild 
+                        className="w-full"
+                      >
+                        <Link to="/auth">
+                          Fazer login
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Link>
+                      </Button>
+                      
+                      <Button 
+                        asChild 
+                        variant="outline"
+                        className="w-full"
+                      >
+                        <Link to="/">
+                          Voltar ao site
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
+                  
+                  {profile.status === 'pending' && (
+                    <Button 
+                      asChild 
+                      variant="outline"
+                      className="w-full"
+                    >
+                      <Link to="/">
+                        Voltar ao site
+                      </Link>
+                    </Button>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                <Alert className="border-green-200 bg-green-50">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <AlertDescription className="text-green-800">
+                    Seu email foi confirmado com sucesso!
+                  </AlertDescription>
+                </Alert>
                 
-                <div className="space-y-2">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Redirecionando para o login...
+                  </p>
                   <Button 
                     asChild 
                     className="w-full"
                   >
                     <Link to="/auth">
-                      Fazer login
+                      Ir para login
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Link>
                   </Button>
-                  
-                  <Button 
-                    asChild 
-                    variant="outline"
-                    className="w-full"
-                  >
-                    <Link to="/">
-                      Voltar ao site
-                    </Link>
-                  </Button>
                 </div>
-              </div>
+              </>
             )}
 
             {!user && (
