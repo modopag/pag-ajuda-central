@@ -144,6 +144,14 @@ export interface AnalyticsEvent {
   timestamp: string;
 }
 
+export interface EventFilters {
+  startDate?: string;
+  endDate?: string;
+  eventType?: string;
+  event_type?: string;
+  limit?: number;
+}
+
 // SEO validation interface
 export interface SEOValidationResult {
   canPublish: boolean;
@@ -162,6 +170,17 @@ export interface SlugHistoryEntry {
 }
 
 // Data adapter interface (for future Supabase migration)
+export interface FAQ {
+  id: string;
+  question: string;
+  answer: string;
+  category: string;
+  position: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface DataAdapter {
   // Categories
   getCategories(): Promise<Category[]>;
@@ -216,9 +235,16 @@ export interface DataAdapter {
   updateSetting(key: string, value: string, type?: Setting['type']): Promise<Setting>;
   getAllSettings(): Promise<Setting[]>;
 
-  // Analytics
-  trackEvent(event: Omit<AnalyticsEvent, 'timestamp'>): Promise<void>;
-  getEvents(filters?: { event_type?: string; limit?: number }): Promise<AnalyticsEvent[]>;
+  // Events
+  trackEvent(event: AnalyticsEvent): Promise<void>;
+  getEvents(filters?: EventFilters): Promise<AnalyticsEvent[]>;
+
+  // FAQs
+  getFAQs(): Promise<FAQ[]>;
+  getFAQById(id: string): Promise<FAQ | null>;
+  createFAQ(faq: Omit<FAQ, 'id' | 'created_at' | 'updated_at'>): Promise<FAQ>;
+  updateFAQ(id: string, updates: Partial<FAQ>): Promise<FAQ>;
+  deleteFAQ(id: string): Promise<void>;
 
   // Data management
   exportData(): Promise<string>; // JSON export

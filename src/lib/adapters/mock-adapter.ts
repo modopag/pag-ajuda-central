@@ -1,6 +1,6 @@
 // Mock adapter for local data persistence using localStorage
 
-import type { DataAdapter, Category, Article, Tag, ArticleTag, Media, Redirect, Feedback, User, Setting, AnalyticsEvent, SlugHistoryEntry } from '@/types/admin';
+import type { DataAdapter, Category, Article, Tag, ArticleTag, Media, Redirect, Feedback, User, Setting, AnalyticsEvent, SlugHistoryEntry, FAQ } from '@/types/admin';
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -1119,5 +1119,52 @@ export class MockAdapter implements DataAdapter {
     } catch (error) {
       throw new Error('Invalid JSON data format');
     }
+  }
+
+  // FAQ methods
+  async getFAQs(): Promise<FAQ[]> {
+    const faqs = this.getStorageData<FAQ>('faqs', []);
+    return faqs.filter(faq => faq.is_active).sort((a, b) => a.position - b.position);
+  }
+
+  async getFAQById(id: string): Promise<FAQ | null> {
+    const faqs = this.getStorageData<FAQ>('faqs', []);
+    return faqs.find(f => f.id === id) || null;
+  }
+
+  async createFAQ(faq: Omit<FAQ, 'id' | 'created_at' | 'updated_at'>): Promise<FAQ> {
+    const faqs = this.getStorageData<FAQ>('faqs', []);
+    const newFAQ: FAQ = {
+      ...faq,
+      id: crypto.randomUUID(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    faqs.push(newFAQ);
+    localStorage.setItem('faqs', JSON.stringify(faqs));
+    return newFAQ;
+  }
+
+  async updateFAQ(id: string, updates: Partial<FAQ>): Promise<FAQ> {
+    const faqs = this.getStorageData<FAQ>('faqs', []);
+    const index = faqs.findIndex(f => f.id === id);
+    
+    if (index === -1) throw new Error('FAQ not found');
+    
+    faqs[index] = {
+      ...faqs[index],
+      ...updates,
+      updated_at: new Date().toISOString()
+    };
+    
+    localStorage.setItem('faqs', JSON.stringify(faqs));
+    return faqs[index];
+  }
+
+  async deleteFAQ(id: string): Promise<void> {
+    const faqs = this.getStorageData<FAQ>('faqs', []);
+    const filtered = faqs.filter(f => f.id !== id);
+    localStorage.setItem('faqs', JSON.stringify(filtered));
   }
 }

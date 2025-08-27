@@ -13,7 +13,8 @@ import type {
   AnalyticsEvent, 
   SlugHistoryEntry,
   ArticleStatus,
-  RedirectType
+  RedirectType,
+  FAQ
 } from '@/types/admin';
 
 export class SupabaseAdapter implements DataAdapter {
@@ -561,5 +562,63 @@ export class SupabaseAdapter implements DataAdapter {
     } catch (error) {
       throw new Error(`Failed to import data: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
+  }
+
+  // FAQ methods
+  async getFAQs(): Promise<FAQ[]> {
+    const { data, error } = await supabase
+      .from('faqs')
+      .select('*')
+      .eq('is_active', true)
+      .order('position', { ascending: true });
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  async getFAQById(id: string): Promise<FAQ | null> {
+    const { data, error } = await supabase
+      .from('faqs')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') return null;
+      throw error;
+    }
+    return data;
+  }
+
+  async createFAQ(faq: Omit<FAQ, 'id' | 'created_at' | 'updated_at'>): Promise<FAQ> {
+    const { data, error } = await supabase
+      .from('faqs')
+      .insert(faq)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async updateFAQ(id: string, updates: Partial<FAQ>): Promise<FAQ> {
+    const { data, error } = await supabase
+      .from('faqs')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async deleteFAQ(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('faqs')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
   }
 }

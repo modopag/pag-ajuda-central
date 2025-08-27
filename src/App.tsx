@@ -42,6 +42,7 @@ const AdminRedirects = lazy(() => import("./pages/admin/AdminRedirects"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminFeedback = lazy(() => import("./pages/admin/AdminFeedback"));
 const AdminMonitoring = lazy(() => import("./pages/admin/AdminMonitoring"));
+const AdminFAQs = lazy(() => import("./pages/admin/AdminFAQs"));
 
 // Loading component for suspense fallback
 const PageLoader = () => (
@@ -91,6 +92,7 @@ const AppContent = () => {
             <Route path="monitoring" element={<AdminMonitoring />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="feedback" element={<AdminFeedback />} />
+            <Route path="faqs" element={<AdminFAQs />} />
           </Route>
           
           {/* NEW SILO URLs */}

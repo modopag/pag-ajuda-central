@@ -21,6 +21,7 @@ import {
   MessageSquare,
   Lock,
   Activity,
+  HelpCircle,
 } from "lucide-react";
 
 const menuItems = [
@@ -58,6 +59,11 @@ const menuItems = [
     title: "Feedback",
     url: "/admin/feedback",
     icon: MessageSquare,
+  },
+  {
+    title: "FAQs",
+    url: "/admin/faqs",
+    icon: HelpCircle,
   },
   {
     title: "Performance",
