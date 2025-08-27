@@ -2,8 +2,6 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
-import { AuthProvider } from '@/components/AuthProvider'
-
 // Import performance monitoring and bundle analyzer
 import { initializePerformanceMonitoring } from './utils/performance';
 import { initEnhancedTracking } from './utils/ga4Events';
@@ -58,7 +56,5 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
 }
 
 createRoot(document.getElementById("root")!).render(
-  <AuthProvider>
-    <App />
-  </AuthProvider>
+  <App />
 );
