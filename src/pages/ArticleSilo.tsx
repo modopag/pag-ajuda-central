@@ -12,12 +12,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { getDataAdapter } from '@/lib/data-adapter';
 import { generateArticleUrl, generateCategoryUrl, generateCanonicalUrl, generateBreadcrumbItems, isReservedPath } from '@/utils/urlGenerator';
 import { initializeLazyImages } from '@/utils/lazyImages';
 import { useSettings } from '@/hooks/useSettings';
 import type { Article, Category, Tag } from '@/types/admin';
-import { Clock, Eye, Tag as TagIcon, ChevronRight, User, Heart, Share2, BookOpen, Home } from 'lucide-react';
+import { Clock, Eye, Tag as TagIcon, ChevronRight, User, Heart, Share2, BookOpen, Home, Menu, List } from 'lucide-react';
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -258,10 +259,59 @@ export default function ArticleSilo() {
       <Header />
       <SkipLink />
 
-      <main id="main-content" className="relative z-10 container mx-auto px-4 py-8">
+      {/* Mobile Sidebar Toggle - Fixed Position */}
+      <div className="lg:hidden fixed bottom-6 right-6 z-50">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button 
+              size="icon" 
+              className="w-14 h-14 rounded-full shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground"
+              aria-label="Abrir índice e artigos relacionados"
+            >
+              <List className="w-6 h-6" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[90vw] sm:w-[400px] overflow-y-auto">
+            <SheetHeader className="mb-6">
+              <SheetTitle className="text-left flex items-center gap-2">
+                <List className="w-5 h-5" />
+                Navegação do Artigo
+              </SheetTitle>
+            </SheetHeader>
+            
+            <div className="space-y-6">
+              {/* Mobile Table of Contents */}
+              <div>
+                <h3 className="font-semibold text-sm mb-3 text-foreground flex items-center gap-2">
+                  <BookOpen className="w-4 h-4" />
+                  Índice do Artigo
+                </h3>
+                <TableOfContents mobileCollapsible={false} />
+              </div>
+              
+              {/* Mobile Related Articles */}
+              <div>
+                <h3 className="font-semibold text-sm mb-3 text-foreground flex items-center gap-2">
+                  <TagIcon className="w-4 h-4" />
+                  Artigos Relacionados
+                </h3>
+                <SmartRelatedArticles 
+                  currentArticleId={article.id.toString()}
+                  categoryId={category.id.toString()}
+                  tags={tags}
+                  sidebarMode={true}
+                  maxArticles={4}
+                />
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      <main id="main-content" className="relative z-10 container mx-auto px-3 sm:px-4 md:px-6 py-4 md:py-8">
         <div className="max-w-7xl mx-auto">
           {/* SEO Breadcrumb */}
-          <nav aria-label="Breadcrumb" className="mb-6">
+          <nav aria-label="Breadcrumb" className="mb-4 md:mb-6">
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
@@ -288,89 +338,89 @@ export default function ArticleSilo() {
             </Breadcrumb>
           </nav>
 
-          {/* Desktop Layout - Flex for proper sidebar sticking */}
-          <div className="flex gap-8">
-            {/* Main Content */}
-            <div className="flex-1 min-w-0 lg:max-w-none">
+          {/* Responsive Layout */}
+          <div className="flex flex-col lg:flex-row gap-4 md:gap-6 lg:gap-8">
+            {/* Main Content - Takes full width on mobile, flexible on desktop */}
+            <div className="flex-1 min-w-0 max-w-none">
 
-              {/* Article Header */}
-              <header className="mb-8 space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <Badge variant="secondary" className="font-medium">
+              {/* Article Header - Responsive spacing and typography */}
+              <header className="mb-6 md:mb-8 space-y-4 md:space-y-6">
+                <div className="space-y-3 md:space-y-4">
+                  <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+                    <Badge variant="secondary" className="font-medium text-xs md:text-sm">
                       {article.type}
                     </Badge>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Clock className="w-4 h-4" />
-                      <span>{article.reading_time_minutes || 5} minutos de leitura</span>
+                    <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-muted-foreground">
+                      <Clock className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                      <span>{article.reading_time_minutes || 5} min de leitura</span>
                     </div>
                   </div>
                   
-                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text text-transparent">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text text-transparent">
                     {article.title}
                   </h1>
                   
                   {article.meta_description && (
-                    <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-4xl">
+                    <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground leading-relaxed max-w-4xl">
                       {article.meta_description}
                     </p>
                   )}
                 </div>
 
-                {/* Article Meta */}
-                <div className="flex items-center justify-between flex-wrap gap-4 py-6 border-y border-border/50">
-                  <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <User className="w-4 h-4" />
-                      <span>Atualizado em {new Date(article.updated_at).toLocaleDateString('pt-BR')}</span>
+                {/* Article Meta - Responsive layout and touch-friendly buttons */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 py-4 md:py-6 border-y border-border/50">
+                  <div className="flex items-center gap-4 md:gap-6 text-xs md:text-sm text-muted-foreground overflow-x-auto">
+                    <div className="flex items-center gap-1.5 md:gap-2 whitespace-nowrap">
+                      <User className="w-3.5 h-3.5 md:w-4 md:h-4 flex-shrink-0" />
+                      <span className="text-xs md:text-sm">Atualizado em {new Date(article.updated_at).toLocaleDateString('pt-BR')}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Eye className="w-4 h-4" />
-                      <span>{article.view_count || 0} visualizações</span>
+                    <div className="flex items-center gap-1.5 md:gap-2 whitespace-nowrap">
+                      <Eye className="w-3.5 h-3.5 md:w-4 md:h-4 flex-shrink-0" />
+                      <span className="text-xs md:text-sm">{article.view_count || 0} visualizações</span>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2">
-                    <Button 
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <Button
                       size="sm" 
                       variant={liked ? "default" : "outline"} 
-                      className="hover:bg-primary/5 hover:border-primary/20"
+                      className="hover:bg-primary/5 hover:border-primary/20 min-h-[44px] px-3 md:px-4"
                       onClick={handleLike}
-                    >
-                      <Heart className={`w-4 h-4 mr-2 ${liked ? "fill-current" : ""}`} />
-                      {liked ? "Curtido" : "Curtir"}
+                      >
+                      <Heart className={`w-3.5 h-3.5 md:w-4 md:h-4 mr-1.5 md:mr-2 ${liked ? "fill-current" : ""}`} />
+                      <span className="text-xs md:text-sm">{liked ? "Curtido" : "Curtir"}</span>
                     </Button>
                     <Button 
                       size="sm" 
-                      variant="outline" 
-                      className="hover:bg-accent/5 hover:border-accent/20"
+                      variant="outline"
+                      className="hover:bg-accent/5 hover:border-accent/20 min-h-[44px] px-3 md:px-4"
                       onClick={handleShare}
                     >
-                      <Share2 className="w-4 h-4 mr-2" />
-                      Compartilhar
+                      <Share2 className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1.5 md:mr-2" />
+                      <span className="text-xs md:text-sm">Compartilhar</span>
                     </Button>
                   </div>
                 </div>
               </header>
 
-              {/* Article Content */}
-              <Card className="mb-8 border-0 shadow-xl bg-gradient-to-br from-card via-card to-card/80">
-                <CardContent className="p-8 md:p-12">
+              {/* Article Content - Responsive padding */}
+              <Card className="mb-6 md:mb-8 border-0 shadow-xl bg-gradient-to-br from-card via-card to-card/80">
+                <CardContent className="p-4 sm:p-6 md:p-8 lg:p-12">
                   <div 
-                    className="prose prose-lg max-w-none article-content lazy-images"
+                    className="prose prose-sm sm:prose-base lg:prose-lg max-w-none article-content lazy-images"
                     dangerouslySetInnerHTML={{ __html: article.content }}
                   />
                 </CardContent>
               </Card>
 
               {/* Article Footer */}
-              <div className="space-y-12">
+              <div className="space-y-6 md:space-y-8 lg:space-y-12">
                 {/* Tags */}
                 {tags.length > 0 && (
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-medium text-muted-foreground">Tags:</span>
+                  <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
+                    <span className="text-xs md:text-sm font-medium text-muted-foreground">Tags:</span>
                     {tags.map((tag) => (
-                      <Badge key={tag.id} variant="outline" className="hover:bg-primary/10 transition-colors">
+                      <Badge key={tag.id} variant="outline" className="hover:bg-primary/10 transition-colors text-xs">
                         {tag.name}
                       </Badge>
                     ))}
@@ -387,16 +437,16 @@ export default function ArticleSilo() {
               </div>
             </div>
 
-            {/* Sticky Sidebar - Desktop only */}
-            <div className="hidden lg:block w-80 flex-shrink-0">
-              <div className="sticky top-24 space-y-6" style={{ maxHeight: 'calc(100vh - 6rem)' }}>
-                {/* Table of Contents */}
-                <div className="max-h-64 overflow-y-auto">
+            {/* Sticky Sidebar - Desktop only - Responsive width */}
+            <div className="hidden lg:block w-72 xl:w-80 flex-shrink-0">
+              <div className="sticky top-20 xl:top-24 space-y-4 xl:space-y-6" style={{ maxHeight: 'calc(100vh - 5rem)' }}>
+                {/* Table of Contents - Responsive height */}
+                <div className="max-h-56 xl:max-h-64 overflow-y-auto">
                   <TableOfContents />
                 </div>
                 
-                {/* Smart Related Articles */}
-                <div className="max-h-96 overflow-y-auto">
+                {/* Smart Related Articles - Responsive height */}
+                <div className="max-h-80 xl:max-h-96 overflow-y-auto">
                   <SmartRelatedArticles 
                     currentArticleId={article.id.toString()}
                     categoryId={category.id.toString()}
@@ -409,16 +459,7 @@ export default function ArticleSilo() {
             </div>
           </div>
 
-          {/* Mobile Table of Contents & Related Articles */}
-          <div className="lg:hidden space-y-8 mt-12">
-            <TableOfContents mobileCollapsible={true} />
-            <SmartRelatedArticles 
-              currentArticleId={article.id.toString()}
-              categoryId={category.id.toString()}
-              tags={tags}
-              maxArticles={6}
-            />
-          </div>
+          {/* REMOVED: Mobile TOC section - now accessible via floating button */}
         </div>
       </main>
 
