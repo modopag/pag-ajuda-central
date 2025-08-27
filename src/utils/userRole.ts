@@ -1,5 +1,6 @@
-import { AuthService } from '@/lib/auth';
 import type { UserRole, ArticleStatus } from '@/types/admin';
+import type { Profile } from '@/hooks/useAuth';
+import type { User } from '@supabase/supabase-js';
 
 // Check if user can perform specific actions based on role
 export const canUserPerformAction = (action: string, userRole?: UserRole): boolean => {
@@ -59,22 +60,19 @@ export const getAvailableStatusTransitions = (
   );
 };
 
-// Get current user role
-export const getCurrentUserRole = (): UserRole | null => {
-  const user = AuthService.getCurrentUser();
-  return user?.role || null;
+// Get current user role from profile
+export const getCurrentUserRole = (profile: Profile | null): UserRole | null => {
+  return (profile?.role as UserRole) || null;
 };
 
 // Check if user owns the article
-export const isArticleOwner = (articleAuthor: string): boolean => {
-  const currentUser = AuthService.getCurrentUser();
-  return currentUser?.name === articleAuthor || currentUser?.email === articleAuthor;
+export const isArticleOwner = (articleAuthor: string, profile: Profile | null, user: User | null): boolean => {
+  return profile?.name === articleAuthor || user?.email === articleAuthor;
 };
 
 // Get user display name
-export const getUserDisplayName = (): string => {
-  const user = AuthService.getCurrentUser();
-  return user?.name || user?.email || 'Usuário';
+export const getUserDisplayName = (profile: Profile | null, user: User | null): string => {
+  return profile?.name || user?.email || 'Usuário';
 };
 
 // Role-based UI helpers
