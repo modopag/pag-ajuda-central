@@ -70,10 +70,21 @@ export const RichTextEditor = ({
     }, 100); // Reduzido de 200ms para melhor performance
 
     return () => {
+      console.log('💀 RichTextEditor - component unmounting');
       clearTimeout(timer);
       setIsMounted(false);
     };
   }, []);
+
+  // Debug do ciclo de vida do editor
+  useEffect(() => {
+    console.log('🔍 RichTextEditor - state change:', {
+      isMounted,
+      isReady,
+      hasError,
+      safeValueLength: safeValue.length
+    });
+  }, [isMounted, isReady, hasError, safeValue.length]);
 
   // Manipulação de mudanças
   const handleChange = useCallback((content: string, delta: any, source: string, editor: any) => {

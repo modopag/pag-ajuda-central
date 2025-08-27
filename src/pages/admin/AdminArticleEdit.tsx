@@ -485,7 +485,7 @@ export default function AdminArticleEdit() {
         <div 
           className={cn(
             "space-y-6",
-            activeTab !== 'content' && "opacity-0 pointer-events-none absolute inset-0"
+            activeTab !== 'content' && "hidden"
           )}
         >
           <Card>
@@ -609,7 +609,7 @@ export default function AdminArticleEdit() {
         <div 
           className={cn(
             "space-y-6",
-            activeTab !== 'seo' && "opacity-0 pointer-events-none absolute inset-0"
+            activeTab !== 'seo' && "hidden"
           )}
         >
           <div className="space-y-6">
