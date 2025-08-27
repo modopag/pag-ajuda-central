@@ -13,10 +13,17 @@ export const HashFragmentHandler = () => {
   useEffect(() => {
     const handleHashFragment = async () => {
       const hash = window.location.hash;
+      const currentPath = window.location.pathname;
       
       // Check if there's an access_token in the hash
       if (hash && hash.includes('access_token=')) {
         console.log('🔗 Detected auth token in hash fragment');
+        
+        // If we're on the password reset page, let that page handle the tokens
+        if (currentPath === '/auth/reset-password') {
+          console.log('📄 Password reset page will handle the tokens');
+          return;
+        }
         
         try {
           // Get the current session after the token is processed

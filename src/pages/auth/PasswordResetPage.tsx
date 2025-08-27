@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,11 +7,11 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { KeyRound, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export default function PasswordResetPage() {
   const { updatePassword } = useAuth();
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
   const [password, setPassword] = useState('');
@@ -19,18 +19,48 @@ export default function PasswordResetPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [hasValidSession, setHasValidSession] = useState(false);
 
-  // Check if we have the required tokens from email link
+  // Check if we have a valid session from the hash fragment tokens
   useEffect(() => {
-    const accessToken = searchParams.get('access_token');
-    const refreshToken = searchParams.get('refresh_token');
+    const checkSession = async () => {
+      const hash = window.location.hash;
+      
+      // Check if there are auth tokens in the hash
+      if (hash && (hash.includes('access_token=') || hash.includes('refresh_token='))) {
+        console.log('🔗 Processing password reset tokens from hash fragment');
+        
+        try {
+          // Let Supabase handle the tokens from the hash fragment
+          const { data: { session }, error } = await supabase.auth.getSession();
+          
+          if (error || !session) {
+            console.error('❌ Invalid or expired reset token:', error);
+            toast.error('Link de redefinição inválido ou expirado');
+            navigate('/auth');
+            return;
+          }
+          
+          console.log('✅ Valid password reset session found');
+          setHasValidSession(true);
+          
+          // Clean the hash from URL for better UX
+          window.history.replaceState(null, '', window.location.pathname);
+          
+        } catch (err) {
+          console.error('💥 Error processing reset tokens:', err);
+          toast.error('Erro ao processar link de redefinição');
+          navigate('/auth');
+        }
+      } else {
+        console.error('❌ No reset tokens found in URL');
+        toast.error('Link de redefinição inválido ou expirado');
+        navigate('/auth');
+      }
+    };
     
-    if (!accessToken || !refreshToken) {
-      console.error('❌ Missing tokens for password reset');
-      toast.error('Link de redefinição inválido ou expirado');
-      navigate('/auth');
-    }
-  }, [searchParams, navigate]);
+    checkSession();
+  }, [navigate]);
 
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,6 +128,13 @@ export default function PasswordResetPage() {
             )}
 
             <form onSubmit={handlePasswordReset} className="space-y-4">
+              {!hasValidSession && (
+                <Alert>
+                  <AlertDescription>
+                    Verificando link de redefinição de senha...
+                  </AlertDescription>
+                </Alert>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="password">Nova senha</Label>
                 <div className="relative">
@@ -141,7 +178,7 @@ export default function PasswordResetPage() {
               <Button 
                 type="submit" 
                 className="w-full" 
-                disabled={isLoading || !password || !confirmPassword}
+                disabled={isLoading || !password || !confirmPassword || !hasValidSession}
               >
                 {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 Redefinir senha

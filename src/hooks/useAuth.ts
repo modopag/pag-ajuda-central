@@ -240,7 +240,7 @@ export const useAuthState = () => {
     try {
       console.log('🔄 Attempting password reset for:', email);
       
-      const redirectUrl = `${window.location.origin}/auth/reset-password`;
+      const redirectUrl = `https://ajuda.modopag.com.br/auth/reset-password`;
       const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: redirectUrl,
       });
