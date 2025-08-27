@@ -408,7 +408,7 @@ export default function ArticleSilo() {
               {/* Article Content - Responsive padding */}
               <Card className="mb-6 md:mb-8 border-0 shadow-xl bg-gradient-to-br from-card via-card to-card/80">
                 <CardContent className="p-4 sm:p-6 md:p-8 lg:p-12">
-                  <div 
+                  <article 
                     className="prose prose-sm sm:prose-base lg:prose-lg max-w-none article-content lazy-images"
                     dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content) }}
                   />
