@@ -16,6 +16,7 @@ import { HashFragmentHandler } from '@/components/HashFragmentHandler';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ScrollToTop } from '@/components/ScrollToTop';
 import { UXFixesDebugMarker } from '@/components/UXFixesDebugMarker';
+import { useCachedSettings } from '@/hooks/useCachedSettings';
 import { AuthProvider } from '@/components/AuthProvider';
 import Gone from "@/pages/Gone";
 
@@ -67,6 +68,8 @@ const PageLoader = () => (
 const queryClient = new QueryClient();
 
 const AppContent = () => {
+  const { seo } = useCachedSettings();
+  
   return (
     <BrowserRouter
       future={{
@@ -78,7 +81,7 @@ const AppContent = () => {
       <HashFragmentHandler />
       <ScrollToTop />
       <UXFixesDebugMarker />
-      <GoogleAnalytics measurementId="" />
+      <GoogleAnalytics measurementId={seo.google_analytics_id || "G-XXXXXXXXXX"} />
       
       {/* Components that use router hooks must be inside Router */}
       <CookieBanner />

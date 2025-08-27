@@ -14,7 +14,9 @@ const STATIC_ASSETS = [
   '/manifest.json',
   '/favicon.png',
   '/modopag-logo-yellow.webp',
-  '/modopag-logo-black.webp'
+  '/modopag-logo-black.webp',
+  '/favicon.svg',
+  '/apple-touch-icon.png'
   // Note: We don't cache main.tsx and index.css as they change frequently
 ];
 
@@ -85,48 +87,62 @@ function safeClone(response, description = '') {
   }
 }
 
-// Install event - cache static assets
+// Install event - cache static assets with aggressive immediate activation
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing...');
+  console.log('[SW] Installing with immediate activation...');
+  
+  // Skip waiting immediately for instant activation
+  self.skipWaiting();
   
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then((cache) => {
-        console.log('[SW] Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
+        console.log('[SW] Pre-caching critical resources for instant loading');
+        // Cache critical resources with promise that resolves quickly
+        return Promise.allSettled(
+          STATIC_ASSETS.map(asset => 
+            cache.add(asset).catch(err => {
+              console.warn(`[SW] Failed to cache ${asset}:`, err);
+              // Don't fail the entire install if one asset fails
+              return null;
+            })
+          )
+        );
       })
       .then(() => {
-        console.log('[SW] Static assets cached');
-        return self.skipWaiting();
+        console.log('[SW] Critical assets cached, ready for instant serving');
       })
       .catch((error) => {
-        console.error('[SW] Failed to cache static assets:', error);
+        console.error('[SW] Install failed, continuing anyway:', error);
+        // Don't fail completely - some functionality is better than none
       })
   );
 });
 
-// Activate event - clean up old caches
+// Activate event - immediate client control for instant activation
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating...');
+  console.log('[SW] Activating with immediate control...');
   
   event.waitUntil(
     Promise.all([
-      // Clean up old caches
+      // Clean up old caches quickly
       caches.keys().then((cacheNames) => {
-        return Promise.all(
-          cacheNames.map((cacheName) => {
-            if (cacheName !== STATIC_CACHE && 
-                cacheName !== DYNAMIC_CACHE && 
-                cacheName !== CACHE_NAME) {
-              console.log('[SW] Deleting old cache:', cacheName);
-              return caches.delete(cacheName);
-            }
-          })
-        );
+        const deletePromises = cacheNames.map((cacheName) => {
+          if (cacheName !== STATIC_CACHE && 
+              cacheName !== DYNAMIC_CACHE && 
+              cacheName !== CACHE_NAME) {
+            console.log('[SW] Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
+          }
+        }).filter(Boolean);
+        
+        return Promise.allSettled(deletePromises);
       }),
-      // Take control of all pages
+      // Take immediate control for instant activation
       self.clients.claim()
-    ])
+    ]).then(() => {
+      console.log('[SW] Activated and controlling all clients immediately');
+    })
   );
 });
 
@@ -255,29 +271,28 @@ async function cacheFirst(request) {
   }
 }
 
-// Network First Strategy for HTML - HARDENED AGAINST STALE CONTENT + NO HTML CACHING
+// Network First Strategy for HTML - INSTANT LOADING OPTIMIZATION
 async function networkFirstForHTML(request) {
   try {
-    // Always try network first for navigation requests - NO HTML CACHING BY SW
+    // Extremely fast timeout for instant loading perception
     const networkResponse = await Promise.race([
       fetch(request),
       new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Network timeout')), 2000) // Faster timeout for HTML
+        setTimeout(() => reject(new Error('Network timeout for instant loading')), 1000) // Ultra-fast timeout
       )
     ]);
     
-    // For HTML, NEVER cache responses to prevent stale content - CACHING HEADERS OPTIMIZATION
+    // For HTML, NEVER cache responses to prevent stale content
     if (networkResponse.ok && networkResponse.status === 200) {
-      // Return fresh HTML without caching - let server handle HTML caching
-      console.log('[SW] Serving fresh HTML without SW caching');
+      console.log('[SW] Serving fresh HTML for instant loading');
       return networkResponse;
     }
     
     return networkResponse;
   } catch (error) {
-    console.log('[SW] Network failed for HTML, serving basic fallback:', error.message);
+    console.log('[SW] Instant loading fallback:', error.message);
     
-    // Don't serve cached HTML - always return basic fallback - NO STALE HTML
+    // For instant loading, show immediate basic response
     return createBasicFallbackResponse();
   }
 }

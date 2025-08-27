@@ -9,15 +9,19 @@ import FAQSection from "@/components/FAQSection";
 import { SkipLink } from "@/components/SkipLink";
 import { SEOHelmet } from "@/components/SEO/SEOHelmet";
 import { generateWebsiteJsonLd } from '@/utils/jsonLd';
+import { useCachedSettings } from '@/hooks/useCachedSettings';
 import { Button } from "@/components/ui/button";
 import { LazySection } from "@/components/performance/LazySection";
 import { CategoryGridSkeleton } from '@/components/skeletons/CategoryGridSkeleton';
+import { ProgressiveSkeleton } from '@/components/ui/progressive-skeleton';
+import { ProgressiveSection } from '@/components/SmartLoadingStates';
 import { MessageSquare, Mail } from "lucide-react";
 import { ResilientErrorBoundary } from "@/components/ResilientErrorBoundary";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const { seo } = useCachedSettings();
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -40,7 +44,7 @@ const Index = () => {
       <SEOHelmet
         title="Central de Ajuda modoPAG - Soluções de Pagamento"
         description="Encontre respostas rápidas sobre maquininhas, conta digital, pagamentos e muito mais na Central de Ajuda da modoPAG. Tire suas dúvidas aqui!"
-        canonicalUrl="https://ajuda.modopag.com.br/"
+        canonicalUrl={seo.site_url || "https://ajuda.modopag.com.br/"}
         jsonLd={websiteJsonLd}
         ogTitle="Central de Ajuda modoPAG - Tire suas dúvidas sobre pagamentos"
         ogDescription="Central de suporte completa da modoPAG. Artigos, tutoriais e guias sobre maquininhas, conta digital e soluções de pagamento."
@@ -83,33 +87,17 @@ const Index = () => {
                   <p className="text-muted-foreground mb-4">
                     Não foi possível carregar as categorias no momento.
                   </p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {/* Show basic fallback categories */}
-                    <div className="category-card">
-                      <div className="category-icon">📋</div>
-                      <h3 className="category-title">Dúvidas Gerais</h3>
-                      <p className="text-muted-foreground">Informações básicas sobre nossos serviços</p>
-                    </div>
-                    <div className="category-card">
-                      <div className="category-icon">💳</div>
-                      <h3 className="category-title">Maquininhas</h3>
-                      <p className="text-muted-foreground">Tudo sobre nossas soluções de pagamento</p>
-                    </div>
-                    <div className="category-card">
-                      <div className="category-icon">💬</div>
-                      <h3 className="category-title">Suporte</h3>
-                      <p className="text-muted-foreground">Entre em contato conosco</p>
-                    </div>
-                  </div>
+                  <ProgressiveSkeleton variant="category" count={6} />
                 </div>
               }
             >
-              <LazySection
-                fallback={<CategoryGridSkeleton />}
-                rootMargin="50px"
+              <ProgressiveSection
+                isLoading={false} // Categories load progressively, no initial loading
+                skeletonVariant="category"
+                skeletonCount={6}
               >
                 <CategoryGrid onCategoryClick={handleCategoryClick} />
-              </LazySection>
+              </ProgressiveSection>
             </ResilientErrorBoundary>
           </div>
         </section>
@@ -165,7 +153,7 @@ const Index = () => {
           </div>
         </section>
 
-        {/* FAQ Section */}
+        {/* FAQ Section with Progressive Loading */}
         <ResilientErrorBoundary
           fallback={
             <section className="py-16 px-4">
@@ -173,49 +161,26 @@ const Index = () => {
                 <h2 className="text-3xl font-bold text-foreground mb-4">
                   Perguntas Frequentes
                 </h2>
-                <p className="text-muted-foreground mb-8">
-                  Não foi possível carregar as perguntas no momento, mas você pode entrar em contato conosco.
-                </p>
-                <Button 
-                  onClick={() => window.open('https://wa.me/5571981470573', '_blank')}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  Falar no WhatsApp
-                </Button>
+                <ProgressiveSkeleton variant="faq" count={5} />
               </div>
             </section>
           }
         >
-          <LazySection 
-            fallback={
-              <section className="py-16 px-4">
-                <div className="container mx-auto max-w-4xl">
-                  <div className="animate-pulse space-y-6">
-                    <div className="h-8 bg-muted rounded w-64 mx-auto"></div>
-                    <div className="space-y-4">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="h-16 bg-muted rounded"></div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </section>
-            }
+          <ProgressiveSection
+            isLoading={false} // FAQ loads progressively
+            skeletonVariant="faq"
+            skeletonCount={5}
           >
             <FAQSection />
-          </LazySection>
+          </ProgressiveSection>
         </ResilientErrorBoundary>
 
-        {/* Reclame Aqui Section */}
+        {/* Reclame Aqui Section with Progressive Loading */}
         <LazySection 
           fallback={
             <section className="py-16 px-4 bg-muted/30">
               <div className="container mx-auto max-w-4xl">
-                <div className="animate-pulse space-y-6">
-                  <div className="h-8 bg-muted rounded w-48 mx-auto"></div>
-                  <div className="h-32 bg-muted rounded"></div>
-                </div>
+                <ProgressiveSkeleton variant="card" count={2} />
               </div>
             </section>
           }
