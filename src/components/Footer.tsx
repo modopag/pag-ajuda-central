@@ -1,6 +1,7 @@
 import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
+import { CookieManageButton } from "@/components/CookieManageButton";
 
 const Footer = () => {
   const { showBanner } = useCookieConsent();
@@ -24,6 +25,7 @@ const Footer = () => {
                 className="h-12 md:h-16 w-auto"
                 width="280"
                 height="60"
+                loading="lazy"
               />
             </Link>
             <p className="text-gray-300 text-sm leading-relaxed mb-4">
@@ -58,6 +60,7 @@ const Footer = () => {
             <ul className="space-y-2 text-sm">
               <li><Link to="/" className="text-gray-300 hover:text-modopag-yellow transition-colors">Central de Ajuda</Link></li>
               <li><a href="mailto:contato@modopag.com.br" className="text-gray-300 hover:text-modopag-yellow transition-colors">Fale Conosco</a></li>
+              <li><CookieManageButton /></li>
             </ul>
           </div>
         </div>

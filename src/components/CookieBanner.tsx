@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useCookieConsent } from '@/hooks/useCookieConsent';
-import { Link } from 'react-router-dom';
 import { X, Cookie, Settings } from 'lucide-react';
 
 export const CookieBanner = () => {
@@ -62,13 +61,15 @@ export const CookieBanner = () => {
               <p id="cookie-banner-description" className="text-sm text-muted-foreground mb-3">
                 Usamos cookies para melhorar sua experiência e analisar o tráfego do site. 
                 Você pode aceitar todos, recusar ou escolher quais categorias permitir.{' '}
-                <Link 
-                  to="/politicas-de-privacidade" 
+                <a 
+                  href="https://modopag.com.br/politicas-de-privacidade/" 
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="underline hover:text-primary transition-colors"
                   aria-label="Leia nossa Política de Privacidade (abre em nova aba)"
                 >
                   Leia nossa Política de Privacidade
-                </Link>.
+                </a>.
               </p>
 
               {isDNTEnabled && (

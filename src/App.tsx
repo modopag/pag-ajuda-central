@@ -14,19 +14,21 @@ import { PerformanceTracker } from '@/components/performance/PerformanceTracker'
 import { RedirectHandler } from '@/components/RedirectHandler';
 import { HashFragmentHandler } from '@/components/HashFragmentHandler';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { ScrollToTop } from '@/components/ScrollToTop';
+import { UXFixesDebugMarker } from '@/components/UXFixesDebugMarker';
 import { useSettings } from '@/hooks/useSettings';
 import { AuthProvider } from '@/components/AuthProvider';
 import Gone from "@/pages/Gone";
 
 // Lazy load main pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
+const RedirectToExternalPrivacy = lazy(() => import("./components/RedirectToExternalPrivacy"));
 const CategorySilo = lazy(() => import("./pages/CategorySilo"));
 const ArticleSilo = lazy(() => import("./pages/ArticleSilo"));
 const Search = lazy(() => import("./pages/Search"));
 const Sitemap = lazy(() => import("./pages/Sitemap"));
 const RobotsTxt = lazy(() => import("./pages/RobotsTxt"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const PoliticasPrivacidade = lazy(() => import("./pages/PoliticasPrivacidade"));
 const AuthPage = lazy(() => import("./pages/auth/AuthPage"));
 const PasswordResetPage = lazy(() => import("./pages/auth/PasswordResetPage"));
 const EmailConfirmationPage = lazy(() => import("./pages/auth/EmailConfirmationPage"));
@@ -75,6 +77,8 @@ const AppContent = () => {
     >
       <RedirectHandler />
       <HashFragmentHandler />
+      <ScrollToTop />
+      <UXFixesDebugMarker />
       <GoogleAnalytics measurementId={seo.google_analytics_id} />
       
       {/* Components that use router hooks must be inside Router */}
@@ -89,7 +93,7 @@ const AppContent = () => {
           <Route path="/buscar" element={<Search />} />
           <Route path="/sitemap.xml" element={<Sitemap />} />
           <Route path="/robots.txt" element={<RobotsTxt />} />
-          <Route path="/politicas-de-privacidade" element={<PoliticasPrivacidade />} />
+          <Route path="/politicas-de-privacidade" element={<RedirectToExternalPrivacy />} />
           <Route path="/gone" element={<Gone />} />
           
           {/* Auth Routes */}

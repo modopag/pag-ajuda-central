@@ -8,7 +8,6 @@ export const RESERVED_PATHS = [
   'buscar',
   'sitemap.xml',
   'robots.txt',
-  'politicas-de-privacidade',
   'termos-de-uso',
   'termo-de-consentimento',
   'assets',
