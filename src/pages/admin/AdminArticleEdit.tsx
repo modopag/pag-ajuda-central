@@ -134,6 +134,9 @@ export default function AdminArticleEdit() {
       }
       
       const savedArticle = await adapter.updateArticle(id, articleData);
+      
+      // Atualizar estado local com dados salvos
+      setArticle(savedArticle);
 
       // Atualizar tags
       // Remover todas as tags atuais
