@@ -45,11 +45,11 @@ const Header = () => {
               aria-label="modoPAG - Central de Ajuda"
             >
               <ImageOptimizer
-                src="/favicon.png"
+                src="/modopag-logo-black.webp"
                 alt="modoPAG - Central de Ajuda"
-                className="h-12 md:h-14 w-auto"
-                width={56}
-                height={56}
+                className="h-10 md:h-16 w-auto"
+                width={280}
+                height={60}
                 priority={true}
                 quality={90}
               />

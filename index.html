@@ -19,8 +19,8 @@
 <!-- Preconnect to Supabase for faster API connections - LCP optimization -->
 <link rel="preconnect" href="https://sqroxesqxyzyxzywkybc.supabase.co" crossorigin>
 
-<!-- Preload only favicon for instant header render - removed non-critical preloads -->
-<link rel="preload" href="/favicon.png" as="image" type="image/png" fetchpriority="high" />
+<!-- Preload logo for instant header render - LCP optimization -->
+<link rel="preload" href="/modopag-logo-black.webp" as="image" type="image/webp" fetchpriority="high" />
     
     <meta name="author" content="modoPAG" />
     
@@ -72,6 +72,15 @@
         position: sticky; 
         top: 0; 
         z-index: 50; 
+      }
+      
+      /* Reserve space for logo to prevent CLS */
+      .header-logo {
+        height: 2.5rem; /* 40px mobile */
+        width: auto;
+      }
+      @media (min-width: 768px) {
+        .header-logo { height: 4rem; } /* 64px desktop */
       }
       
       /* Critical hero section styles for LCP optimization */
