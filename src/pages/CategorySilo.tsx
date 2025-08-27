@@ -262,47 +262,55 @@ export default function CategorySilo() {
           </div>
         )}
 
-        {/* Articles Grid */}
+        {/* Articles Grid - IMPROVED: Clean, minimal cards with responsive layout */}
         {filteredArticles.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {filteredArticles.map((article) => (
-              <Card key={article.id} className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border-0 bg-gradient-to-br from-card via-card to-card/80 hover:from-primary/5 hover:to-accent/5">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-lg leading-tight line-clamp-2 group-hover:text-primary transition-colors">
-                      <Link
-                        to={generateArticleUrl(categorySlug, article.slug)}
-                        className="hover:text-primary transition-colors"
+              <Link
+                key={article.id}
+                to={generateArticleUrl(categorySlug, article.slug)}
+                className="group block h-full"
+              >
+                <Card className="h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border border-border/50 bg-gradient-to-br from-card via-card to-card/90 hover:from-primary/5 hover:to-accent/5 hover:border-primary/20">
+                  <CardHeader className="p-4 sm:p-6">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <Badge 
+                        variant="secondary" 
+                        className="shrink-0 bg-primary/10 text-primary border-primary/20 text-xs font-medium"
                       >
-                        {article.title}
-                      </Link>
-                    </CardTitle>
-                    <div className="flex flex-col gap-1">
+                        {article.type}
+                      </Badge>
+                      
                       {article.view_count > 0 && (
-                        <Badge variant="secondary" className="shrink-0 bg-primary/10 text-primary border-primary/20">
-                          <TrendingUp className="w-3 h-3 mr-1" />
-                          {article.view_count}
-                        </Badge>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground bg-background/50 px-2 py-1 rounded-full">
+                          <TrendingUp className="w-3 h-3" />
+                          <span>{article.view_count}</span>
+                        </div>
                       )}
                     </div>
-                  </div>
+                    
+                    <CardTitle className="text-lg sm:text-xl font-bold leading-tight line-clamp-3 group-hover:text-primary transition-colors duration-300">
+                      {article.title}
+                    </CardTitle>
+                    
+                    {/* REMOVED: meta_description to keep cards minimal */}
+                  </CardHeader>
                   
-                  {article.meta_description && (
-                    <CardDescription className="line-clamp-3 text-muted-foreground group-hover:text-foreground/80 transition-colors">
-                      {article.meta_description}
-                    </CardDescription>
-                  )}
-                </CardHeader>
-                
-                <CardContent className="pt-0">
-                  <div className="flex items-center justify-between text-sm text-muted-foreground group-hover:text-foreground/70 transition-colors">
-                    <div className="flex items-center gap-1 text-primary">
-                      <span>Ler artigo</span>
-                      <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  <CardContent className="p-4 sm:p-6 pt-0">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
+                        <Clock className="w-3.5 h-3.5 text-primary" />
+                        <span>{article.reading_time_minutes || 5} min de leitura</span>
+                      </div>
+                      
+                      {/* IMPROVED: Clean hover indicator instead of confusing "Ler artigo" text */}
+                      <div className="text-primary opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1">
+                        <ChevronRight className="w-4 h-4" />
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         ) : (
