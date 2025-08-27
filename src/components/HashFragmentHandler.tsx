@@ -42,7 +42,9 @@ export const HashFragmentHandler = () => {
             
             // Clear the hash from URL
             window.history.replaceState(null, '', window.location.pathname);
-            
+        
+        // Clear hash and redirect based on current path
+        window.history.replaceState(null, '', window.location.pathname);
             // Redirect to confirmation success page
             navigate('/auth/confirm');
           } else {

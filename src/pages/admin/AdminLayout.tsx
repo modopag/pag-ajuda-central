@@ -7,17 +7,36 @@ import { useAuth } from '@/hooks/useAuth';
 
 export default function AdminLayout() {
   const navigate = useNavigate();
-  const { user, loading, isAdmin } = useAuth();
+  const { user, profile, loading } = useAuth();
 
   useEffect(() => {
-    // Check authentication on mount and redirect if not authenticated
-    if (!loading && (!user || !isAdmin())) {
-      navigate("/auth");
+    // Check authentication and approval status
+    if (!loading) {
+      if (!user) {
+        // No user session - redirect to admin login
+        navigate("/admin/login");
+      } else if (user && profile) {
+        // User exists, check approval status
+        if (profile.status !== 'approved' || !['admin', 'editor'].includes(profile.role)) {
+          // User not approved or wrong role - redirect to pending page
+          navigate("/admin/pending");
+        }
+      }
+      // If user exists but profile is still loading, wait
     }
-  }, [user, loading, isAdmin, navigate]);
+  }, [user, profile, loading, navigate]);
 
-  // Don't render anything if loading or not authenticated
-  if (loading || !user || !isAdmin()) {
+  // Show loading while checking auth state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Don't render if no user or user not approved
+  if (!user || !profile || profile.status !== 'approved' || !['admin', 'editor'].includes(profile.role)) {
     return null;
   }
 

@@ -171,7 +171,7 @@ export const useAuthState = () => {
       setLoading(true);
       console.log('📝 Attempting sign up for:', email);
       
-      const redirectUrl = `${window.location.origin}/auth/confirm`;
+      const redirectUrl = `https://ajuda.modopag.com.br/auth/email-confirmation`;
       
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -300,7 +300,7 @@ export const useAuthState = () => {
         type: 'signup',
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/confirm`
+          emailRedirectTo: `https://ajuda.modopag.com.br/auth/confirm`
         }
       });
       

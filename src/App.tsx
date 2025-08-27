@@ -49,6 +49,10 @@ const AdminFeedback = lazy(() => import("./pages/admin/AdminFeedback"));
 const AdminMonitoring = lazy(() => import("./pages/admin/AdminMonitoring"));
 const AdminFAQs = lazy(() => import("./pages/admin/AdminFAQs"));
 const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
+const AdminLoginPage = lazy(() => import("./pages/admin/AdminLoginPage"));
+const AdminPendingPage = lazy(() => import("./pages/admin/AdminPendingPage"));
+const AuthPendingPage = lazy(() => import("./pages/auth/AuthPendingPage"));
+const AuthErrorPage = lazy(() => import("./pages/auth/AuthErrorPage"));
 
 // Loading component for suspense fallback
 const PageLoader = () => (
@@ -90,8 +94,12 @@ const AppContent = () => {
           <Route path="/auth/confirm-success" element={<EmailConfirmSuccessPage />} />
           <Route path="/auth/reset-password" element={<PasswordResetPage />} />
           <Route path="/auth/reauth" element={<ReauthPage />} />
+          <Route path="/auth/pending" element={<AuthPendingPage />} />
+          <Route path="/auth/error" element={<AuthErrorPage />} />
           
           {/* Admin Routes */}
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/admin/pending" element={<AdminPendingPage />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="articles" element={<AdminArticles />} />
