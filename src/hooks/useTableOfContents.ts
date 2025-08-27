@@ -16,7 +16,7 @@ interface UseTableOfContentsOptions {
 
 export const useTableOfContents = (options: UseTableOfContentsOptions = {}) => {
   const {
-    selector = 'h2, h3, h4',
+    selector = 'h2',  // Only show h2 headings by default
     rootMargin = '-80px 0px -80% 0px',
     threshold = 0.1
   } = options;
@@ -47,13 +47,14 @@ export const useTableOfContents = (options: UseTableOfContentsOptions = {}) => {
   // Extract headings from content with improved DOM monitoring
   useEffect(() => {
     const extractHeadings = () => {
-      // Wait for content to be fully rendered
+      // Wait for content to be fully rendered - prioritize article content
       const contentSelectors = [
-        '.article-content',
-        '.prose', 
-        'main',
-        '[role="main"]',
-        '.content'
+        'article .article-content',  // Most specific - article content area
+        '.article-content',          // Article content class
+        'article',                   // Article element
+        '.prose',                    // Prose content
+        'main',                      // Main content area
+        '[role="main"]'              // ARIA main role
       ];
       
       let contentArea = null;
@@ -62,9 +63,14 @@ export const useTableOfContents = (options: UseTableOfContentsOptions = {}) => {
         if (contentArea) break;
       }
       
-      // Use content area or fallback to document
-      const searchArea = contentArea || document;
-      const headingElements = searchArea.querySelectorAll(selector);
+      // Ensure we have article content before proceeding
+      if (!contentArea) {
+        setHeadings([]);
+        return;
+      }
+      
+      // Only search within the article content area
+      const headingElements = contentArea.querySelectorAll(selector);
       
       // Filter out headings from navigation, header, footer
       const validHeadings = Array.from(headingElements).filter(el => {
@@ -120,8 +126,10 @@ export const useTableOfContents = (options: UseTableOfContentsOptions = {}) => {
       extractionTimeout = setTimeout(extractHeadings, 150);
     };
 
-    // Initial extraction with proper timing
-    const initialTimer = setTimeout(extractHeadings, 300);
+    // Multiple extraction attempts to ensure content is ready
+    const initialTimer = setTimeout(extractHeadings, 100);
+    const secondTimer = setTimeout(extractHeadings, 500);
+    const finalTimer = setTimeout(extractHeadings, 1000);
     
     // Listen for content changes
     const observer = new MutationObserver((mutations) => {
@@ -145,8 +153,8 @@ export const useTableOfContents = (options: UseTableOfContentsOptions = {}) => {
       }
     });
     
-    // Observe changes in content areas
-    const contentArea = document.querySelector('.article-content, .prose, main') || document.body;
+    // Observe changes in content areas - focus on article content
+    const contentArea = document.querySelector('article .article-content, .article-content, article, .prose, main') || document.body;
     observer.observe(contentArea, {
       childList: true,
       subtree: true
@@ -154,6 +162,8 @@ export const useTableOfContents = (options: UseTableOfContentsOptions = {}) => {
     
     return () => {
       clearTimeout(initialTimer);
+      clearTimeout(secondTimer);
+      clearTimeout(finalTimer);
       clearTimeout(extractionTimeout);
       observer.disconnect();
     };

@@ -21,21 +21,13 @@ export function TableOfContents({
   if (headings.length === 0) return null;
 
   const getIndentLevel = (level: number) => {
-    switch (level) {
-      case 2: return 'ml-0';
-      case 3: return 'ml-4';
-      case 4: return 'ml-8';
-      default: return 'ml-0';
-    }
+    // Since we only show h2 headings, no indentation needed
+    return 'ml-0';
   };
 
   const getTextSize = (level: number) => {
-    switch (level) {
-      case 2: return 'text-sm font-medium';
-      case 3: return 'text-sm';
-      case 4: return 'text-xs';
-      default: return 'text-sm';
-    }
+    // Consistent text size for h2 headings
+    return 'text-sm font-medium';
   };
 
   // Mobile version
@@ -62,8 +54,8 @@ export function TableOfContents({
         
         {!isCollapsed && (
           <Card className="mt-2 border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
-            <ScrollArea className="max-h-64 p-4">
-              <nav className="space-y-2">
+            <div className="overflow-y-auto max-h-[calc(100vh-8rem)] p-4">
+              <nav className="space-y-2 pr-2">
                 {headings.map((heading) => (
                   <button
                     key={heading.id}
@@ -84,7 +76,7 @@ export function TableOfContents({
                   </button>
                 ))}
               </nav>
-            </ScrollArea>
+            </div>
           </Card>
         )}
       </div>
