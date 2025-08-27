@@ -5,12 +5,15 @@ import {
   AccordionTrigger,
 } from "./ui/accordion";
 import { generateFAQJsonLd } from "@/utils/jsonLd";
-import { useFAQs } from "@/hooks/useFAQs";
+import { useResilientFAQs } from "@/hooks/useResilientFAQs";
 import { Skeleton } from "./ui/skeleton";
+import { Button } from "./ui/button";
+import { AlertCircle, Wifi } from "lucide-react";
 const FAQSection = () => {
-  const { faqs, loading, error } = useFAQs();
+  const { faqs, loading, error, retry, isStale, isOffline } = useResilientFAQs();
 
-  if (loading) {
+  // Show skeleton only on initial load
+  if (loading && !faqs.length) {
     return (
       <section className="py-16 px-4 bg-background">
         <div className="container mx-auto">
@@ -37,7 +40,8 @@ const FAQSection = () => {
     );
   }
 
-  if (error) {
+  // Show error fallback only if no data available
+  if (error && !faqs.length) {
     return (
       <section className="py-16 px-4 bg-background">
         <div className="container mx-auto">
@@ -45,9 +49,17 @@ const FAQSection = () => {
             <h2 className="text-3xl font-bold text-foreground mb-4">
               Perguntas Frequentes
             </h2>
-            <p className="text-muted-foreground">
-              Erro ao carregar as perguntas frequentes. Tente novamente mais tarde.
-            </p>
+            <div className="flex flex-col items-center gap-4">
+              <AlertCircle className="w-12 h-12 text-muted-foreground/50" />
+              <div>
+                <p className="text-muted-foreground mb-4">
+                  Não foi possível carregar as perguntas frequentes.
+                </p>
+                <Button onClick={retry} variant="outline" size="sm">
+                  Tentar novamente
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -73,6 +85,25 @@ const FAQSection = () => {
             Encontre respostas para as dúvidas mais comuns sobre o modoPAG
           </p>
         </div>
+
+        {/* Status indicator for stale/offline data */}
+        {(isStale || isOffline || error) && (
+          <div className="flex items-center justify-center gap-2 p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground max-w-4xl mx-auto mb-6">
+            {isOffline && <Wifi className="w-4 h-4" />}
+            {isOffline ? (
+              "Mostrando dados salvos (offline)"
+            ) : isStale ? (
+              "Dados podem estar desatualizados"
+            ) : error ? (
+              <span className="flex items-center gap-2">
+                Erro ao atualizar dados
+                <Button onClick={retry} variant="ghost" size="sm" className="h-6 px-2 text-xs">
+                  Tentar novamente
+                </Button>
+              </span>
+            ) : null}
+          </div>
+        )}
 
         <div className="max-w-4xl mx-auto">
           <Accordion type="single" collapsible className="space-y-4">

@@ -2,6 +2,10 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
+// Import consolidated critical resources
+import { initializeCriticalResources, setupResourceOptimization } from './utils/criticalResources';
+// Import hydration fixes
+import { initializeHydrationFixes } from './utils/hydrationFix';
 // Import performance monitoring and bundle analyzer
 import { initializePerformanceMonitoring } from './utils/performance';
 import { initEnhancedTracking } from './utils/ga4Events';
@@ -10,22 +14,22 @@ import './utils/qaRunner'; // Auto-runs QA tests in development
 // Import bundle analyzer for development performance monitoring
 if (import.meta.env.DEV) {
   import('./utils/bundleAnalyzer');
-  // Also import lighthouse utilities in development
-  import('./utils/lighthouse');
 }
 
-// Initialize performance monitoring
+// Initialize performance monitoring and critical resources
 initializePerformanceMonitoring();
 
-// Initialize enhanced GA4 tracking
+// Initialize hydration fixes
+initializeHydrationFixes();
+
+// Initialize enhanced GA4 tracking and critical resources
 if (typeof window !== 'undefined') {
+  // Initialize critical resources immediately
+  initializeCriticalResources();
+  
   document.addEventListener('DOMContentLoaded', () => {
     initEnhancedTracking();
-    
-    // Initialize SEO optimizations
-    import('./utils/seoOptimizer').then(({ initSEOOptimizations }) => {
-      initSEOOptimizations();
-    });
+    setupResourceOptimization();
   });
 }
 

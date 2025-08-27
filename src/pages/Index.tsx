@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { LazySection } from "@/components/performance/LazySection";
 import { CategoryGridSkeleton } from '@/components/skeletons/CategoryGridSkeleton';
 import { MessageSquare, Mail } from "lucide-react";
+import { ResilientErrorBoundary } from "@/components/ResilientErrorBoundary";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -73,12 +74,40 @@ const Index = () => {
               </p>
             </div>
             
-            <LazySection
-              fallback={<CategoryGridSkeleton />}
-              rootMargin="50px"
+            <ResilientErrorBoundary
+              fallback={
+                <div className="text-center p-8">
+                  <p className="text-muted-foreground mb-4">
+                    Não foi possível carregar as categorias no momento.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* Show basic fallback categories */}
+                    <div className="category-card">
+                      <div className="category-icon">📋</div>
+                      <h3 className="category-title">Dúvidas Gerais</h3>
+                      <p className="text-muted-foreground">Informações básicas sobre nossos serviços</p>
+                    </div>
+                    <div className="category-card">
+                      <div className="category-icon">💳</div>
+                      <h3 className="category-title">Maquininhas</h3>
+                      <p className="text-muted-foreground">Tudo sobre nossas soluções de pagamento</p>
+                    </div>
+                    <div className="category-card">
+                      <div className="category-icon">💬</div>
+                      <h3 className="category-title">Suporte</h3>
+                      <p className="text-muted-foreground">Entre em contato conosco</p>
+                    </div>
+                  </div>
+                </div>
+              }
             >
-              <CategoryGrid onCategoryClick={handleCategoryClick} />
-            </LazySection>
+              <LazySection
+                fallback={<CategoryGridSkeleton />}
+                rootMargin="50px"
+              >
+                <CategoryGrid onCategoryClick={handleCategoryClick} />
+              </LazySection>
+            </ResilientErrorBoundary>
           </div>
         </section>
 
@@ -134,24 +163,46 @@ const Index = () => {
         </section>
 
         {/* FAQ Section */}
-        <LazySection 
+        <ResilientErrorBoundary
           fallback={
             <section className="py-16 px-4">
-              <div className="container mx-auto max-w-4xl">
-                <div className="animate-pulse space-y-6">
-                  <div className="h-8 bg-muted rounded w-64 mx-auto"></div>
-                  <div className="space-y-4">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <div key={i} className="h-16 bg-muted rounded"></div>
-                    ))}
-                  </div>
-                </div>
+              <div className="container mx-auto max-w-4xl text-center">
+                <h2 className="text-3xl font-bold text-foreground mb-4">
+                  Perguntas Frequentes
+                </h2>
+                <p className="text-muted-foreground mb-8">
+                  Não foi possível carregar as perguntas no momento, mas você pode entrar em contato conosco.
+                </p>
+                <Button 
+                  onClick={() => window.open('https://wa.me/5571981470573', '_blank')}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Falar no WhatsApp
+                </Button>
               </div>
             </section>
           }
         >
-          <FAQSection />
-        </LazySection>
+          <LazySection 
+            fallback={
+              <section className="py-16 px-4">
+                <div className="container mx-auto max-w-4xl">
+                  <div className="animate-pulse space-y-6">
+                    <div className="h-8 bg-muted rounded w-64 mx-auto"></div>
+                    <div className="space-y-4">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className="h-16 bg-muted rounded"></div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </section>
+            }
+          >
+            <FAQSection />
+          </LazySection>
+        </ResilientErrorBoundary>
 
         {/* Reclame Aqui Section */}
         <LazySection 

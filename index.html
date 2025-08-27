@@ -12,13 +12,12 @@
     <link rel="dns-prefetch" href="//fonts.googleapis.com" />
     <link rel="dns-prefetch" href="//fonts.gstatic.com" />
     
-    <!-- Preload critical fonts with async loading -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"></noscript>
-    
-    <!-- Preload critical assets -->
-    <link rel="preload" href="/modopag-logo-yellow.webp" as="image" type="image/webp" />
-    <link rel="preload" href="/modopag-logo-black.webp" as="image" type="image/webp" />
+<!-- Preload only critical above-the-fold resources -->
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"></noscript>
+
+<!-- Preload only hero logo (yellow used in homepage) -->
+<link rel="preload" href="/modopag-logo-yellow.webp" as="image" type="image/webp" />
     
     <meta name="author" content="modoPAG" />
     

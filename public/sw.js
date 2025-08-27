@@ -174,24 +174,54 @@ async function cacheFirst(request) {
   }
 }
 
-// Network First Strategy (for API calls and HTML)
+// Network First Strategy (for API calls and HTML) - IMPROVED
 async function networkFirst(request) {
   try {
-    // Try network first
-    const networkResponse = await fetch(request);
+    // Add timeout for network requests
+    const networkResponse = await Promise.race([
+      fetch(request),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Network timeout')), 5000)
+      )
+    ]);
     
-    // Only cache successful responses
+    // Only cache successful responses and valid HTML
     if (shouldCacheResponse(networkResponse)) {
-      // Clone BEFORE using the response
-      const responseClone = safeClone(networkResponse, 'networkFirst');
-      
-      if (responseClone) {
-        try {
-          const cache = await caches.open(DYNAMIC_CACHE);
-          // Use clone for caching, return original
-          await cache.put(request, responseClone);
-        } catch (cacheError) {
-          console.warn('[SW] Failed to cache response:', cacheError);
+      // For HTML responses, check if they contain error indicators
+      if (request.headers.get('accept')?.includes('text/html')) {
+        const responseClone = safeClone(networkResponse, 'networkFirst-html');
+        if (responseClone) {
+          try {
+            const text = await responseClone.text();
+            // Don't cache error pages or broken HTML
+            if (text.includes('Oops! Algo deu errado') || 
+                text.includes('Error') || 
+                text.length < 100) {
+              console.warn('[SW] Not caching potentially broken HTML');
+              return networkResponse;
+            }
+            
+            // Cache valid HTML
+            const cache = await caches.open(DYNAMIC_CACHE);
+            await cache.put(request, new Response(text, {
+              status: networkResponse.status,
+              statusText: networkResponse.statusText,
+              headers: networkResponse.headers
+            }));
+          } catch (cacheError) {
+            console.warn('[SW] Failed to process HTML response:', cacheError);
+          }
+        }
+      } else {
+        // Cache non-HTML successful responses normally
+        const responseClone = safeClone(networkResponse, 'networkFirst');
+        if (responseClone) {
+          try {
+            const cache = await caches.open(DYNAMIC_CACHE);
+            await cache.put(request, responseClone);
+          } catch (cacheError) {
+            console.warn('[SW] Failed to cache response:', cacheError);
+          }
         }
       }
     }
@@ -203,15 +233,30 @@ async function networkFirst(request) {
     // Fallback to cache
     const cachedResponse = await caches.match(request);
     if (cachedResponse) {
+      // Check if cached HTML is still valid
+      if (request.headers.get('accept')?.includes('text/html')) {
+        try {
+          const text = await cachedResponse.text();
+          if (text.includes('Oops! Algo deu errado')) {
+            console.warn('[SW] Cached response contains error, serving basic fallback');
+            return createBasicFallbackResponse();
+          }
+          // Return valid cached HTML
+          return new Response(text, {
+            status: cachedResponse.status,
+            statusText: cachedResponse.statusText,
+            headers: cachedResponse.headers
+          });
+        } catch (err) {
+          console.warn('[SW] Error reading cached HTML:', err);
+        }
+      }
       return cachedResponse;
     }
 
-    // Return offline page for HTML requests
+    // Return basic fallback for HTML requests
     if (request.headers.get('accept')?.includes('text/html')) {
-      const offlinePage = await caches.match('/');
-      if (offlinePage) {
-        return offlinePage;
-      }
+      return createBasicFallbackResponse();
     }
 
     return new Response('Offline', { 
@@ -219,6 +264,47 @@ async function networkFirst(request) {
       headers: { 'Content-Type': 'text/plain' }
     });
   }
+}
+
+// Create a basic fallback HTML response
+function createBasicFallbackResponse() {
+  const fallbackHTML = `
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Central de Ajuda modoPAG - Offline</title>
+      <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .logo { width: 200px; height: auto; margin-bottom: 30px; }
+        h1 { color: #333; margin-bottom: 20px; }
+        p { color: #666; line-height: 1.6; margin-bottom: 30px; }
+        .button { 
+          background: #f0ca00; color: #000; padding: 12px 24px; 
+          text-decoration: none; border-radius: 6px; display: inline-block;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <img src="/modopag-logo-yellow.webp" alt="modoPAG" class="logo" />
+        <h1>Você está offline</h1>
+        <p>Não foi possível conectar com nossos servidores. Verifique sua conexão com a internet e tente novamente.</p>
+        <a href="/" class="button">Tentar Novamente</a>
+      </div>
+    </body>
+    </html>
+  `;
+  
+  return new Response(fallbackHTML, {
+    status: 200,
+    headers: { 
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-cache'
+    }
+  });
 }
 
 // Stale While Revalidate Strategy (FIXED - no more double clone)
