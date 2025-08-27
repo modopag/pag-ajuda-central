@@ -93,19 +93,19 @@ export function TableOfContents({
 
   // Desktop sticky sidebar version
   return (
-    <div className={cn("", className)}>
-      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5 backdrop-blur-sm">
-        <div className="p-4">
-          <div className="flex items-center gap-2 mb-4">
+    <div className={cn("h-full", className)}>
+      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5 backdrop-blur-sm h-full flex flex-col">
+        <div className="p-4 flex flex-col h-full">
+          <div className="flex items-center gap-2 mb-4 flex-shrink-0">
             <List className="w-4 h-4 text-primary" />
             <h3 className="font-semibold text-sm text-foreground">
               Índice
             </h3>
             <div className="flex-1 h-px bg-gradient-to-r from-primary/30 to-transparent" />
           </div>
-          
-          <ScrollArea className="max-h-[calc(100vh-16rem)]">
-            <nav className="space-y-1 pr-3">
+          {/* FIXED: Scrollable content area with proper flex behavior */}
+          <ScrollArea className="flex-1 min-h-0">
+            <nav className="space-y-1 pr-2">
               {headings.map((heading) => (
                 <button
                   key={heading.id}
@@ -133,8 +133,8 @@ export function TableOfContents({
             </nav>
           </ScrollArea>
           
-          {/* Progress indicator */}
-          <div className="mt-4 pt-4 border-t border-border/50">
+          {/* Progress indicator - Fixed at bottom */}
+          <div className="mt-4 pt-4 border-t border-border/50 flex-shrink-0">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
                 <div 

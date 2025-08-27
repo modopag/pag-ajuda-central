@@ -214,18 +214,18 @@ export function SmartRelatedArticles({
 
   if (sidebarMode) {
     return (
-      <Card className={cn("border-accent/20 bg-gradient-to-br from-accent/5 to-primary/5", className)}>
-        <div className="p-4">
-          <div className="flex items-center gap-2 mb-4">
+      <Card className={cn("border-accent/20 bg-gradient-to-br from-accent/5 to-primary/5 h-full flex flex-col", className)}>
+        <div className="p-4 flex flex-col h-full">
+          <div className="flex items-center gap-2 mb-4 flex-shrink-0">
             <TrendingUp className="w-4 h-4 text-accent" />
             <h3 className="font-semibold text-sm text-foreground">
               Relacionados
             </h3>
             <div className="flex-1 h-px bg-gradient-to-r from-accent/30 to-transparent" />
           </div>
-          
-          <ScrollArea className="max-h-96">
-            <div className="space-y-3">
+          {/* FIXED: Flexible scrollable area */}
+          <ScrollArea className="flex-1 min-h-0">
+            <div className="space-y-3 pr-2">
               {displayedArticles.map(({ article, score, reasons }) => {
                 const category = categories.find(c => c.id === article.category_id);
                 return (
