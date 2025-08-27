@@ -31,31 +31,50 @@ export default function PasswordResetPage() {
         console.log('🔗 Processing password reset tokens from hash fragment');
         
         try {
+          // Wait a bit for Supabase to process the hash fragment automatically
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
           // Let Supabase handle the tokens from the hash fragment
           const { data: { session }, error } = await supabase.auth.getSession();
           
-          if (error || !session) {
-            console.error('❌ Invalid or expired reset token:', error);
-            toast.error('Link de redefinição inválido ou expirado');
-            navigate('/auth');
+          if (error) {
+            console.error('❌ Session error:', error);
+            setError('Erro ao validar link de recuperação: ' + error.message);
             return;
           }
           
-          console.log('✅ Valid password reset session found');
-          setHasValidSession(true);
+          if (!session) {
+            console.log('⚠️ No session found, attempting to refresh...');
+            
+            // Try to refresh session using the tokens in the hash
+            const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+            
+            if (refreshError || !refreshData.session) {
+              console.error('❌ Failed to establish session:', refreshError);
+              setError('Link de recuperação inválido ou expirado');
+              setTimeout(() => navigate('/auth'), 3000);
+              return;
+            }
+            
+            console.log('✅ Session refreshed successfully');
+            setHasValidSession(true);
+          } else {
+            console.log('✅ Valid password reset session found');
+            setHasValidSession(true);
+          }
           
           // Clean the hash from URL for better UX
           window.history.replaceState(null, '', window.location.pathname);
           
         } catch (err) {
           console.error('💥 Error processing reset tokens:', err);
-          toast.error('Erro ao processar link de redefinição');
-          navigate('/auth');
+          setError('Erro inesperado ao processar link de recuperação');
+          setTimeout(() => navigate('/auth'), 3000);
         }
       } else {
         console.error('❌ No reset tokens found in URL');
-        toast.error('Link de redefinição inválido ou expirado');
-        navigate('/auth');
+        setError('Link de redefinição inválido ou não encontrado');
+        setTimeout(() => navigate('/auth'), 3000);
       }
     };
     
@@ -131,7 +150,7 @@ export default function PasswordResetPage() {
               {!hasValidSession && (
                 <Alert>
                   <AlertDescription>
-                    Verificando link de redefinição de senha...
+                    {error ? error : 'Verificando link de redefinição de senha...'}
                   </AlertDescription>
                 </Alert>
               )}
