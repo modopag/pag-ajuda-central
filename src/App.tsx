@@ -20,6 +20,14 @@ import { useCachedSettings } from '@/hooks/useCachedSettings';
 import { AuthProvider } from '@/components/AuthProvider';
 import Gone from "@/pages/Gone";
 
+// Debug React availability
+console.log('🔍 App.tsx - React availability check:', { 
+  Suspense: !!Suspense, 
+  lazy: !!lazy,
+  QueryClient: !!QueryClient,
+  QueryClientProvider: !!QueryClientProvider 
+});
+
 // Import Index directly to eliminate lazy loading delay on homepage
 import Index from "./pages/Index";
 
