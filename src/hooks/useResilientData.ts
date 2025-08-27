@@ -19,15 +19,16 @@ interface ResilientDataResult<T> {
 }
 
 /**
- * Resilient data fetching hook with timeout, retry, and graceful fallbacks
- * Prevents homepage crashes by always providing usable data
+ * Enhanced resilient data fetching hook with timeout, retry, and graceful fallbacks
+ * Optimized for network resilience - prevents homepage crashes by always providing usable data
+ * Features: fast timeouts, local storage cache, aggressive fallbacks
  */
 export function useResilientData<T>({
   fetcher,
   fallbackData = null,
-  timeout = 5000,
-  retryAttempts = 2,
-  retryDelay = 1000,
+  timeout = 3000, // Reduced from 5000ms for better UX
+  retryAttempts = 1, // Reduced from 2 for faster fails 
+  retryDelay = 500, // Reduced from 1000ms for faster retries
   enableOfflineMode = true
 }: ResilientDataOptions<T>): ResilientDataResult<T> {
   const [data, setData] = useState<T | null>(fallbackData);
@@ -85,7 +86,7 @@ export function useResilientData<T>({
   }, [fetchWithTimeout, retryAttempts, retryDelay]);
 
   const executeRequest = useCallback(async () => {
-    // Don't fetch if offline and we have fallback data
+    // Don't fetch if offline and we have fallback data - NETWORK RESILIENCE
     if (isOffline && data) {
       setLoading(false);
       setIsStale(true);
@@ -108,15 +109,38 @@ export function useResilientData<T>({
       setData(result);
       setError(null);
       setIsStale(false);
+      
+      // Store successful result in sessionStorage for instant fallback - NETWORK RESILIENCE
+      try {
+        sessionStorage.setItem(`resilient-data-cache-${timeout}`, JSON.stringify(result));
+      } catch (storageError) {
+        console.warn('Failed to cache data in sessionStorage:', storageError);
+      }
     } catch (err) {
       if (newController.signal.aborted) return;
 
-      console.warn('Data fetch failed:', err);
+      console.warn('Data fetch failed, using fallbacks:', err);
       
-      // If we have fallback data, use it instead of showing error
+      // Try sessionStorage cache first - NETWORK RESILIENCE
+      try {
+        const cached = sessionStorage.getItem(`resilient-data-cache-${timeout}`);
+        if (cached && !data) {
+          const cachedData = JSON.parse(cached);
+          setData(cachedData);
+          setIsStale(true);
+          console.log('Using cached data as fallback');
+          setLoading(false);
+          return;
+        }
+      } catch (cacheError) {
+        console.warn('Failed to read cached data:', cacheError);
+      }
+      
+      // If we have fallback data and no cached data, use it
       if (fallbackData && !data) {
         setData(fallbackData);
         setIsStale(true);
+        console.log('Using provided fallback data');
       }
       
       setError(err instanceof Error ? err.message : 'Failed to fetch data');
@@ -124,7 +148,7 @@ export function useResilientData<T>({
       setLoading(false);
       setAbortController(null);
     }
-  }, [isOffline, data, fallbackData, fetchWithRetry, abortController]);
+  }, [isOffline, data, fallbackData, fetchWithRetry, abortController, timeout]);
 
   const retry = useCallback(() => {
     executeRequest();

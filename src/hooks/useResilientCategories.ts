@@ -64,8 +64,9 @@ export function useResilientCategories() {
   const result = useResilientData({
     fetcher,
     fallbackData: FALLBACK_CATEGORIES,
-    timeout: 3000, // Shorter timeout for categories
-    retryAttempts: 1, // Less retries for better UX
+    timeout: 2000, // Faster timeout for better UX - NETWORK RESILIENCE
+    retryAttempts: 1, // Quick fail for better performance
+    enableOfflineMode: true
   });
 
   return {

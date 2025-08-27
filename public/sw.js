@@ -1,22 +1,21 @@
 // Service Worker for modoPAG Central de Ajuda
 // Provides offline support and caching for better performance
-// ENHANCED: Cache headers optimization and versioning
+// ENHANCED: Cache headers optimization and versioning with immutable assets
 
-const CACHE_VERSION = '2025-01-27';
+const CACHE_VERSION = '2025-01-27-v2';
 const CACHE_NAME = `modopag-help-${CACHE_VERSION}`;
 const STATIC_CACHE = `modopag-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `modopag-dynamic-${CACHE_VERSION}`;
 
-// Assets to cache immediately
+// Enhanced static assets list with cache optimization
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
   '/favicon.png',
   '/modopag-logo-yellow.webp',
-  '/modopag-logo-black.webp',
-  '/src/main.tsx',
-  '/src/index.css'
+  '/modopag-logo-black.webp'
+  // Note: We don't cache main.tsx and index.css as they change frequently
 ];
 
 // Cache strategies for different types of requests - OPTIMIZED
@@ -34,12 +33,36 @@ const CACHE_STRATEGIES = {
   html: /\.html$|\/$/
 };
 
-// Helper function to check if response should be cached
+// Helper function to check if response should be cached with optimized headers
 function shouldCacheResponse(response) {
   return response && 
          response.status === 200 && 
          response.type === 'basic' &&
          !response.headers.get('cache-control')?.includes('no-store');
+}
+
+// Enhanced function to add optimized cache headers
+function addOptimizedCacheHeaders(response, isHashed = false) {
+  const headers = new Headers(response.headers);
+  
+  if (isHashed) {
+    // Hashed assets get immutable cache for 1 year - CACHING HEADERS OPTIMIZATION
+    headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+    headers.set('Expires', new Date(Date.now() + 31536000 * 1000).toUTCString());
+  } else {
+    // Non-hashed assets get shorter cache with revalidation
+    headers.set('Cache-Control', 'public, max-age=86400, must-revalidate'); // 1 day
+  }
+  
+  // Add additional optimization headers
+  headers.set('X-Cache-Status', 'HIT');
+  headers.set('X-Cache-Version', CACHE_VERSION);
+  
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: headers
+  });
 }
 
 // Safe clone function that only clones once
@@ -137,7 +160,7 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
-// Cache First Strategy with Immutable Headers (for hashed assets)
+// Cache First Strategy with Immutable Headers (for hashed assets) - ENHANCED
 async function cacheFirstImmutable(request) {
   try {
     // Try cache first
@@ -156,15 +179,8 @@ async function cacheFirstImmutable(request) {
       
       if (responseClone) {
         try {
-          // Add immutable cache headers for hashed assets
-          const headers = new Headers(responseClone.headers);
-          headers.set('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year immutable
-          
-          const cachedResponse = new Response(responseClone.body, {
-            status: responseClone.status,
-            statusText: responseClone.statusText,
-            headers: headers
-          });
+          // Add immutable cache headers for hashed assets - CACHING HEADERS OPTIMIZATION
+          const cachedResponse = addOptimizedCacheHeaders(responseClone, true);
           
           const cache = await caches.open(STATIC_CACHE);
           await cache.put(request, cachedResponse.clone());
@@ -191,7 +207,7 @@ async function cacheFirstImmutable(request) {
   }
 }
 
-// Cache First Strategy (for static assets)
+// Cache First Strategy (for static assets) - ENHANCED
 async function cacheFirst(request) {
   try {
     // Try cache first
@@ -203,16 +219,19 @@ async function cacheFirst(request) {
     // If not in cache, fetch from network
     const networkResponse = await fetch(request);
     
-    // Only cache successful responses
+    // Only cache successful responses with optimized headers
     if (shouldCacheResponse(networkResponse)) {
       // Clone BEFORE using the response
       const responseClone = safeClone(networkResponse, 'cacheFirst');
       
       if (responseClone) {
         try {
+          // Add optimized cache headers for static assets - CACHING HEADERS OPTIMIZATION
+          const cachedResponse = addOptimizedCacheHeaders(responseClone, false);
+          
           const cache = await caches.open(STATIC_CACHE);
-          // Use clone for caching, return original
-          await cache.put(request, responseClone);
+          // Use enhanced response for caching, return original
+          await cache.put(request, cachedResponse);
         } catch (cacheError) {
           console.warn('[SW] Failed to cache response:', cacheError);
         }
@@ -236,69 +255,29 @@ async function cacheFirst(request) {
   }
 }
 
-// Network First Strategy for HTML - HARDENED AGAINST STALE CONTENT
+// Network First Strategy for HTML - HARDENED AGAINST STALE CONTENT + NO HTML CACHING
 async function networkFirstForHTML(request) {
   try {
-    // Always try network first for navigation requests
+    // Always try network first for navigation requests - NO HTML CACHING BY SW
     const networkResponse = await Promise.race([
       fetch(request),
       new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Network timeout')), 3000)
+        setTimeout(() => reject(new Error('Network timeout')), 2000) // Faster timeout for HTML
       )
     ]);
     
-    // For HTML, never cache error responses or broken content
+    // For HTML, NEVER cache responses to prevent stale content - CACHING HEADERS OPTIMIZATION
     if (networkResponse.ok && networkResponse.status === 200) {
-      const responseClone = safeClone(networkResponse, 'networkFirstForHTML');
-      if (responseClone) {
-        try {
-          const text = await responseClone.text();
-          // Don't cache error pages, broken HTML, or content with errors
-          if (!text.includes('Oops! Algo deu errado') && 
-              !text.includes('TypeError') &&
-              !text.includes('Error') && 
-              text.length > 500) {
-            
-            const cache = await caches.open(DYNAMIC_CACHE);
-            await cache.put(request, new Response(text, {
-              status: networkResponse.status,
-              statusText: networkResponse.statusText,
-              headers: networkResponse.headers
-            }));
-          } else {
-            console.warn('[SW] Not caching potentially broken HTML content');
-          }
-        } catch (cacheError) {
-          console.warn('[SW] Failed to process HTML response:', cacheError);
-        }
-      }
+      // Return fresh HTML without caching - let server handle HTML caching
+      console.log('[SW] Serving fresh HTML without SW caching');
+      return networkResponse;
     }
     
     return networkResponse;
   } catch (error) {
-    console.log('[SW] Network failed for HTML, trying cache fallback:', error.message);
+    console.log('[SW] Network failed for HTML, serving basic fallback:', error.message);
     
-    // Only serve cached HTML as absolute last resort and validate it
-    const cachedResponse = await caches.match(request);
-    if (cachedResponse) {
-      try {
-        const text = await cachedResponse.text();
-        // Don't serve cached error content
-        if (text.includes('Oops! Algo deu errado') || text.includes('TypeError')) {
-          console.warn('[SW] Cached HTML contains errors, serving basic fallback');
-          return createBasicFallbackResponse();
-        }
-        return new Response(text, {
-          status: cachedResponse.status,
-          statusText: cachedResponse.statusText,
-          headers: cachedResponse.headers
-        });
-      } catch (err) {
-        console.warn('[SW] Error reading cached HTML:', err);
-      }
-    }
-
-    // Return basic fallback for HTML requests
+    // Don't serve cached HTML - always return basic fallback - NO STALE HTML
     return createBasicFallbackResponse();
   }
 }
@@ -314,40 +293,20 @@ async function networkFirst(request) {
       )
     ]);
     
-    // Only cache successful responses and valid HTML
+    // Only cache successful responses with optimized cache headers
     if (shouldCacheResponse(networkResponse)) {
-      // For HTML responses, check if they contain error indicators
+      // For HTML responses, don't cache at all - let server handle HTML caching
       if (request.headers.get('accept')?.includes('text/html')) {
-        const responseClone = safeClone(networkResponse, 'networkFirst-html');
-        if (responseClone) {
-          try {
-            const text = await responseClone.text();
-            // Don't cache error pages or broken HTML
-            if (text.includes('Oops! Algo deu errado') || 
-                text.includes('Error') || 
-                text.length < 100) {
-              console.warn('[SW] Not caching potentially broken HTML');
-              return networkResponse;
-            }
-            
-            // Cache valid HTML
-            const cache = await caches.open(DYNAMIC_CACHE);
-            await cache.put(request, new Response(text, {
-              status: networkResponse.status,
-              statusText: networkResponse.statusText,
-              headers: networkResponse.headers
-            }));
-          } catch (cacheError) {
-            console.warn('[SW] Failed to process HTML response:', cacheError);
-          }
-        }
+        console.log('[SW] Not caching HTML - server-side caching only');
+        return networkResponse;
       } else {
-        // Cache non-HTML successful responses normally
+        // Cache non-HTML successful responses with optimized headers
         const responseClone = safeClone(networkResponse, 'networkFirst');
         if (responseClone) {
           try {
+            const cachedResponse = addOptimizedCacheHeaders(responseClone, false);
             const cache = await caches.open(DYNAMIC_CACHE);
-            await cache.put(request, responseClone);
+            await cache.put(request, cachedResponse);
           } catch (cacheError) {
             console.warn('[SW] Failed to cache response:', cacheError);
           }
