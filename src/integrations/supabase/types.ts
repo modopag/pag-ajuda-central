@@ -81,6 +81,7 @@ export type Database = {
           og_title: string | null
           published_at: string | null
           reading_time_minutes: number
+          seo_image: Json | null
           slug: string
           status: string
           title: string
@@ -103,6 +104,7 @@ export type Database = {
           og_title?: string | null
           published_at?: string | null
           reading_time_minutes?: number
+          seo_image?: Json | null
           slug: string
           status?: string
           title: string
@@ -125,6 +127,7 @@ export type Database = {
           og_title?: string | null
           published_at?: string | null
           reading_time_minutes?: number
+          seo_image?: Json | null
           slug?: string
           status?: string
           title?: string

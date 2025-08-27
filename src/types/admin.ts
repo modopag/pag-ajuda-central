@@ -38,6 +38,7 @@ export interface Article {
   og_title?: string;
   og_description?: string;
   og_image?: string;
+  seo_image?: SEOImageData; // New structured SEO image
   noindex: boolean;
   
   // Additional fields
@@ -45,6 +46,15 @@ export interface Article {
   type: ArticleType;
   view_count: number;
   first_paragraph?: string; // Required for SEO validation
+}
+
+// SEO Image structure for social media previews
+export interface SEOImageData {
+  url: string;
+  alt: string;
+  width: number;
+  height: number;
+  caption?: string;
 }
 
 export interface Tag {

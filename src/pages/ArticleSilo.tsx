@@ -198,7 +198,37 @@ export default function ArticleSilo() {
 
   const canonicalUrl = generateCanonicalUrl(generateArticleUrl(categorySlug, articleSlug), seo.site_url);
   
-  // Structured data for article
+  // Get SEO image data - prioritize structured seo_image, fallback to og_image, then default
+  const getSEOImageData = () => {
+    if (article.seo_image && article.seo_image.url) {
+      return {
+        url: article.seo_image.url,
+        width: article.seo_image.width,
+        height: article.seo_image.height,
+        alt: article.seo_image.alt
+      };
+    }
+    
+    if (article.og_image) {
+      return {
+        url: article.og_image,
+        width: undefined,
+        height: undefined,
+        alt: undefined
+      };
+    }
+    
+    return {
+      url: "https://ajuda.modopag.com.br/og-default.jpg",
+      width: 1200,
+      height: 630,
+      alt: "modoPAG Central de Ajuda"
+    };
+  };
+
+  const seoImageData = getSEOImageData();
+  
+  // Enhanced structured data for article with proper image object
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -221,6 +251,14 @@ export default function ArticleSilo() {
         "url": seo.site_url + "/modopag-logo-yellow.webp"
       }
     },
+    "image": seoImageData.width && seoImageData.height ? {
+      "@type": "ImageObject",
+      "url": seoImageData.url,
+      "width": seoImageData.width,
+      "height": seoImageData.height,
+      "name": seoImageData.alt || article.title,
+      "contentUrl": seoImageData.url
+    } : seoImageData.url,
     "inLanguage": "pt-BR",
     "articleSection": category.name,
     "keywords": tags.map(tag => tag.name).join(", "),
@@ -253,8 +291,11 @@ export default function ArticleSilo() {
         description={seoDescription}
         canonicalUrl={canonicalUrl}
         jsonLd={jsonLd}
-        ogTitle={article.title}
-        ogDescription={seoDescription}
+        ogTitle={article.og_title || article.title}
+        ogDescription={article.og_description || seoDescription}
+        ogImage={seoImageData.url}
+        ogImageWidth={seoImageData.width}
+        ogImageHeight={seoImageData.height}
         ogType="article"
       />
 

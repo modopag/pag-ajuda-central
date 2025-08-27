@@ -1,6 +1,21 @@
 import type { Article, Category } from '@/types/admin';
 
 export const generateArticleJsonLd = (article: Article, category: Category) => {
+  // Use structured SEO image if available, fallback to og_image, then default
+  const seoImage = article.seo_image;
+  const imageUrl = seoImage?.url || article.og_image || "https://ajuda.modopag.com.br/og-default.jpg";
+  
+  // Create proper ImageObject when we have structured data
+  const imageObject = seoImage ? {
+    "@type": "ImageObject",
+    "url": seoImage.url,
+    "width": seoImage.width,
+    "height": seoImage.height,
+    "contentUrl": seoImage.url,
+    "name": seoImage.alt,
+    "description": seoImage.caption || seoImage.alt
+  } : imageUrl;
+
   return {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -12,11 +27,11 @@ export const generateArticleJsonLd = (article: Article, category: Category) => {
       "url": "https://modopag.com.br"
     },
     "publisher": {
-      "@type": "Organization",
+      "@type": "Organization", 
       "name": "modoPAG",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://modopag.com.br/images/logo-modopag.png"
+        "url": "https://ajuda.modopag.com.br/modopag-logo-yellow.webp"
       }
     },
     "datePublished": article.published_at,
@@ -26,7 +41,8 @@ export const generateArticleJsonLd = (article: Article, category: Category) => {
       "@id": `https://ajuda.modopag.com.br/${category.slug}/${article.slug}`
     },
     "articleSection": category.name,
-    "image": article.og_image || "https://modopag.com.br/images/og-default.png"
+    "image": imageObject,
+    "inLanguage": "pt-BR"
   };
 };
 

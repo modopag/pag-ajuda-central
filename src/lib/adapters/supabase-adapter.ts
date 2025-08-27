@@ -14,7 +14,8 @@ import type {
   SlugHistoryEntry,
   ArticleStatus,
   RedirectType,
-  FAQ
+  FAQ,
+  SEOImageData
 } from '@/types/admin';
 
 export class SupabaseAdapter implements DataAdapter {
@@ -28,6 +29,23 @@ export class SupabaseAdapter implements DataAdapter {
     if (instanceId > 1) {
       console.warn(`⚠️ SupabaseAdapter: Multiple instances detected! This should not happen. Instance count: ${instanceId}`);
     }
+  }
+
+  // Helper function to convert database article to typed Article
+  private convertDbArticle(dbArticle: any): Article {
+    return {
+      ...dbArticle,
+      seo_image: dbArticle.seo_image ? (dbArticle.seo_image as SEOImageData) : undefined
+    };
+  }
+
+  // Helper function to convert Article to database format
+  private convertArticleToDb(article: Partial<Article>): any {
+    const { seo_image, ...rest } = article;
+    return {
+      ...rest,
+      seo_image: seo_image ? JSON.parse(JSON.stringify(seo_image)) : null
+    };
   }
 
   // Categories
@@ -128,7 +146,7 @@ export class SupabaseAdapter implements DataAdapter {
     const { data, error } = await query;
 
     if (error) throw error;
-    return (data || []) as Article[];
+    return (data || []).map(article => this.convertDbArticle(article));
   }
 
   async getArticleById(id: string): Promise<Article | null> {
@@ -142,7 +160,7 @@ export class SupabaseAdapter implements DataAdapter {
       if (error.code === 'PGRST116') return null;
       throw error;
     }
-    return data as Article;
+    return this.convertDbArticle(data);
   }
 
   async getArticleBySlug(slug: string): Promise<Article | null> {
@@ -156,30 +174,32 @@ export class SupabaseAdapter implements DataAdapter {
       if (error.code === 'PGRST116') return null;
       throw error;
     }
-    return data as Article;
+    return this.convertDbArticle(data);
   }
 
   async createArticle(article: Omit<Article, 'id' | 'updated_at' | 'view_count'>): Promise<Article> {
+    const dbArticle = this.convertArticleToDb(article);
     const { data, error } = await supabase
       .from('articles')
-      .insert(article)
+      .insert(dbArticle)
       .select()
       .single();
 
     if (error) throw error;
-    return data as Article;
+    return this.convertDbArticle(data);
   }
 
   async updateArticle(id: string, updates: Partial<Article>): Promise<Article> {
+    const dbUpdates = this.convertArticleToDb(updates);
     const { data, error } = await supabase
       .from('articles')
-      .update(updates)
+      .update(dbUpdates)
       .eq('id', id)
       .select()
       .single();
 
     if (error) throw error;
-    return data as Article;
+    return this.convertDbArticle(data);
   }
 
   async deleteArticle(id: string): Promise<void> {

@@ -7,6 +7,8 @@ interface SEOHelmetProps {
   ogTitle?: string;
   ogDescription?: string;
   ogImage?: string;
+  ogImageWidth?: number;
+  ogImageHeight?: number;
   ogType?: 'website' | 'article';
   noindex?: boolean;
   jsonLd?: object;
@@ -19,6 +21,8 @@ export const SEOHelmet = ({
   ogTitle,
   ogDescription,
   ogImage,
+  ogImageWidth,
+  ogImageHeight,
   ogType = 'website',
   noindex = false,
   jsonLd
@@ -36,6 +40,8 @@ export const SEOHelmet = ({
       <meta property="og:title" content={ogTitle || title} />
       <meta property="og:description" content={ogDescription || description || defaultDescription} />
       <meta property="og:image" content={ogImage || defaultOgImage} />
+      {ogImageWidth && <meta property="og:image:width" content={ogImageWidth.toString()} />}
+      {ogImageHeight && <meta property="og:image:height" content={ogImageHeight.toString()} />}
       <meta property="og:type" content={ogType} />
       <meta property="og:site_name" content="modoPAG Central de Ajuda" />
       

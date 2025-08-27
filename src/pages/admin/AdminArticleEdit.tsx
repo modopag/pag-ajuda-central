@@ -19,7 +19,8 @@ import { PreviewModal } from '@/components/admin/PreviewModal';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { useSlugValidation } from '@/hooks/useSlugValidation';
 import { validateSEO, calculateReadingTime, generateSlug, canPublish, extractFirstParagraph } from '@/utils/seoValidations';
-import type { Article, Category, Tag, ArticleStatus } from '@/types/admin';
+import { SEOImageUploader } from '@/components/admin/SEOImageUploader';
+import type { Article, Category, Tag, ArticleStatus, SEOImageData } from '@/types/admin';
 
 export default function AdminArticleEdit() {
   const { id } = useParams();
@@ -49,6 +50,7 @@ export default function AdminArticleEdit() {
     og_title: '',
     og_description: '',
     og_image: '',
+    seo_image: null, // New structured SEO image
     noindex: false,
     type: 'artigo',
     reading_time_minutes: 1
@@ -690,39 +692,40 @@ export default function AdminArticleEdit() {
                 <Separator />
 
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Open Graph</h3>
+                  <h3 className="text-lg font-semibold">SEO & Redes Sociais</h3>
                   
+                  {/* New SEO Image Uploader */}
+                  <SEOImageUploader
+                    value={article.seo_image || null}
+                    onChange={(seoImage) => handleInputChange('seo_image', seoImage)}
+                  />
+
                   <div className="space-y-2">
-                    <Label htmlFor="ogTitle">OG Título</Label>
+                    <Label htmlFor="ogTitle">Título para compartilhamento</Label>
                     <Input
                       id="ogTitle"
                       value={article.og_title || ''}
                       onChange={(e) => handleInputChange('og_title', e.target.value)}
-                      placeholder="Título para redes sociais"
+                      placeholder="Deixe vazio para usar o título principal"
                     />
+                    <p className="text-xs text-muted-foreground">
+                      Título exibido quando o artigo é compartilhado nas redes sociais
+                    </p>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="ogDescription">OG Descrição</Label>
+                    <Label htmlFor="ogDescription">Descrição para compartilhamento</Label>
                     <Textarea
                       id="ogDescription"
                       value={article.og_description || ''}
                       onChange={(e) => handleInputChange('og_description', e.target.value)}
-                      placeholder="Descrição para redes sociais"
+                      placeholder="Deixe vazio para usar a meta descrição"
                       rows={2}
                     />
+                    <p className="text-xs text-muted-foreground">
+                      Descrição exibida quando o artigo é compartilhado nas redes sociais
+                    </p>
                   </div>
-
-                  <ImageUploader
-                    label="OG Image"
-                    currentImage={article.og_image}
-                    onUpload={async (file, altText) => {
-                      const url = await handleImageUpload(file, altText);
-                      handleInputChange('og_image', url);
-                      return url;
-                    }}
-                    onRemove={() => handleInputChange('og_image', '')}
-                  />
                 </div>
 
                 <Separator />
