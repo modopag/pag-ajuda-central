@@ -29,6 +29,7 @@ const Search = lazy(() => import("./pages/Search"));
 const Sitemap = lazy(() => import("./pages/Sitemap"));
 const RobotsTxt = lazy(() => import("./pages/RobotsTxt"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const FAQCategory = lazy(() => import("./pages/FAQCategory"));
 const AuthPage = lazy(() => import("./pages/auth/AuthPage"));
 const PasswordResetPage = lazy(() => import("./pages/auth/PasswordResetPage"));
 const EmailConfirmationPage = lazy(() => import("./pages/auth/EmailConfirmationPage"));
@@ -94,6 +95,7 @@ const AppContent = () => {
           <Route path="/sitemap.xml" element={<Sitemap />} />
           <Route path="/robots.txt" element={<RobotsTxt />} />
           <Route path="/politicas-de-privacidade" element={<RedirectToExternalPrivacy />} />
+          <Route path="/faq/:categorySlug" element={<FAQCategory />} />
           <Route path="/gone" element={<Gone />} />
           
           {/* Auth Routes */}

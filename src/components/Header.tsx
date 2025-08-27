@@ -117,6 +117,107 @@ const Header = () => {
               </NavigationMenuItem>
               
               <NavigationMenuItem>
+                <NavigationMenuTrigger className="text-foreground hover:text-accent transition-colors duration-300">
+                  FAQs
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid gap-3 p-6 w-[300px]">
+                    <NavigationMenuLink 
+                      asChild
+                    >
+                      <Link
+                        to="/"
+                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                      >
+                        <div className="text-sm font-medium leading-none">Todas as FAQs</div>
+                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                          Ver todas as perguntas frequentes
+                        </p>
+                      </Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink 
+                      asChild
+                    >
+                      <Link
+                        to="/faq/geral"
+                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                      >
+                        <div className="text-sm font-medium leading-none">Geral</div>
+                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                          Dúvidas gerais sobre o modoPAG
+                        </p>
+                      </Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink 
+                      asChild
+                    >
+                      <Link
+                        to="/faq/taxas"
+                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                      >
+                        <div className="text-sm font-medium leading-none">Taxas</div>
+                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                          Informações sobre taxas e tarifas
+                        </p>
+                      </Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink 
+                      asChild
+                    >
+                      <Link
+                        to="/faq/maquininha"
+                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                      >
+                        <div className="text-sm font-medium leading-none">Maquininha</div>
+                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                          Dúvidas sobre as maquininhas
+                        </p>
+                      </Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink 
+                      asChild
+                    >
+                      <Link
+                        to="/faq/seguranca"
+                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                      >
+                        <div className="text-sm font-medium leading-none">Segurança</div>
+                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                          Informações sobre segurança
+                        </p>
+                      </Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink 
+                      asChild
+                    >
+                      <Link
+                        to="/faq/conta-digital"
+                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                      >
+                        <div className="text-sm font-medium leading-none">Conta Digital</div>
+                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                          Dúvidas sobre conta digital
+                        </p>
+                      </Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink 
+                      asChild
+                    >
+                      <Link
+                        to="/faq/suporte"
+                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                      >
+                        <div className="text-sm font-medium leading-none">Suporte</div>
+                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                          Canais de suporte e contato
+                        </p>
+                      </Link>
+                    </NavigationMenuLink>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
                 <NavigationMenuLink 
                   href="https://modopag.com.br/modolink/"
                   target="_blank"

@@ -17,6 +17,7 @@ import { useFAQs } from '@/hooks/useFAQs';
 import { getDataAdapter } from '@/lib/data-adapter';
 import { toast } from 'sonner';
 import type { FAQ } from '@/types/admin';
+import { FAQ_CATEGORIES } from '@/constants/faqCategories';
 
 const faqSchema = z.object({
   question: z.string().min(10, 'A pergunta deve ter pelo menos 10 caracteres'),
@@ -27,15 +28,6 @@ const faqSchema = z.object({
 });
 
 type FAQFormData = z.infer<typeof faqSchema>;
-
-const FAQ_CATEGORIES = [
-  { value: 'geral', label: 'Geral' },
-  { value: 'taxas', label: 'Taxas' },
-  { value: 'maquininha', label: 'Maquininha' },
-  { value: 'seguranca', label: 'Segurança' },
-  { value: 'conta-digital', label: 'Conta Digital' },
-  { value: 'suporte', label: 'Suporte' }
-];
 
 export default function AdminFAQs() {
   const { faqs, loading, refetch } = useFAQs();
@@ -156,53 +148,22 @@ export default function AdminFAQs() {
               Novo FAQ
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingFAQ ? 'Editar FAQ' : 'Criar Novo FAQ'}
               </DialogTitle>
             </DialogHeader>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(editingFAQ ? handleUpdateFAQ : handleCreateFAQ)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="question"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Pergunta</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Digite a pergunta..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="answer"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Resposta</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Digite a resposta..." 
-                          className="min-h-[120px]"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="grid grid-cols-2 gap-4">
+              <form onSubmit={form.handleSubmit(editingFAQ ? handleUpdateFAQ : handleCreateFAQ)} className="space-y-6">
+                {/* Category and Position - Top Bar */}
+                <div className="grid grid-cols-3 gap-4 p-4 bg-muted/50 rounded-lg">
                   <FormField
                     control={form.control}
                     name="category"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Categoria</FormLabel>
+                        <FormLabel className="text-sm font-medium">Categoria</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
@@ -227,7 +188,7 @@ export default function AdminFAQs() {
                     name="position"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Posição</FormLabel>
+                        <FormLabel className="text-sm font-medium">Posição</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
@@ -240,30 +201,73 @@ export default function AdminFAQs() {
                       </FormItem>
                     )}
                   />
+
+                  <FormField
+                    control={form.control}
+                    name="is_active"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-sm font-medium">
+                            FAQ Ativo
+                          </FormLabel>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Question and Answer - Side by Side */}
+                <div className="grid grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="question"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel className="text-base font-semibold text-primary">Pergunta</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Digite a pergunta..." 
+                            className="min-h-[200px] resize-none"
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                        <div className="text-xs text-muted-foreground">
+                          {field.value?.length || 0} caracteres (mín. 10)
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="answer"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel className="text-base font-semibold text-primary">Resposta</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Digite a resposta..." 
+                            className="min-h-[200px] resize-none"
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                        <div className="text-xs text-muted-foreground">
+                          {field.value?.length || 0} caracteres (mín. 20)
+                        </div>
+                      </FormItem>
+                    )}
+                  />
                 </div>
                 
-                <FormField
-                  control={form.control}
-                  name="is_active"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">
-                          FAQ Ativo
-                        </FormLabel>
-                        <p className="text-sm text-muted-foreground">
-                          FAQs inativos não aparecerão no site
-                        </p>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
                 
                 <div className="flex justify-end gap-2">
                   <Button 
