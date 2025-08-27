@@ -17,7 +17,16 @@ import { useFAQs } from '@/hooks/useFAQs';
 import { getDataAdapter } from '@/lib/data-adapter';
 import { toast } from 'sonner';
 import type { FAQ } from '@/types/admin';
-import { FAQ_CATEGORIES } from '@/constants/faqCategories';
+
+// FAQ Categories for this admin component
+const FAQ_CATEGORIES = [
+  { value: 'geral', label: 'Geral' },
+  { value: 'taxas', label: 'Taxas' },
+  { value: 'maquininha', label: 'Maquininha' },
+  { value: 'seguranca', label: 'Segurança' },
+  { value: 'conta-digital', label: 'Conta Digital' },
+  { value: 'suporte', label: 'Suporte' }
+] as const;
 
 const faqSchema = z.object({
   question: z.string().min(10, 'A pergunta deve ter pelo menos 10 caracteres'),

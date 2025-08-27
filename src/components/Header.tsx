@@ -11,10 +11,12 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import { SearchAutocomplete } from '@/components/SearchAutocomplete';
 import { SkipLink } from '@/components/SkipLink';
+import { useResilientCategories } from '@/hooks/useResilientCategories';
 import logoBlack from "@/assets/modopag-logo-black.png";
 
 const Header = () => {
   const location = useLocation();
+  const { categories } = useResilientCategories();
   
   // Pages that have their own search functionality - hide header search
   const pagesWithSearch = [
@@ -118,101 +120,26 @@ const Header = () => {
               
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="text-foreground hover:text-accent transition-colors duration-300">
-                  FAQs
+                  Categorias
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <div className="grid gap-3 p-6 w-[300px]">
-                    <NavigationMenuLink 
-                      asChild
-                    >
-                      <Link
-                        to="/"
-                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                  <div className="grid gap-3 p-6 w-[400px] max-h-[500px] overflow-y-auto">
+                    {categories.map((category) => (
+                      <NavigationMenuLink 
+                        key={category.id}
+                        asChild
                       >
-                        <div className="text-sm font-medium leading-none">Todas as FAQs</div>
-                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          Ver todas as perguntas frequentes
-                        </p>
-                      </Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink 
-                      asChild
-                    >
-                      <Link
-                        to="/faq/geral"
-                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                      >
-                        <div className="text-sm font-medium leading-none">Geral</div>
-                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          Dúvidas gerais sobre o modoPAG
-                        </p>
-                      </Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink 
-                      asChild
-                    >
-                      <Link
-                        to="/faq/taxas"
-                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                      >
-                        <div className="text-sm font-medium leading-none">Taxas</div>
-                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          Informações sobre taxas e tarifas
-                        </p>
-                      </Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink 
-                      asChild
-                    >
-                      <Link
-                        to="/faq/maquininha"
-                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                      >
-                        <div className="text-sm font-medium leading-none">Maquininha</div>
-                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          Dúvidas sobre as maquininhas
-                        </p>
-                      </Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink 
-                      asChild
-                    >
-                      <Link
-                        to="/faq/seguranca"
-                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                      >
-                        <div className="text-sm font-medium leading-none">Segurança</div>
-                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          Informações sobre segurança
-                        </p>
-                      </Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink 
-                      asChild
-                    >
-                      <Link
-                        to="/faq/conta-digital"
-                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                      >
-                        <div className="text-sm font-medium leading-none">Conta Digital</div>
-                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          Dúvidas sobre conta digital
-                        </p>
-                      </Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink 
-                      asChild
-                    >
-                      <Link
-                        to="/faq/suporte"
-                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                      >
-                        <div className="text-sm font-medium leading-none">Suporte</div>
-                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          Canais de suporte e contato
-                        </p>
-                      </Link>
-                    </NavigationMenuLink>
+                        <Link
+                          to={`/${category.slug}/`}
+                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                        >
+                          <div className="text-sm font-medium leading-none">{category.name}</div>
+                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                            {category.description || `Artigos sobre ${category.name.toLowerCase()}`}
+                          </p>
+                        </Link>
+                      </NavigationMenuLink>
+                    ))}
                   </div>
                 </NavigationMenuContent>
               </NavigationMenuItem>

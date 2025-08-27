@@ -105,28 +105,63 @@ const FAQSection = () => {
           </div>
         )}
 
-        <div className="max-w-4xl mx-auto">
-          <Accordion type="single" collapsible className="space-y-4">
-            {faqs.map((faq, index) => (
-              <AccordionItem 
-                key={faq.id} 
-                value={`item-${index}`}
-                className="border border-border rounded-lg bg-card px-6"
-              >
-                <AccordionTrigger 
-                  className="text-left hover:no-underline py-6"
-                  aria-expanded="false"
-                >
-                  <span className="text-foreground font-semibold">
-                    {faq.question}
-                  </span>
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground pb-6 pt-0 leading-relaxed">
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+        <div className="max-w-6xl mx-auto">
+          {/* Desktop: 2 columns, Mobile: 1 column */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Left Column - Odd FAQs (1, 3, 5, 7, 9, 11, ...) */}
+            <div className="space-y-4">
+              <Accordion type="single" collapsible className="space-y-4">
+                {faqs
+                  .filter((_, index) => index % 2 === 0)
+                  .map((faq, index) => (
+                    <AccordionItem 
+                      key={faq.id} 
+                      value={`item-left-${index}`}
+                      className="border border-border rounded-lg bg-card px-6"
+                    >
+                      <AccordionTrigger 
+                        className="text-left hover:no-underline py-6"
+                        aria-expanded="false"
+                      >
+                        <span className="text-foreground font-semibold">
+                          {faq.question}
+                        </span>
+                      </AccordionTrigger>
+                      <AccordionContent className="text-muted-foreground pb-6 pt-0 leading-relaxed">
+                        {faq.answer}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+              </Accordion>
+            </div>
+
+            {/* Right Column - Even FAQs (2, 4, 6, 8, 10, 12, ...) */}
+            <div className="space-y-4">
+              <Accordion type="single" collapsible className="space-y-4">
+                {faqs
+                  .filter((_, index) => index % 2 === 1)
+                  .map((faq, index) => (
+                    <AccordionItem 
+                      key={faq.id} 
+                      value={`item-right-${index}`}
+                      className="border border-border rounded-lg bg-card px-6"
+                    >
+                      <AccordionTrigger 
+                        className="text-left hover:no-underline py-6"
+                        aria-expanded="false"
+                      >
+                        <span className="text-foreground font-semibold">
+                          {faq.question}
+                        </span>
+                      </AccordionTrigger>
+                      <AccordionContent className="text-muted-foreground pb-6 pt-0 leading-relaxed">
+                        {faq.answer}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+              </Accordion>
+            </div>
+          </div>
         </div>
       </div>
     </section>
