@@ -74,22 +74,22 @@ export function ArticleFAQSection({ articleId }: ArticleFAQSectionProps) {
   }
 
   return (
-    <section className="mt-12 border-t pt-8" aria-labelledby="article-faqs-heading">
-      <h2 id="article-faqs-heading" className="text-2xl font-bold mb-6 text-foreground">
+    <section className="mt-8" aria-labelledby="article-faqs-heading">
+      <h3 id="article-faqs-heading" className="text-xl font-semibold mb-4 text-foreground">
         Perguntas Frequentes
-      </h2>
+      </h3>
       
-      <div className="space-y-4">
+      <div className="space-y-2">
         {faqs.map((faq) => {
           const isExpanded = expandedItems.has(faq.id);
           
           return (
             <div
               key={faq.id}
-              className="border border-border rounded-lg bg-card shadow-sm"
+              className="border-l-2 border-l-muted-foreground/20 bg-muted/30 rounded-r-lg"
             >
               <button
-                className="w-full px-6 py-4 text-left flex items-center justify-between gap-4 hover:bg-muted/50 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-lg"
+                className="w-full px-4 py-3 text-left flex items-center justify-between gap-4 hover:bg-muted/50 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-r-lg"
                 onClick={() => toggleExpanded(faq.id)}
                 onKeyDown={(e) => handleKeyDown(e, faq.id)}
                 aria-expanded={isExpanded}
@@ -101,9 +101,9 @@ export function ArticleFAQSection({ articleId }: ArticleFAQSectionProps) {
                 
                 <span className="flex-shrink-0 text-muted-foreground">
                   {isExpanded ? (
-                    <ChevronUp className="h-5 w-5" aria-hidden="true" />
+                    <ChevronUp className="h-4 w-4" aria-hidden="true" />
                   ) : (
-                    <ChevronDown className="h-5 w-5" aria-hidden="true" />
+                    <ChevronDown className="h-4 w-4" aria-hidden="true" />
                   )}
                 </span>
               </button>
@@ -111,13 +111,13 @@ export function ArticleFAQSection({ articleId }: ArticleFAQSectionProps) {
               {isExpanded && (
                 <div
                   id={`faq-answer-${faq.id}`}
-                  className="px-6 pb-4 text-muted-foreground leading-relaxed"
+                  className="px-4 pb-3 text-muted-foreground leading-relaxed border-t border-t-muted-foreground/10"
                   role="region"
                   aria-labelledby={`faq-question-${faq.id}`}
                 >
                   <div 
                     dangerouslySetInnerHTML={{ __html: faq.answer }}
-                    className="prose prose-sm max-w-none [&>p:first-child]:mt-0 [&>p:last-child]:mb-0"
+                    className="prose prose-sm max-w-none [&>p:first-child]:mt-2 [&>p:last-child]:mb-0"
                   />
                 </div>
               )}
