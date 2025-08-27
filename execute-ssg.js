@@ -19,8 +19,7 @@ async function runSSG() {
     
     // 2. Run prerendering
     console.log('⚡ Executando pré-renderização...');
-    const { generateStaticPages } = await import('./scripts/prerender.js');
-    await generateStaticPages();
+    execSync('npx tsx scripts/prerender.ts', { stdio: 'inherit', cwd: process.cwd() });
     
     // 3. Test results
     console.log('🔍 Verificando resultados...');

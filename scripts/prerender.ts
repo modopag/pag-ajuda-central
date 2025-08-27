@@ -9,9 +9,9 @@ import { StaticRouter } from 'react-router-dom/server';
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
-import { fetchBuildData } from './data-fetcher.js';
-import { generateHTMLTemplate } from './html-template.js';
-import App from '../src/App.js';
+import { fetchBuildData } from './data-fetcher.ts';
+import { generateHTMLTemplate } from './html-template.ts';
+import App from '../src/App.tsx';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
