@@ -40,8 +40,7 @@ const createContentHash = (content: string): string => {
 };
 
 /**
- * FASE 2: Hook estável com hash-based dirty detection
- * FASE 4: Anti-reset com contentRef único e lock de escrita
+ * Hook otimizado com dirty detection simplificada
  */
 export const useEditorState = ({ 
   initialContent, 
@@ -49,7 +48,6 @@ export const useEditorState = ({
 }: UseEditorStateProps): UseEditorStateReturn => {
   const contentRef = useRef<string>(initialContent || '');
   const dirtyRef = useRef<boolean>(false);
-  const writeLockRef = useRef<boolean>(false); // Lock para prevenir conflitos
   const [isDirty, setIsDirty] = useState(false);
   
   // Hash do conteúdo inicial para detecção mais precisa
@@ -58,50 +56,36 @@ export const useEditorState = ({
   );
 
   const setContent = useCallback((content: string) => {
-    // FASE 3: Simplificar write lock - só usar durante reset
-    if (writeLockRef.current) {
-      console.log('🔒 useEditorState - write locked during reset, ignoring setContent');
-      return;
-    }
+    console.log('📝 useEditorState - setContent (external):', { content: content.slice(0, 50) + '...' });
     
-    console.log('📝 useEditorState - setContent (external):', { content: content.slice(0, 100) + '...' });
-    
-    // Atualizar conteúdo mas não marcar como dirty (conteúdo externo)
+    // Atualizar conteúdo e resetar estado dirty
     contentRef.current = content;
-    // NÃO chamar onContentChange aqui para evitar loops
+    initialHashRef.current = createContentHash(content || '');
+    dirtyRef.current = false;
+    setIsDirty(false);
   }, []);
 
   const handleContentChange = useCallback((content: string) => {
-    // FASE 3: Simplificar write lock check
-    if (writeLockRef.current) {
-      console.log('🔒 useEditorState - ignoring change during reset');
-      return;
-    }
-    
     console.log('🔄 useEditorState - handleContentChange (from editor):', { 
       contentLength: content.length,
       previousLength: contentRef.current.length
     });
     
     // Sempre atualizar ref primeiro
-    const previousContent = contentRef.current;
     contentRef.current = content;
     
-    // Só marcar como dirty se realmente mudou (comparação robusta)
-    if (content !== previousContent) {
-      // Verificar se mudou em relação ao conteúdo inicial usando hash
-      const currentHash = createContentHash(content || '');
-      const reallyChanged = currentHash !== initialHashRef.current;
-      
-      if (reallyChanged !== dirtyRef.current) {
-        dirtyRef.current = reallyChanged;
-        setIsDirty(reallyChanged);
-        console.log(`${reallyChanged ? '✏️' : '✅'} useEditorState - marked as ${reallyChanged ? 'dirty' : 'clean'}`);
-      }
-      
-      // Sempre propagar mudanças para o componente pai
-      onContentChange(content);
+    // Verificar se mudou em relação ao conteúdo inicial usando hash
+    const currentHash = createContentHash(content || '');
+    const reallyChanged = currentHash !== initialHashRef.current;
+    
+    if (reallyChanged !== dirtyRef.current) {
+      dirtyRef.current = reallyChanged;
+      setIsDirty(reallyChanged);
+      console.log(`${reallyChanged ? '✏️' : '✅'} useEditorState - marked as ${reallyChanged ? 'dirty' : 'clean'}`);
     }
+    
+    // Sempre propagar mudanças para o componente pai
+    onContentChange(content);
   }, [onContentChange]);
 
   const markClean = useCallback(() => {
@@ -118,9 +102,6 @@ export const useEditorState = ({
   const resetToInitial = useCallback(() => {
     console.log('🔄 useEditorState - resetting to initial content');
     
-    // FASE 3: Write lock mais curto e direto
-    writeLockRef.current = true;
-    
     const safeInitialContent = initialContent || '';
     contentRef.current = safeInitialContent;
     initialHashRef.current = createContentHash(safeInitialContent);
@@ -130,9 +111,7 @@ export const useEditorState = ({
     // Propagar mudança para componente pai
     onContentChange(safeInitialContent);
     
-    // Release lock imediatamente após operações síncronas
-    writeLockRef.current = false;
-    console.log('🔓 useEditorState - reset completed, lock released');
+    console.log('✅ useEditorState - reset completed');
   }, [initialContent, onContentChange]);
 
   return {

@@ -86,7 +86,9 @@ export default function AdminArticleEdit() {
     return calculateReadingTime(article.content || '');
   }, [article.content]);
 
-  // FASE 3: Auto-save otimizado (45s delay, proteção contra erros, debounce robusto)
+  // Auto-save temporarily disabled to fix editor issues
+  // Will be re-enabled after editor stability is confirmed
+  /*
   useAutoSave({
     data: article,
     onSave: async (data) => {
@@ -103,6 +105,7 @@ export default function AdminArticleEdit() {
     },
     enabled: !!id && !!article.title?.trim()
   });
+  */
 
   // FASE 2: Handler de mudança de input com debounce implícito
   const handleInputChange = (field: keyof Article, value: any) => {
@@ -413,8 +416,8 @@ export default function AdminArticleEdit() {
           Duplicar
         </Button>
         
-        {/* Auto-save indicator */}
-        {id && article.title?.trim() && (
+        {/* Auto-save indicator - temporarily disabled */}
+        {false && id && article.title?.trim() && (
           <div className="flex items-center gap-1 text-xs text-muted-foreground ml-auto">
             <Clock className="w-3 h-3" />
             Auto-save ativo
@@ -482,7 +485,7 @@ export default function AdminArticleEdit() {
         <div 
           className={cn(
             "space-y-6",
-            activeTab !== 'content' && "hidden"
+            activeTab !== 'content' && "opacity-0 pointer-events-none absolute inset-0"
           )}
         >
           <Card>
@@ -606,7 +609,7 @@ export default function AdminArticleEdit() {
         <div 
           className={cn(
             "space-y-6",
-            activeTab !== 'seo' && "hidden"
+            activeTab !== 'seo' && "opacity-0 pointer-events-none absolute inset-0"
           )}
         >
           <div className="space-y-6">

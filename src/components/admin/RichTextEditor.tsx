@@ -36,30 +36,19 @@ export const RichTextEditor = ({
     return typeof value === 'string' ? value : String(value);
   }, [value]);
 
-  // Verificação simples de disponibilidade do editor
-  const isEditorAvailable = useCallback((): boolean => {
-    if (!quillRef.current || !containerRef.current) return false;
-    
-    const container = containerRef.current;
-    
-    // Verificar se está oculto por display: none
-    const computedStyle = window.getComputedStyle(container);
-    if (computedStyle.display === 'none') {
-      console.log('🚫 RichTextEditor - hidden by display:none');
-      return false;
-    }
-    
-    return true;
-  }, []);
-
   // Acesso seguro ao Quill
   const getQuillSafely = useCallback(() => {
-    if (!isEditorAvailable()) {
+    if (!isReady || !isMounted || !quillRef.current || !containerRef.current) {
       console.log('⚠️ RichTextEditor - attempted to access Quill while not available');
       return null;
     }
     return quillRef.current?.getEditor();
-  }, [isEditorAvailable]);
+  }, [isReady, isMounted]);
+
+  // Verificações simplificadas de disponibilidade do editor
+  const isEditorAvailable = useCallback(() => {
+    return !!(quillRef.current && containerRef.current && isReady && isMounted);
+  }, [isReady, isMounted]);
 
   // Verificação de foco
   const isEditorFocused = useCallback((): boolean => {
