@@ -499,10 +499,6 @@ export type Database = {
         Args: { "": string }
         Returns: string
       }
-      unaccent_init: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
     }
     Enums: {
       user_role: "admin" | "editor" | "pending"
