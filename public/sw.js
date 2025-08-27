@@ -1,9 +1,11 @@
 // Service Worker for modoPAG Central de Ajuda
 // Provides offline support and caching for better performance
+// ENHANCED: Cache headers optimization and versioning
 
-const CACHE_NAME = 'modopag-help-v1';
-const STATIC_CACHE = 'modopag-static-v1';
-const DYNAMIC_CACHE = 'modopag-dynamic-v1';
+const CACHE_VERSION = '2025-01-27';
+const CACHE_NAME = `modopag-help-${CACHE_VERSION}`;
+const STATIC_CACHE = `modopag-static-${CACHE_VERSION}`;
+const DYNAMIC_CACHE = `modopag-dynamic-${CACHE_VERSION}`;
 
 // Assets to cache immediately
 const STATIC_ASSETS = [
@@ -17,15 +19,18 @@ const STATIC_ASSETS = [
   '/src/index.css'
 ];
 
-// Cache strategies for different types of requests
+// Cache strategies for different types of requests - OPTIMIZED
 const CACHE_STRATEGIES = {
-  // Static assets: Cache first, network fallback
+  // Static assets with hash: Cache first with immutable headers
+  staticHashed: /\.(js|css|woff2|woff|ttf|eot|svg|png|jpg|jpeg|webp|gif|ico).*\?.*v=|.*\-[a-f0-9]{8,}\..*$/,
+  
+  // Static assets without hash: Cache first, but check for updates
   static: /\.(js|css|woff2|woff|ttf|eot|svg|png|jpg|jpeg|webp|gif|ico)$/,
   
   // API calls: Network first, cache fallback
   api: /\/api\//,
   
-  // HTML pages: Network first, cache fallback
+  // HTML pages: Network first, cache fallback (never stale)
   html: /\.html$|\/$/
 };
 
@@ -117,8 +122,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Route to appropriate cache strategy
-  if (CACHE_STRATEGIES.static.test(url.pathname)) {
+  // Route to appropriate cache strategy - ENHANCED
+  if (CACHE_STRATEGIES.staticHashed.test(url.pathname + url.search)) {
+    // Hashed assets get immutable caching with long expiry
+    event.respondWith(cacheFirstImmutable(request));
+  } else if (CACHE_STRATEGIES.static.test(url.pathname)) {
     event.respondWith(cacheFirst(request));
   } else if (CACHE_STRATEGIES.api.test(url.pathname)) {
     event.respondWith(networkFirst(request));
@@ -128,6 +136,60 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(staleWhileRevalidate(request));
   }
 });
+
+// Cache First Strategy with Immutable Headers (for hashed assets)
+async function cacheFirstImmutable(request) {
+  try {
+    // Try cache first
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+
+    // If not in cache, fetch from network
+    const networkResponse = await fetch(request);
+    
+    // Only cache successful responses
+    if (shouldCacheResponse(networkResponse)) {
+      // Clone BEFORE using the response
+      const responseClone = safeClone(networkResponse, 'cacheFirstImmutable');
+      
+      if (responseClone) {
+        try {
+          // Add immutable cache headers for hashed assets
+          const headers = new Headers(responseClone.headers);
+          headers.set('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year immutable
+          
+          const cachedResponse = new Response(responseClone.body, {
+            status: responseClone.status,
+            statusText: responseClone.statusText,
+            headers: headers
+          });
+          
+          const cache = await caches.open(STATIC_CACHE);
+          await cache.put(request, cachedResponse.clone());
+        } catch (cacheError) {
+          console.warn('[SW] Failed to cache immutable asset:', cacheError);
+        }
+      }
+    }
+    
+    return networkResponse;
+  } catch (error) {
+    console.error('[SW] Cache first immutable failed:', error);
+    
+    // Try to find any cached version as fallback
+    const fallbackResponse = await caches.match(request);
+    if (fallbackResponse) {
+      return fallbackResponse;
+    }
+    
+    return new Response('Offline', { 
+      status: 503,
+      headers: { 'Content-Type': 'text/plain' }
+    });
+  }
+}
 
 // Cache First Strategy (for static assets)
 async function cacheFirst(request) {
