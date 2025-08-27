@@ -14,18 +14,29 @@ export function ArticleFAQSection({ articleId }: ArticleFAQSectionProps) {
 
   useEffect(() => {
     const loadFAQs = async () => {
+      console.log('🔍 ArticleFAQSection - Loading FAQs for article:', articleId);
       try {
         const adapter = await getDataAdapter();
         const data = await adapter.getArticleFAQs(articleId);
+        console.log('📊 ArticleFAQSection - FAQs loaded:', {
+          articleId,
+          faqCount: data?.length || 0,
+          faqs: data
+        });
         setFaqs(data);
       } catch (error) {
-        console.error('Error loading article FAQs:', error);
+        console.error('❌ ArticleFAQSection - Error loading FAQs:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    loadFAQs();
+    if (articleId) {
+      loadFAQs();
+    } else {
+      console.warn('⚠️ ArticleFAQSection - No articleId provided');
+      setLoading(false);
+    }
   }, [articleId]);
 
   const toggleExpanded = (id: string) => {
@@ -45,7 +56,20 @@ export function ArticleFAQSection({ articleId }: ArticleFAQSectionProps) {
     }
   };
 
-  if (loading || faqs.length === 0) {
+  console.log('🎯 ArticleFAQSection - Render state:', {
+    loading,
+    faqsLength: faqs.length,
+    articleId,
+    shouldRender: !loading && faqs.length > 0
+  });
+
+  if (loading) {
+    console.log('⏳ ArticleFAQSection - Still loading FAQs');
+    return null;
+  }
+
+  if (faqs.length === 0) {
+    console.log('📭 ArticleFAQSection - No FAQs found, not rendering section');
     return null;
   }
 
