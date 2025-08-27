@@ -32,11 +32,6 @@ const menuItems = [
     icon: LayoutDashboard,
   },
   {
-    title: "Usuários",
-    url: "/admin/users",
-    icon: Users,
-  },
-  {
     title: "Artigos",
     url: "/admin/articles",
     icon: FileText,
@@ -75,6 +70,11 @@ const menuItems = [
     title: "Performance",
     url: "/admin/monitoring",
     icon: Activity,
+  },
+  {
+    title: "Usuários",
+    url: "/admin/users",
+    icon: Users,
   },
   {
     title: "Configurações",
