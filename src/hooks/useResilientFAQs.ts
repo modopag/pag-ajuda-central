@@ -45,7 +45,7 @@ export function useResilientFAQs() {
   const result = useResilientData({
     fetcher,
     fallbackData: FALLBACK_FAQS,
-    timeout: 4000,
+    timeout: 8000, // Increased timeout to reduce false offline detection
     retryAttempts: 1,
   });
 

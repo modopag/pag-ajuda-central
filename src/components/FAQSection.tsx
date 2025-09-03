@@ -86,19 +86,19 @@ const FAQSection = () => {
           </p>
         </div>
 
-        {/* Status indicator for stale/offline data */}
-        {(isStale || isOffline || error) && (
+        {/* Status indicator for stale/offline data - only show meaningful messages */}
+        {(isStale || isOffline || (error && !loading)) && (
           <div className="flex items-center justify-center gap-2 p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground max-w-4xl mx-auto mb-6">
             {isOffline && <Wifi className="w-4 h-4" />}
             {isOffline ? (
-              "Mostrando dados salvos (offline)"
+              "Perguntas disponíveis offline"
             ) : isStale ? (
-              "Dados podem estar desatualizados"
+              "Conteúdo atualizando em segundo plano"
             ) : error ? (
               <span className="flex items-center gap-2">
-                Erro ao atualizar dados
+                Problema na conexão - conteúdo pode estar desatualizado
                 <Button onClick={retry} variant="ghost" size="sm" className="h-6 px-2 text-xs">
-                  Tentar novamente
+                  Atualizar
                 </Button>
               </span>
             ) : null}

@@ -26,31 +26,60 @@ interface ResilientDataResult<T> {
 export function useResilientData<T>({
   fetcher,
   fallbackData = null,
-  timeout = 3000, // Reduced from 5000ms for better UX
-  retryAttempts = 1, // Reduced from 2 for faster fails 
-  retryDelay = 500, // Reduced from 1000ms for faster retries
+  timeout = 3000,
+  retryAttempts = 1,
+  retryDelay = 500,
   enableOfflineMode = true
 }: ResilientDataOptions<T>): ResilientDataResult<T> {
   const [data, setData] = useState<T | null>(fallbackData);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isStale, setIsStale] = useState(false);
-  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [isOffline, setIsOffline] = useState(false);
+  const [showOfflineIndicator, setShowOfflineIndicator] = useState(false);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
 
-  // Monitor online/offline status
+  // Network status detection with debounce
   useEffect(() => {
     if (!enableOfflineMode) return;
 
-    const handleOnline = () => setIsOffline(false);
-    const handleOffline = () => setIsOffline(true);
+    let offlineTimeout: NodeJS.Timeout;
+    let indicatorTimeout: NodeJS.Timeout;
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    const updateOnlineStatus = () => {
+      const currentlyOffline = !navigator.onLine;
+      
+      // Clear any pending timeouts
+      clearTimeout(offlineTimeout);
+      clearTimeout(indicatorTimeout);
+      
+      if (currentlyOffline) {
+        // Set offline immediately but wait 3 seconds before marking as offline
+        offlineTimeout = setTimeout(() => {
+          setIsOffline(true);
+          // Wait 5 seconds before showing the indicator
+          indicatorTimeout = setTimeout(() => {
+            setShowOfflineIndicator(true);
+          }, 5000);
+        }, 3000);
+      } else {
+        // Back online - reset everything immediately
+        setIsOffline(false);
+        setShowOfflineIndicator(false);
+      }
+    };
+
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    
+    // Initial check
+    updateOnlineStatus();
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      clearTimeout(offlineTimeout);
+      clearTimeout(indicatorTimeout);
+      window.removeEventListener('online', updateOnlineStatus);
+      window.removeEventListener('offline', updateOnlineStatus);
     };
   }, [enableOfflineMode]);
 
@@ -177,6 +206,6 @@ export function useResilientData<T>({
     error,
     retry,
     isStale,
-    isOffline
+    isOffline: showOfflineIndicator // Only show indicator after delay
   };
 }
