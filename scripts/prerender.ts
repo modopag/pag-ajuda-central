@@ -80,10 +80,40 @@ async function renderRoute(route: Route): Promise<string> {
   return html;
 }
 
+async function extractViteAssets(): Promise<{ cssLinks: string[], jsScripts: string[] }> {
+  const distIndexPath = path.resolve(__dirname, '../dist/index.html');
+  
+  try {
+    const indexContent = await fs.readFile(distIndexPath, 'utf-8');
+    
+    // Extract CSS links
+    const cssRegex = /<link[^>]+rel="stylesheet"[^>]*>/g;
+    const cssLinks = indexContent.match(cssRegex) || [];
+    
+    // Extract JS scripts (module scripts only)
+    const jsRegex = /<script[^>]+type="module"[^>]*><\/script>/g;
+    const jsScripts = indexContent.match(jsRegex) || [];
+    
+    console.log(`📦 Extracted ${cssLinks.length} CSS links and ${jsScripts.length} JS scripts from Vite build`);
+    
+    return { cssLinks, jsScripts };
+  } catch (error) {
+    console.warn('⚠️  Could not extract Vite assets, using defaults:', error.message);
+    return { 
+      cssLinks: [], 
+      jsScripts: ['<script type="module" src="/src/main.tsx"></script>'] 
+    };
+  }
+}
+
 async function generateStaticPages() {
   console.log('🚀 Starting static site generation...');
   
   try {
+    // Extract Vite assets first
+    console.log('📦 Extracting Vite assets...');
+    const viteAssets = await extractViteAssets();
+    
     // Fetch all data needed for build
     console.log('📊 Fetching build data...');
     const buildData = await fetchBuildData();
@@ -158,7 +188,7 @@ async function generateStaticPages() {
             console.log(`  Rendering: ${route.path}`);
             
             const html = await renderRoute(route);
-            const fullHTML = generateHTMLTemplate(html, route);
+            const fullHTML = generateHTMLTemplate(html, route, viteAssets);
             
             // Create directory structure
             const routePath = route.path === '/' ? '/index' : route.path;

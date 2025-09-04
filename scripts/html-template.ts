@@ -18,6 +18,11 @@ interface SEOData {
   noindex?: boolean;
 }
 
+interface ViteAssets {
+  cssLinks: string[];
+  jsScripts: string[];
+}
+
 const SITE_URL = 'https://ajuda.modopag.com.br';
 const DEFAULT_DESCRIPTION = 'Central de Ajuda modoPAG - Encontre respostas para suas dúvidas sobre pagamentos digitais, cartões e soluções financeiras.';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.jpg`;
@@ -108,7 +113,7 @@ function generateSEOData(route: Route): SEOData {
   }
 }
 
-export function generateHTMLTemplate(reactHTML: string, route: Route): string {
+export function generateHTMLTemplate(reactHTML: string, route: Route, assets: ViteAssets = { cssLinks: [], jsScripts: [] }): string {
   const seo = generateSEOData(route);
   
   const jsonLdScript = seo.jsonLd 
@@ -164,11 +169,14 @@ export function generateHTMLTemplate(reactHTML: string, route: Route): string {
   
   ${jsonLdScript}
   
-  <!-- Critical CSS will be injected by Vite -->
+  <!-- Vite CSS Assets -->
+  ${assets.cssLinks.join('\n  ')}
 </head>
 <body>
   <div id="root">${reactHTML}</div>
-  <script type="module" src="/src/main.tsx"></script>
+  
+  <!-- Vite JS Assets -->
+  ${assets.jsScripts.join('\n  ')}
 </body>
 </html>`;
 }
