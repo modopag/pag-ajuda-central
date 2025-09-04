@@ -8,7 +8,7 @@ import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom/server';
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { HelmetProvider } from 'react-helmet-async';
+// import { HelmetProvider } from 'react-helmet-async';
 import { fetchBuildData } from './data-fetcher.ts';
 import { generateHTMLTemplate } from './html-template.ts';
 import App from '../src/App.tsx';
@@ -60,11 +60,11 @@ async function renderRoute(route: Route): Promise<string> {
     }
   }
 
-  const helmetContext = {};
+  // const helmetContext = {};
 
   const app = React.createElement(
-    HelmetProvider,
-    { context: helmetContext },
+    React.Fragment,
+    null,
     React.createElement(
       QueryClientProvider,
       { client: queryClient },
