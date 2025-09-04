@@ -2,7 +2,7 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom/server';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { HelmetProvider } from 'react-helmet-async';
+// import { HelmetProvider } from 'react-helmet-async';
 import App from '../App';
 
 export interface SSRContext {
@@ -21,16 +21,16 @@ export function renderAppToString(context: SSRContext): string {
     },
   });
 
-  const helmetContext = {};
+  // const helmetContext = {};
 
   const app = (
-    <HelmetProvider context={helmetContext}>
+    // <HelmetProvider context={helmetContext}>
       <QueryClientProvider client={queryClient}>
         <StaticRouter location={context.path}>
           <App ssrData={context.data} />
         </StaticRouter>
       </QueryClientProvider>
-    </HelmetProvider>
+    // </HelmetProvider>
   );
 
   return renderToString(app);
