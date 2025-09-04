@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SearchBar from "@/components/SearchBar";
-import { SEOHelmet } from "@/components/SEO/SEOHelmet";
+// import { SEOHelmet } from "@/components/SEO/SEOHelmet";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Home, Archive } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -22,11 +22,11 @@ const Gone = () => {
 
   return (
     <>
-      <SEOHelmet
+      {/* <SEOHelmet
         title="Conteúdo removido | modoPAG - Central de Ajuda"
         description="Este conteúdo foi removido permanentemente. Use nossa busca para encontrar informações atualizadas ou entre em contato conosco."
         noindex={true}
-      />
+      /> */}
       
       <div className="min-h-screen bg-background">
         <Header />

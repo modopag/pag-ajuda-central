@@ -6,7 +6,7 @@ import Footer from '@/components/Footer';
 import ArticleFeedback from '@/components/ArticleFeedback';
 import { ArticleFAQSection } from '@/components/ArticleFAQSection';
 import RelatedArticles from '@/components/RelatedArticles';
-import { SEOHelmet } from '@/components/SEO/SEOHelmet';
+// import { SEOHelmet } from '@/components/SEO/SEOHelmet';
 import { generateArticleJsonLd, generateBreadcrumbJsonLd, generateFAQJsonLd } from '@/utils/jsonLd';
 import { getDataAdapter } from '@/lib/data-adapter';
 import type { Article as ArticleType, Category } from '@/types/admin';
@@ -78,10 +78,10 @@ const Article = () => {
   if (isLoading) {
     return (
       <>
-        <SEOHelmet 
+        {/* <SEOHelmet 
           title="Carregando... | modoPAG - Central de Ajuda"
           description="Carregando artigo da Central de Ajuda modoPAG"
-        />
+        /> */}
         <div className="min-h-screen bg-background">
           <Header />
           <main className="container mx-auto px-4 py-8">
@@ -107,11 +107,11 @@ const Article = () => {
   if (!article) {
     return (
       <>
-        <SEOHelmet 
+        {/* <SEOHelmet 
           title="Artigo não encontrado | modoPAG - Central de Ajuda"
           description="O artigo solicitado não foi encontrado na Central de Ajuda modoPAG"
           noindex={true}
-        />
+        /> */}
         <div className="min-h-screen bg-background">
           <Header />
           <main className="container mx-auto px-4 py-8">
@@ -136,7 +136,7 @@ const Article = () => {
 
   return (
     <>
-      <SEOHelmet
+      {/* <SEOHelmet
         title={`${article.meta_title || article.title} | modoPAG - Central de Ajuda`}
         description={article.meta_description}
         canonicalUrl={article.canonical_url || `https://ajuda.modopag.com.br/article/${article.slug}`}
@@ -146,7 +146,7 @@ const Article = () => {
         ogType="article"
         noindex={article.noindex}
         jsonLd={combinedJsonLd}
-      />
+      /> */}
       
       <div className="min-h-screen bg-background">
         <Header />

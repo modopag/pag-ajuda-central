@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SearchBar from "@/components/SearchBar";
 import CategoryGrid from "@/components/CategoryGrid";
-import { SEOHelmet } from "@/components/SEO/SEOHelmet";
+// import { SEOHelmet } from "@/components/SEO/SEOHelmet";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Home, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -31,11 +31,11 @@ const NotFound = () => {
 
   return (
     <>
-      <SEOHelmet
+      {/* <SEOHelmet
         title="Página não encontrada | modoPAG - Central de Ajuda"
         description="A página que você procura não foi encontrada. Use nossa busca ou navegue pelas categorias para encontrar o que precisa."
         noindex={true}
-      />
+      /> */}
       
       <div className="min-h-screen bg-background">
         <Header />

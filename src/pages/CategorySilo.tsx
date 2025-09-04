@@ -4,7 +4,7 @@ import NotFound from './NotFound';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { SkipLink } from '@/components/SkipLink';
-import { SEOHelmet } from '@/components/SEO/SEOHelmet';
+// import { SEOHelmet } from '@/components/SEO/SEOHelmet';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -164,14 +164,14 @@ export default function CategorySilo({ ssrData }: CategorySiloProps) {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background/80 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
       
-      <SEOHelmet
+      {/* <SEOHelmet
         title={seoTitle}
         description={seoDescription}
         canonicalUrl={canonicalUrl}
         jsonLd={jsonLd}
         ogTitle={seoTitle}
         ogDescription={seoDescription}
-      />
+      /> */}
 
       <Header />
       <SkipLink />

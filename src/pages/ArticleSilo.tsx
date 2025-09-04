@@ -5,7 +5,7 @@ import NotFound from './NotFound';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { SkipLink } from '@/components/SkipLink';
-import { SEOHelmet } from '@/components/SEO/SEOHelmet';
+// import { SEOHelmet } from '@/components/SEO/SEOHelmet';
 import ArticleFeedback from '@/components/ArticleFeedback';
 import { SmartRelatedArticles } from '@/components/SmartRelatedArticles';
 import { TableOfContents } from '@/components/TableOfContents';
@@ -283,7 +283,7 @@ export default function ArticleSilo({ ssrData }: ArticleSiloProps) {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background/80 relative">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
       
-      <SEOHelmet
+      {/* <SEOHelmet
         title={seoTitle}
         description={seoDescription}
         canonicalUrl={canonicalUrl}
@@ -294,7 +294,7 @@ export default function ArticleSilo({ ssrData }: ArticleSiloProps) {
         ogImageWidth={seoImageData.width}
         ogImageHeight={seoImageData.height}
         ogType="article"
-      />
+      /> */}
 
       <Header />
       <SkipLink />

@@ -3,7 +3,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SearchBar from "@/components/SearchBar";
-import { SEOHelmet } from "@/components/SEO/SEOHelmet";
+// import { SEOHelmet } from "@/components/SEO/SEOHelmet";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -81,7 +81,7 @@ const Search = () => {
 
   return (
     <>
-      <SEOHelmet
+      {/* <SEOHelmet
         title={`${pageTitle} | modoPAG - Central de Ajuda`}
         description={query 
           ? `Resultados da busca por "${query}" na Central de Ajuda modoPAG. Encontre respostas sobre maquininhas, pagamentos e mais.`
@@ -93,7 +93,7 @@ const Search = () => {
           ? `Encontre respostas para "${query}" na Central de Ajuda modoPAG`
           : "Busque respostas na Central de Ajuda modoPAG"
         }
-      />
+      /> */}
       
       <div className="min-h-screen bg-background">
         <Header />

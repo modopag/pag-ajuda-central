@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { SEOHelmet } from '@/components/SEO/SEOHelmet';
+// import { SEOHelmet } from '@/components/SEO/SEOHelmet';
 import { generateCategoryJsonLd, generateFAQJsonLd } from '@/utils/jsonLd';
 import { getDataAdapter } from '@/lib/data-adapter';
 import { useSearchWithFilters } from '@/hooks/useSearchWithFilters';
@@ -128,10 +128,10 @@ export default function Category() {
   if (isLoadingCategory) {
     return (
       <>
-        <SEOHelmet 
+        {/* <SEOHelmet 
           title="Carregando... | modoPAG - Central de Ajuda"
           description="Carregando categoria da Central de Ajuda modoPAG"
-        />
+        /> */}
         <div className="min-h-screen bg-background">
           <Header />
           <main className="container mx-auto px-4 py-8">
@@ -162,11 +162,11 @@ export default function Category() {
   if (!category) {
     return (
       <>
-        <SEOHelmet 
+        {/* <SEOHelmet 
           title="Categoria não encontrada | modoPAG - Central de Ajuda"
           description="A categoria solicitada não foi encontrada na Central de Ajuda modoPAG"
           noindex={true}
-        />
+        /> */}
         <div className="min-h-screen bg-background">
           <Header />
           <main className="container mx-auto px-4 py-8">
@@ -214,12 +214,12 @@ export default function Category() {
 
   return (
     <>
-      <SEOHelmet
+      {/* <SEOHelmet
         title={`${category.name} | modoPAG - Central de Ajuda`}
         description={category.description}
         canonicalUrl={`https://ajuda.modopag.com.br/category/${category.slug}`}
         jsonLd={jsonLd}
-      />
+      /> */}
       
       <div className="min-h-screen bg-background">
         <Header />
