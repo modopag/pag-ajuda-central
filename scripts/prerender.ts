@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom/server';
-import React from 'react';
+import * as React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 // import { HelmetProvider } from 'react-helmet-async';
 import { fetchBuildData } from './data-fetcher.ts';
@@ -81,20 +81,35 @@ async function renderRoute(route: Route): Promise<string> {
 }
 
 async function extractViteAssets(): Promise<{ cssLinks: string[], jsScripts: string[] }> {
-  const distIndexPath = path.resolve(__dirname, '../dist/index.html');
+  const distIndexPath = path.resolve(process.cwd(), 'dist/index.html');
   
   try {
+    console.log(`🔍 Looking for Vite assets in: ${distIndexPath}`);
     const indexContent = await fs.readFile(distIndexPath, 'utf-8');
     
-    // Extract CSS links
-    const cssRegex = /<link[^>]+rel="stylesheet"[^>]*>/g;
+    console.log(`📄 Index.html content length: ${indexContent.length} characters`);
+    
+    // Extract CSS links - improved regex to match Vite-generated CSS
+    const cssRegex = /<link[^>]*rel="stylesheet"[^>]*href="[^"]*\.css[^"]*"[^>]*>/g;
     const cssLinks = indexContent.match(cssRegex) || [];
     
-    // Extract JS scripts (module scripts only)
-    const jsRegex = /<script[^>]+type="module"[^>]*><\/script>/g;
+    // Extract JS scripts - improved regex to match Vite-generated JS modules
+    const jsRegex = /<script[^>]*type="module"[^>]*src="[^"]*\.js[^"]*"[^>]*><\/script>/g;
     const jsScripts = indexContent.match(jsRegex) || [];
     
     console.log(`📦 Extracted ${cssLinks.length} CSS links and ${jsScripts.length} JS scripts from Vite build`);
+    
+    if (cssLinks.length > 0) {
+      console.log('🎨 CSS Links found:', cssLinks);
+    } else {
+      console.log('⚠️  No CSS links found, checking for any stylesheet links...');
+      const anyStylesheet = indexContent.match(/<link[^>]*stylesheet[^>]*>/g);
+      console.log('Any stylesheet tags:', anyStylesheet);
+    }
+    
+    if (jsScripts.length > 0) {
+      console.log('📜 JS Scripts found:', jsScripts.slice(0, 2)); // Show first 2 for brevity
+    }
     
     return { cssLinks, jsScripts };
   } catch (error) {
