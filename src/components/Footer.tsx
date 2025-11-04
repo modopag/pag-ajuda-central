@@ -61,6 +61,7 @@ const Footer = () => {
             <h3 className="font-semibold text-white mb-4">Suporte</h3>
             <ul className="space-y-2 text-sm">
               <li><Link to="/" className="text-gray-300 hover:text-modopag-yellow transition-colors">Central de Ajuda</Link></li>
+              <li><Link to="/boas-praticas" className="text-gray-300 hover:text-modopag-yellow transition-colors">Boas Práticas</Link></li>
               <li><a href="mailto:contato@modopag.com.br" className="text-gray-300 hover:text-modopag-yellow transition-colors">Fale Conosco</a></li>
               <li><CookieManageButton /></li>
             </ul>

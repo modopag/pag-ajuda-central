@@ -28,6 +28,7 @@ const RedirectToExternalPrivacy = lazy(() => import("./components/RedirectToExte
 const CategorySilo = lazy(() => import("./pages/CategorySilo"));
 const ArticleSilo = lazy(() => import("./pages/ArticleSilo"));
 const Search = lazy(() => import("./pages/Search"));
+const BestPractices = lazy(() => import("./pages/BestPractices"));
 const Sitemap = lazy(() => import("./pages/Sitemap"));
 const RobotsTxt = lazy(() => import("./pages/RobotsTxt"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -97,6 +98,7 @@ const AppContent = ({ ssrData }: { ssrData?: any }) => {
           {/* Reserved routes - highest priority */}
           <Route path="/" element={<Index ssrData={ssrData?.home} />} />
           <Route path="/buscar" element={<Search />} />
+          <Route path="/boas-praticas" element={<BestPractices />} />
           <Route path="/sitemap.xml" element={<Sitemap />} />
           <Route path="/robots.txt" element={<RobotsTxt />} />
           <Route path="/politicas-de-privacidade" element={<RedirectToExternalPrivacy />} />
