@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-// import { HelmetProvider } from 'react-helmet-async';
+import { HelmetProvider } from 'react-helmet-async';
 import { CookieBanner } from '@/components/CookieBanner';
 import { CookiePreferencesModal } from '@/components/CookiePreferencesModal';
 import { GoogleAnalytics } from '@/components/GoogleAnalytics';
@@ -147,7 +147,7 @@ const AppContent = ({ ssrData }: { ssrData?: any }) => {
 
 const App = ({ ssrData }: AppProps = {}) => (
   <QueryClientProvider client={queryClient}>
-    {/* <HelmetProvider> */}
+    <HelmetProvider>
       <AuthProvider>
         <TooltipProvider>
           <ErrorBoundary>
@@ -162,7 +162,7 @@ const App = ({ ssrData }: AppProps = {}) => (
           </ErrorBoundary>
         </TooltipProvider>
       </AuthProvider>
-    {/* </HelmetProvider> */}
+    </HelmetProvider>
   </QueryClientProvider>
 );
 
