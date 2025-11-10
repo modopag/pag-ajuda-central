@@ -78,8 +78,9 @@ export default function BestPractices() {
               </h2>
               <ul className="space-y-2 text-muted-foreground ml-7">
                 <li>• Se você costuma vender R$ 2.000 por mês, <strong>não realize de repente uma venda de R$ 20.000</strong> sem justificativa.</li>
-                <li>• Para grandes vendas, prefira <strong>dividir em parcelas</strong> ou <strong>enviar nota fiscal e comprovantes de entrega</strong>.</li>
+                <li>• Para grandes vendas, prefira <strong>dividir em parcelas</strong>.</li>
                 <li>• Movimentações muito acima do histórico normal podem <strong>gerar bloqueio automático por segurança</strong>.</li>
+                <li>• <strong>Em caso de bloqueio</strong>, será necessário enviar nota fiscal e comprovantes para comprovar que aconteceu uma compra real.</li>
               </ul>
             </div>
 
